@@ -21,6 +21,14 @@
 })((function(global, undefined) {
   var PropertyUtils = {};
   PropertyUtils.internalObjectKey = 'PropertyUtils::internalObjectKey';
+  function InternalObject() {
+    var self = this;
+    Object.defineProperty(self,'raw',{
+      value : {},
+      writable : false
+    });
+  }
+
   /**
    *
    * @param object {Object}
@@ -57,10 +65,10 @@
   PropertyUtils.getRaw = function getRaw(object,key) {
     var internalObjectKey = PropertyUtils.internalObjectKey;
     if (!object[internalObjectKey]) {
-      object[internalObjectKey] = {};
+      object[internalObjectKey] = new InternalObject();
     }
-    var internalObject = object[internalObjectKey];
-    return internalObject[key];
+    var raw = object[internalObjectKey].raw;
+    return raw[key];
   };
   /**
    *
@@ -71,10 +79,10 @@
   PropertyUtils.setRaw = function setRaw(object,key,val) {
     var internalObjectKey = PropertyUtils.internalObjectKey;
     if (!object[internalObjectKey]) {
-      object[internalObjectKey] = {};
+      object[internalObjectKey] = new InternalObject();
     }
-    var internalObject = object[internalObjectKey];
-    internalObject[key] = val;
+    var raw = object[internalObjectKey].raw;
+    raw[key] = val;
   };
   /**
    *
