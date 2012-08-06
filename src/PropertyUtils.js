@@ -27,6 +27,10 @@
       value : {},
       writable : false
     });
+    Object.defineProperty(self,'callbacks',{
+      value : {},
+      writable : false
+    });
   }
 
   /**
@@ -136,5 +140,70 @@
       }
     });
   };
+
+  // PropertyUtils.Events 's implementation is cloned from backbone.js and modified.
+  // https://github.com/documentcloud/backbone
+  PropertyUtils.Events = {};
+  (function (Events) {
+    function getCallbacks(object) {
+      var internalObjectKey = PropertyUtils.internalObjectKey;
+      if (!object[internalObjectKey]) {
+        object[internalObjectKey] = new InternalObject();
+      }
+      return object[internalObjectKey].callbacks;
+    }
+    // Regular expression used to split event strings
+    var eventSplitter = /\s+/;
+    // Bind one or more space separated events, `events`, to a `callback`
+    Events.on = function on(object, events, callback, context) {
+      var calls, event, list;
+      if (!callback) {
+        throw new Error('callback is necessary in PropertyUtils.Events.on');
+      }
+
+      events = events.split(eventSplitter);
+      calls = getCallbacks(object);
+
+      while (event = events.shift()) {
+        list = calls[event] || (calls[event] = []);
+        list.push(callback.bind(context || object));
+      }
+    };
+    // Trigger one or many events, firing all bound callbacks. Callbacks are
+    // passed the same arguments as `trigger` is, apart from the event name.
+    Events.trigger = function trigger(object, events) {
+      var event, calls, list, i, length, args, all, rest;
+      calls = getCallbacks(object);
+      // no callbacks
+      if (Object.keys(calls).length == 0) {
+        return;
+      }
+
+      events = events.split(eventSplitter);
+
+      rest = [];
+      // Fill up `rest` with the callback arguments. Since we're only copying
+      // the tail of `arguments`, a loop is much faster than Array#slice.
+      for (i = 2, length = arguments.length; i < length; i++) {
+        rest[i - 2] = arguments[i];
+      }
+
+      // For each event, walk through the list of callbacks twice, first to
+      // trigger the event, then to trigger any `"all"` callbacks.
+      while (event = events.shift()) {
+        // Copy callback lists to prevent modification.
+        if (list = calls[event]){
+          list = list.slice()
+        }
+
+        // Execute event callbacks.
+        if (list) {
+          for (i = 0, length = list.length; i < length; i++) {
+            list[i].apply(null, rest);
+          }
+        }
+      }
+    };
+  })(PropertyUtils.Events);
   return PropertyUtils;
 })(this),'PropertyUtils',this);
