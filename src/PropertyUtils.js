@@ -205,5 +205,32 @@
       }
     };
   })(PropertyUtils.Events);
+  /**
+   *
+   * @param {Object} object
+   * @param {String} key
+   * @param {Object} hooks
+   */
+  PropertyUtils.defineObservableProperty = function defineObservableProperty(object,key,hooks) {
+    var wrappedHooks = {};
+    Object.keys(hooks).forEach(function(key){
+      wrappedHooks[key] = hooks[key];
+    });
+    /**
+     *
+     * @type {Function}
+     */
+    var afterSet = hooks.afterSet;
+    wrappedHooks.afterSet = function (val,previousVal) {
+      var self = this;
+      if (afterSet) {
+        afterSet.call(self,val,previousVal);
+      }
+      if (previousVal != val) {
+        PropertyUtils.Events.trigger(self,('change:' + key),val,previousVal);
+      }
+    };
+    PropertyUtils.defineHookableProperty(object,key,wrappedHooks);
+  };
   return PropertyUtils;
 })(this),'PropertyUtils',this);
