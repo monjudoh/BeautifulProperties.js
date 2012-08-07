@@ -166,7 +166,43 @@
 
       while (event = events.shift()) {
         list = calls[event] || (calls[event] = []);
-        list.push(callback.bind(context || object));
+        var boundCallback = callback.bind(context || object);
+        boundCallback.originalCallback = callback;
+        list.push(boundCallback);
+      }
+    };
+
+    // Remove one or many callbacks. If `context` is null, removes all callbacks
+    // with that function. If `callback` is null, removes all callbacks for the
+    // event. If `events` is null, removes all bound callbacks for all events.
+    Events.off = function off(object, events, callback, context) {
+      var event, calls, list, i;
+
+      // No events, or removing *all* events.
+      if (!(calls = getCallbacks(object))){
+        return;
+      }
+      if (!(events || callback || context)) {
+        Object.keys(calls).forEach(function(event){
+          delete calls[event];
+        });
+        return;
+      }
+
+      events = events ? events.split(eventSplitter) : Object.keys(calls);
+
+      // Loop through the callback list, splicing where appropriate.
+      while (event = events.shift()) {
+        if (!(list = calls[event]) || !(callback || context)) {
+          delete calls[event];
+          continue;
+        }
+
+        for (i = list.length - 1; i >= 0; i--) {
+          if (callback && list[i].originalCallback === callback) {
+            list.splice(i, 1);
+          }
+        }
       }
     };
     // Trigger one or many events, firing all bound callbacks. Callbacks are
