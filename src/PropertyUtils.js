@@ -241,6 +241,25 @@
       }
     };
   })(PropertyUtils.Events);
+
+  (function (Events) {
+    /**
+     * 
+     * @param object
+     */
+    Events.provideMethods = function provideMethods(object) {
+      ['on','off','trigger'].forEach(function(methodName){
+        // defined
+        if (object[methodName]) {
+          return;
+        }
+        PropertyUtils.defineDefaultValueProperty(object,methodName,function(){
+          var self = this;
+          return Events[methodName].bind(Events,self);
+        });
+      });
+    };
+  })(PropertyUtils.Events);
   /**
    *
    * @param {Object} object
