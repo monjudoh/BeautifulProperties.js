@@ -34,6 +34,13 @@ describe("PropertyUtils", function() {
     })
   });
   describe("PropertyUtils.defineHookableProperty", function() {
+    var beforeGet,afterGet,beforeSet,afterSet;
+    beforeEach(function(){
+      beforeGet = jasmine.createSpy('beforeGet');
+      afterGet = jasmine.createSpy('afterGet');
+      beforeSet = jasmine.createSpy('beforeSet');
+      afterSet = jasmine.createSpy('afterSet');
+    });
     it("define property",function(){
       var object = Object.create(null);
       expect('key' in object).toBe(false);
@@ -41,13 +48,9 @@ describe("PropertyUtils", function() {
       expect('key' in object).toBe(true);
     });
     describe("hooks have been or don't to have been called",function(){
-      var object,beforeGet,afterGet,beforeSet,afterSet;
+      var object;
       beforeEach(function(){
         object = Object.create(null);
-        beforeGet = jasmine.createSpy('beforeGet');
-        afterGet = jasmine.createSpy('afterGet');
-        beforeSet = jasmine.createSpy('beforeSet');
-        afterSet = jasmine.createSpy('afterSet');
         PropertyUtils.defineHookableProperty(object,'key',{
           beforeGet : beforeGet,
           afterGet : afterGet,
@@ -126,6 +129,64 @@ describe("PropertyUtils", function() {
           expect(PropertyUtils.getRaw(self,'key')).toBe(1);
         })
       });
-    })
+    });
+    describe("afterGet could replace get value",function(){
+      var object,originalValue,replacedValue;
+      beforeEach(function(){
+        object = Object.create(null);
+        var hooks = Object.create(null);
+        hooks.beforeGet = beforeGet;
+        hooks.afterGet = function (val){
+          afterGet(val);
+          return replacedValue;
+        };
+        originalValue = 1;
+        replacedValue = 2;
+        PropertyUtils.defineHookableProperty(object,'key',hooks);
+        PropertyUtils.setRaw(object,'key',originalValue);
+      });
+      describe("hooks",function(){
+        beforeEach(function(){
+          object['key'];
+        });
+        it("beforeGet to have been called with no arguments",function(){
+          expect(beforeGet).toHaveBeenCalledWith();
+        });
+        it("afterGet to have been called with originalValue",function(){
+          expect(afterGet).toHaveBeenCalledWith(originalValue);
+        });
+      });
+      it("value should be replaced",function(){
+        expect(object['key']).toBe(replacedValue);
+      });
+    });
+    describe("beforeSet could replace set value",function(){
+      var object,originalValue,replacedValue,previousValue;
+      beforeEach(function(){
+        object = Object.create(null);
+        var hooks = Object.create(null);
+        hooks.beforeSet = function (val,previousVal){
+          beforeSet(val,previousVal);
+          return replacedValue;
+        };
+        hooks.afterSet = afterSet;
+        previousValue = 0;
+        originalValue = 1;
+        replacedValue = 2;
+        PropertyUtils.defineHookableProperty(object,'key',hooks);
+        PropertyUtils.setRaw(object,'key',previousValue);
+      });
+      describe("hooks",function(){
+        beforeEach(function(){
+          object['key'] = originalValue;
+        });
+        it("beforeSet to have been called with no originalValue,previousValue",function(){
+          expect(beforeSet).toHaveBeenCalledWith(originalValue,previousValue);
+        });
+        it("afterSet to have been called with replacedValue,previousValue",function(){
+          expect(afterSet).toHaveBeenCalledWith(replacedValue,previousValue);
+        });
+      });
+    });
   });
 });
