@@ -175,14 +175,14 @@
     // Remove one or many callbacks. If `context` is null, removes all callbacks
     // with that function. If `callback` is null, removes all callbacks for the
     // event. If `events` is null, removes all bound callbacks for all events.
-    Events.off = function off(object, events, callback, context) {
+    Events.off = function off(object, events, callback) {
       var event, calls, list, i;
 
       // No events, or removing *all* events.
       if (!(calls = getCallbacks(object))){
         return;
       }
-      if (!(events || callback || context)) {
+      if (!(events || callback)) {
         Object.keys(calls).forEach(function(event){
           delete calls[event];
         });
@@ -193,7 +193,7 @@
 
       // Loop through the callback list, splicing where appropriate.
       while (event = events.shift()) {
-        if (!(list = calls[event]) || !(callback || context)) {
+        if (!(list = calls[event]) || !callback) {
           delete calls[event];
           continue;
         }
