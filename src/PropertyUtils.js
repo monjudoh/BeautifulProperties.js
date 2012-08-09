@@ -94,7 +94,7 @@
    * @param {String} key
    * @param {Object} hooks
    */
-  PropertyUtils.defineHookableProperty = function defineHookableProperty(object,key,hooks) {
+  PropertyUtils.defineHookableProperty = function defineHookableProperty(object,key,hooks,defaultVal) {
     /**
      *
      * @type {Function}
@@ -122,6 +122,9 @@
           beforeGet.call(self);
         }
         var val = PropertyUtils.getRaw(self,key);
+        if (defaultVal && val === undefined) {
+          val = defaultVal;
+        }
         if (afterGet) {
           val = afterGet.call(self,val);
         }
@@ -130,6 +133,9 @@
       set : function (val) {
         var self = this;
         var previousVal = PropertyUtils.getRaw(self,key);
+        if (defaultVal && previousVal === undefined) {
+          previousVal = defaultVal;
+        }
         if (beforeSet) {
           val = beforeSet.call(self,val,previousVal);
         }
@@ -244,7 +250,7 @@
 
   (function (Events) {
     /**
-     * 
+     *
      * @param object
      */
     Events.provideMethods = function provideMethods(object) {
@@ -266,8 +272,11 @@
    * @param {String} key
    * @param {Object} hooks
    */
-  PropertyUtils.defineObservableProperty = function defineObservableProperty(object,key,hooks) {
+  PropertyUtils.defineObservableProperty = function defineObservableProperty(object,key,hooks,defaultVal) {
     var wrappedHooks = {};
+    if (!hooks) {
+      hooks = Object.create(null);
+    }
     Object.keys(hooks).forEach(function(key){
       wrappedHooks[key] = hooks[key];
     });
@@ -285,7 +294,7 @@
         PropertyUtils.Events.trigger(self,('change:' + key),val,previousVal);
       }
     };
-    PropertyUtils.defineHookableProperty(object,key,wrappedHooks);
+    PropertyUtils.defineHookableProperty(object,key,wrappedHooks,defaultVal);
   };
   return PropertyUtils;
 })(this),'PropertyUtils',this);
