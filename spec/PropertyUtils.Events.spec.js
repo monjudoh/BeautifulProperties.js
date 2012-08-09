@@ -1,0 +1,2 @@
+describe("PropertyUtils.Events", function() {
+});
