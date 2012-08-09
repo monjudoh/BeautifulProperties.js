@@ -129,7 +129,7 @@
       },
       set : function (val) {
         var self = this;
-        var previousVal = self[key];
+        var previousVal = PropertyUtils.getRaw(self,key);
         if (beforeSet) {
           val = beforeSet.call(self,val,previousVal);
         }
