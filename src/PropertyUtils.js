@@ -20,6 +20,13 @@
   }
 })((function(global, undefined) {
   var PropertyUtils = {};
+  var Array_from = (function () {
+    return function(arrayLike) {
+      var slice = Array.prototype.slice;
+      return slice.call(arrayLike);
+    };
+  })();
+
   PropertyUtils.internalObjectKey = 'PropertyUtils::internalObjectKey';
   function InternalObject() {
     var self = this;
@@ -187,7 +194,12 @@
 
       while (event = events.shift()) {
         list = calls[event] || (calls[event] = []);
-        var boundCallback = callback.bind(context || object);
+        var boundCallback = context
+          ? callback.bind(context)
+          : function () {
+            var self = this;
+            callback.apply(self,Array_from(arguments));
+          };
         boundCallback.originalCallback = callback;
         list.push(boundCallback);
       }
@@ -256,7 +268,7 @@
         // Execute event callbacks.
         if (list) {
           for (i = 0, length = list.length; i < length; i++) {
-            list[i].apply(null, rest);
+            list[i].apply(object, rest);
           }
         }
       }

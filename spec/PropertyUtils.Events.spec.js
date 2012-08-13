@@ -61,4 +61,58 @@ describe("PropertyUtils.Events", function() {
     });
 
   });
+  describe("on",function () {
+    var targetObject;
+    beforeEach(function(){
+      targetObject = Object.create(null);
+    });
+    describe("no context argument",function () {
+      it("callback's context is trrigger target object",function () {
+        var spy = jasmine.createSpy();
+        PropertyUtils.Events.on(targetObject,'test',function (){
+          expect(this).toBe(targetObject);
+          spy();
+        });
+        PropertyUtils.Events.trigger(targetObject,'test');
+        expect(spy).toHaveBeenCalled();
+      });
+    });
+    describe("with context argument",function () {
+      var contextObject;
+      beforeEach(function(){
+        contextObject = Object.create(null);
+      });
+      it("callback's context is bound context object",function () {
+        var spy = jasmine.createSpy();
+        PropertyUtils.Events.on(targetObject,'test',function (){
+          expect(this).toBe(contextObject);
+          spy();
+        },contextObject);
+        PropertyUtils.Events.trigger(targetObject,'test');
+        expect(spy).toHaveBeenCalled();
+      });
+    });
+  });
+  describe("trigger",function () {
+    var targetObject;
+    beforeEach(function(){
+      targetObject = Object.create(null);
+    });
+    describe("call",function () {
+      var callbackSpy;
+      beforeEach(function(){
+        callbackSpy = jasmine.createSpy('callbackSpy');
+        PropertyUtils.Events.on(targetObject,'test',callbackSpy);
+      });
+      it("with no arguments",function(){
+        PropertyUtils.Events.trigger(targetObject,'test');
+        expect(callbackSpy).toHaveBeenCalledWith();
+      });
+      it("with arguments",function(){
+        PropertyUtils.Events.trigger(targetObject,'test',1,'2');
+        expect(callbackSpy).toHaveBeenCalledWith(1,'2');
+      });
+    });
+
+  });
 });
