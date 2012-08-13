@@ -151,13 +151,28 @@
   // https://github.com/documentcloud/backbone
   PropertyUtils.Events = {};
   (function (Events) {
-    function getCallbacks(object) {
+    /**
+     * @private
+     * @param {Object}object
+     * @param {Boolean}create
+     * @return {Object}
+     */
+    function getCallbacks(object,create) {
       var internalObjectKey = PropertyUtils.internalObjectKey;
+      if (!create) {
+        return (object[internalObjectKey] || {}).callbacks;
+      }
       if (!object[internalObjectKey]) {
-        object[internalObjectKey] = new InternalObject();
+        Object.defineProperty(object,internalObjectKey,{
+          writable : true,
+          configurable : true,
+          enumerable : false,
+          value : new InternalObject()
+        });
       }
       return object[internalObjectKey].callbacks;
     }
+    Events.getCallbacks = getCallbacks;
     // Regular expression used to split event strings
     var eventSplitter = /\s+/;
     // Bind one or more space separated events, `events`, to a `callback`
@@ -168,7 +183,7 @@
       }
 
       events = events.split(eventSplitter);
-      calls = getCallbacks(object);
+      calls = getCallbacks(object,true);
 
       while (event = events.shift()) {
         list = calls[event] || (calls[event] = []);
