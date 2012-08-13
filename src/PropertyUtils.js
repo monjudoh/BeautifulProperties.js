@@ -241,27 +241,21 @@
     // Trigger one or many events, firing all bound callbacks. Callbacks are
     // passed the same arguments as `trigger` is, apart from the event name.
     Events.trigger = function trigger(object, events) {
-      var event, calls, list, i, length, args, all, rest;
-      calls = getCallbacks(object);
+      var calls = getCallbacks(object);
       // no callbacks
       if (Object.keys(calls).length == 0) {
         return;
       }
-
+      triggerInternal(events, calls, object, Array_from(arguments).slice(2));
+    };
+    function triggerInternal(events, calls, object, rest) {
       events = events.split(eventSplitter);
-
-      rest = [];
-      // Fill up `rest` with the callback arguments. Since we're only copying
-      // the tail of `arguments`, a loop is much faster than Array#slice.
-      for (i = 2, length = arguments.length; i < length; i++) {
-        rest[i - 2] = arguments[i];
-      }
-
+      var event, list, i, length;
       // For each event, walk through the list of callbacks twice, first to
       // trigger the event, then to trigger any `"all"` callbacks.
       while (event = events.shift()) {
         // Copy callback lists to prevent modification.
-        if (list = calls[event]){
+        if (list = calls[event]) {
           list = list.slice()
         }
 
@@ -272,6 +266,18 @@
           }
         }
       }
+    }
+    Events.triggerWithBubbling = function triggerWithBubbling(object, events) {
+      var rest = Array_from(arguments).slice(2);
+      var target = object;
+      do {
+        var calls = getCallbacks(object);
+        // no callbacks
+        if (Object.keys(calls).length == 0) {
+          continue;
+        }
+        triggerInternal(events, calls, target, rest);
+      } while (object = Object.getPrototypeOf(object)) ;
     };
   })(PropertyUtils.Events);
 

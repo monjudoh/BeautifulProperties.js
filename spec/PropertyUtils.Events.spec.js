@@ -62,19 +62,33 @@ describe("PropertyUtils.Events", function() {
 
   });
   describe("on",function () {
-    var targetObject;
+    var targetPrototype,targetObject;
     beforeEach(function(){
-      targetObject = Object.create(null);
+      targetPrototype = Object.create(null);
+      targetObject = Object.create(targetPrototype);
     });
     describe("no context argument",function () {
-      it("callback's context is trrigger target object",function () {
-        var spy = jasmine.createSpy();
-        PropertyUtils.Events.on(targetObject,'test',function (){
-          expect(this).toBe(targetObject);
-          spy();
+      describe("trigger",function () {
+        it("callback's context is trrigger target object",function () {
+          var spy = jasmine.createSpy();
+          PropertyUtils.Events.on(targetObject,'test',function (){
+            expect(this).toBe(targetObject);
+            spy();
+          });
+          PropertyUtils.Events.trigger(targetObject,'test');
+          expect(spy).toHaveBeenCalled();
         });
-        PropertyUtils.Events.trigger(targetObject,'test');
-        expect(spy).toHaveBeenCalled();
+      });
+      describe("triggerWithBubbling",function () {
+        it("callback's context is trrigger target object",function () {
+          var spy = jasmine.createSpy();
+          PropertyUtils.Events.on(targetPrototype,'test',function (){
+            expect(this).toBe(targetObject);
+            spy();
+          });
+          PropertyUtils.Events.triggerWithBubbling(targetObject,'test');
+          expect(spy).toHaveBeenCalled();
+        });
       });
     });
     describe("with context argument",function () {
@@ -82,14 +96,27 @@ describe("PropertyUtils.Events", function() {
       beforeEach(function(){
         contextObject = Object.create(null);
       });
-      it("callback's context is bound context object",function () {
-        var spy = jasmine.createSpy();
-        PropertyUtils.Events.on(targetObject,'test',function (){
-          expect(this).toBe(contextObject);
-          spy();
-        },contextObject);
-        PropertyUtils.Events.trigger(targetObject,'test');
-        expect(spy).toHaveBeenCalled();
+      describe("trigger",function () {
+        it("callback's context is bound context object",function () {
+          var spy = jasmine.createSpy();
+          PropertyUtils.Events.on(targetObject,'test',function (){
+            expect(this).toBe(contextObject);
+            spy();
+          },contextObject);
+          PropertyUtils.Events.trigger(targetObject,'test');
+          expect(spy).toHaveBeenCalled();
+        });
+      });
+      describe("triggerWithBubbling",function () {
+        it("callback's context is bound context object",function () {
+          var spy = jasmine.createSpy();
+          PropertyUtils.Events.on(targetPrototype,'test',function (){
+            expect(this).toBe(contextObject);
+            spy();
+          },contextObject);
+          PropertyUtils.Events.trigger(targetObject,'test');
+          expect(spy).toHaveBeenCalled();
+        });
       });
     });
   });
@@ -113,6 +140,36 @@ describe("PropertyUtils.Events", function() {
         expect(callbackSpy).toHaveBeenCalledWith(1,'2');
       });
     });
-
+    describe("triggerWithBubbling",function () {
+      var targetPrototype1,targetPrototype2,targetObject;
+      beforeEach(function(){
+        targetPrototype1 = Object.create(null);
+        targetPrototype2 = Object.create(targetPrototype1)
+        targetObject = Object.create(targetPrototype2);
+      });
+      describe("call",function () {
+        var callbackSpy1,callbackSpy2,callbackSpy3;
+        beforeEach(function(){
+          callbackSpy1 = jasmine.createSpy('callbackSpy1');
+          callbackSpy2 = jasmine.createSpy('callbackSpy2');
+          callbackSpy3 = jasmine.createSpy('callbackSpy3');
+          PropertyUtils.Events.on(targetPrototype1,'test',callbackSpy1);
+          PropertyUtils.Events.on(targetPrototype2,'test',callbackSpy2);
+          PropertyUtils.Events.on(targetObject,'test',callbackSpy3);
+        });
+        it("with no arguments",function(){
+          PropertyUtils.Events.triggerWithBubbling(targetObject,'test');
+          expect(callbackSpy1).toHaveBeenCalledWith();
+          expect(callbackSpy2).toHaveBeenCalledWith();
+          expect(callbackSpy3).toHaveBeenCalledWith();
+        });
+        it("with arguments",function(){
+          PropertyUtils.Events.triggerWithBubbling(targetObject,'test',1,'2');
+          expect(callbackSpy1).toHaveBeenCalledWith(1,'2');
+          expect(callbackSpy2).toHaveBeenCalledWith(1,'2');
+          expect(callbackSpy3).toHaveBeenCalledWith(1,'2');
+        });
+      });
+    });
   });
 });
