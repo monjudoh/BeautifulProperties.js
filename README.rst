@@ -5,6 +5,28 @@ BeautifulProperties.js - Extension of ECMAScript5 property.
 Features
 ========
 
+defineDefaultValueProperty
+--------------------------
+
+BeautifulProperties.defineDefaultValueProperty define property it has default value depends on instance.
+
+.. code-block:: javascript
+
+  var proto = {};
+  BeautifulProperties.defineDefaultValueProperty(proto,'boundFunction',function(){
+    return (function () {
+      console.log(this);
+    }).bind(this);
+  });
+  var object1 = Object.create(proto);
+  object1.a = 1;
+  var boundFunction1 = object1.boundFunction;
+  boundFunction1();// {a:1}
+  var object2 = Object.create(proto);
+  object2.a = 2;
+  var boundFunction2 = object2.boundFunction;
+  boundFunction2();// {a:2}
+
 defineHookableProperty
 ----------------------
 
