@@ -243,7 +243,7 @@
     Events.trigger = function trigger(object, events) {
       var calls = getCallbacks(object);
       // no callbacks
-      if (Object.keys(calls).length == 0) {
+      if (!calls || Object.keys(calls).length == 0) {
         return;
       }
       triggerInternal(events, calls, object, Array_from(arguments).slice(2));
@@ -273,7 +273,7 @@
       do {
         var calls = getCallbacks(object);
         // no callbacks
-        if (Object.keys(calls).length == 0) {
+        if (!calls || Object.keys(calls).length == 0) {
           continue;
         }
         triggerInternal(events, calls, target, rest);
