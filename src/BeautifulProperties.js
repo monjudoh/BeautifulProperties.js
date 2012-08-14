@@ -1,7 +1,7 @@
 /*
- * PropertyUtils.js - Extension of ECMAScript5 property.
+ * BeautifulProperties.js - Extension of ECMAScript5 property.
  *
- * https://github.com/monjudoh/PropertyUtils.js
+ * https://github.com/monjudoh/BeautifulProperties.js
  * version: 0.1
  *
  * Copyright (c) 2012 monjudoh
@@ -19,7 +19,7 @@
     global[moduleName] = module;
   }
 })((function(global, undefined) {
-  var PropertyUtils = {};
+  var BeautifulProperties = {};
   var Array_from = (function () {
     return function(arrayLike) {
       var slice = Array.prototype.slice;
@@ -27,7 +27,7 @@
     };
   })();
 
-  PropertyUtils.internalObjectKey = 'PropertyUtils::internalObjectKey';
+  BeautifulProperties.internalObjectKey = 'BeautifulProperties::internalObjectKey';
   function InternalObject() {
     var self = this;
     Object.defineProperty(self,'raw',{
@@ -46,7 +46,7 @@
    * @param key {String}
    * @param defaultValueGenerator {Function}
    */
-  PropertyUtils.defineDefaultValueProperty = function defineDefaultValueProperty(object,key,defaultValueGenerator) {
+  BeautifulProperties.defineDefaultValueProperty = function defineDefaultValueProperty(object,key,defaultValueGenerator) {
     Object.defineProperty(object,key,{
       get : function () {
         var self = this;
@@ -73,8 +73,8 @@
    * @param {String} key
    * @return {*}
    */
-  PropertyUtils.getRaw = function getRaw(object,key) {
-    var internalObjectKey = PropertyUtils.internalObjectKey;
+  BeautifulProperties.getRaw = function getRaw(object,key) {
+    var internalObjectKey = BeautifulProperties.internalObjectKey;
     if (!object[internalObjectKey]) {
       object[internalObjectKey] = new InternalObject();
     }
@@ -87,8 +87,8 @@
    * @param {String} key
    * @param {*} val
    */
-  PropertyUtils.setRaw = function setRaw(object,key,val) {
-    var internalObjectKey = PropertyUtils.internalObjectKey;
+  BeautifulProperties.setRaw = function setRaw(object,key,val) {
+    var internalObjectKey = BeautifulProperties.internalObjectKey;
     if (!object[internalObjectKey]) {
       object[internalObjectKey] = new InternalObject();
     }
@@ -101,7 +101,7 @@
    * @param {String} key
    * @param {Object} hooks
    */
-  PropertyUtils.defineHookableProperty = function defineHookableProperty(object,key,hooks,defaultVal) {
+  BeautifulProperties.defineHookableProperty = function defineHookableProperty(object,key,hooks,defaultVal) {
     /**
      *
      * @type {Function}
@@ -128,7 +128,7 @@
         if (beforeGet) {
           beforeGet.call(self);
         }
-        var val = PropertyUtils.getRaw(self,key);
+        var val = BeautifulProperties.getRaw(self,key);
         if (defaultVal && val === undefined) {
           val = defaultVal;
         }
@@ -139,14 +139,14 @@
       },
       set : function (val) {
         var self = this;
-        var previousVal = PropertyUtils.getRaw(self,key);
+        var previousVal = BeautifulProperties.getRaw(self,key);
         if (defaultVal && previousVal === undefined) {
           previousVal = defaultVal;
         }
         if (beforeSet) {
           val = beforeSet.call(self,val,previousVal);
         }
-        PropertyUtils.setRaw(self,key,val);
+        BeautifulProperties.setRaw(self,key,val);
         if (afterSet) {
           afterSet.call(self,val,previousVal);
         }
@@ -154,9 +154,9 @@
     });
   };
 
-  // PropertyUtils.Events 's implementation is cloned from backbone.js and modified.
+  // BeautifulProperties.Events 's implementation is cloned from backbone.js and modified.
   // https://github.com/documentcloud/backbone
-  PropertyUtils.Events = {};
+  BeautifulProperties.Events = {};
   (function (Events) {
     /**
      * @private
@@ -165,7 +165,7 @@
      * @return {Object}
      */
     function getCallbacks(object,create) {
-      var internalObjectKey = PropertyUtils.internalObjectKey;
+      var internalObjectKey = BeautifulProperties.internalObjectKey;
       if (!create) {
         return (object[internalObjectKey] || {}).callbacks;
       }
@@ -186,7 +186,7 @@
     Events.on = function on(object, events, callback, context) {
       var calls, event, list;
       if (!callback) {
-        throw new Error('callback is necessary in PropertyUtils.Events.on');
+        throw new Error('callback is necessary in BeautifulProperties.Events.on');
       }
 
       events = events.split(eventSplitter);
@@ -279,7 +279,7 @@
         triggerInternal(events, calls, target, rest);
       } while (object = Object.getPrototypeOf(object)) ;
     };
-  })(PropertyUtils.Events);
+  })(BeautifulProperties.Events);
 
   (function (Events) {
     /**
@@ -292,20 +292,20 @@
         if (object[methodName]) {
           return;
         }
-        PropertyUtils.defineDefaultValueProperty(object,methodName,function(){
+        BeautifulProperties.defineDefaultValueProperty(object,methodName,function(){
           var self = this;
           return Events[methodName].bind(Events,self);
         });
       });
     };
-  })(PropertyUtils.Events);
+  })(BeautifulProperties.Events);
   /**
    *
    * @param {Object} object
    * @param {String} key
    * @param {Object} hooks
    */
-  PropertyUtils.defineObservableProperty = function defineObservableProperty(object,key,hooks,defaultVal) {
+  BeautifulProperties.defineObservableProperty = function defineObservableProperty(object,key,hooks,defaultVal) {
     var wrappedHooks = {};
     if (!hooks) {
       hooks = Object.create(null);
@@ -324,10 +324,10 @@
         afterSet.call(self,val,previousVal);
       }
       if (previousVal != val) {
-        PropertyUtils.Events.trigger(self,('change:' + key),val,previousVal);
+        BeautifulProperties.Events.trigger(self,('change:' + key),val,previousVal);
       }
     };
-    PropertyUtils.defineHookableProperty(object,key,wrappedHooks,defaultVal);
+    BeautifulProperties.defineHookableProperty(object,key,wrappedHooks,defaultVal);
   };
-  return PropertyUtils;
-})(this),'PropertyUtils',this);
+  return BeautifulProperties;
+})(this),'BeautifulProperties',this);

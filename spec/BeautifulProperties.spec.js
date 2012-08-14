@@ -1,10 +1,10 @@
-describe("PropertyUtils", function() {
-  describe("PropertyUtils.defineDefaultValueProperty", function() {
+describe("BeautifulProperties", function() {
+  describe(".defineDefaultValueProperty", function() {
     it("define property",function(){
       var object = Object.create(null);
       var expectedValue = 1;
       expect(object['key']).toBeUndefined();
-      PropertyUtils.defineDefaultValueProperty(object,'key',function(){
+      BeautifulProperties.defineDefaultValueProperty(object,'key',function(){
         return expectedValue;
       });
       expect(object['key']).toEqual(expectedValue);
@@ -12,7 +12,7 @@ describe("PropertyUtils", function() {
     it("defaultValueGenerator to have been called only after first property access",function(){
       var spy = jasmine.createSpy();
       var object = Object.create(null);
-      PropertyUtils.defineDefaultValueProperty(object,'key',function (){
+      BeautifulProperties.defineDefaultValueProperty(object,'key',function (){
         spy();
         return 1;
       });
@@ -24,7 +24,7 @@ describe("PropertyUtils", function() {
     it("defaultValueGenerator's context is saved",function(){
       var spy = jasmine.createSpy();
       var object = Object.create(null);
-      PropertyUtils.defineDefaultValueProperty(object,'key',function (){
+      BeautifulProperties.defineDefaultValueProperty(object,'key',function (){
         expect(this).toBe(object);
         spy();
         return 1;
@@ -33,7 +33,7 @@ describe("PropertyUtils", function() {
       expect(spy).toHaveBeenCalled();
     })
   });
-  describe("PropertyUtils.defineHookableProperty", function() {
+  describe(".defineHookableProperty", function() {
     var beforeGet,afterGet,beforeSet,afterSet;
     beforeEach(function(){
       beforeGet = jasmine.createSpy('beforeGet');
@@ -44,14 +44,14 @@ describe("PropertyUtils", function() {
     it("define property",function(){
       var object = Object.create(null);
       expect('key' in object).toBe(false);
-      PropertyUtils.defineHookableProperty(object,'key',{});
+      BeautifulProperties.defineHookableProperty(object,'key',{});
       expect('key' in object).toBe(true);
     });
     describe("hooks have been or don't to have been called",function(){
       var object;
       beforeEach(function(){
         object = Object.create(null);
-        PropertyUtils.defineHookableProperty(object,'key',{
+        BeautifulProperties.defineHookableProperty(object,'key',{
           beforeGet : beforeGet,
           afterGet : afterGet,
           beforeSet : beforeSet,
@@ -94,7 +94,7 @@ describe("PropertyUtils", function() {
       });
       describe("getRaw",function(){
         beforeEach(function(){
-          PropertyUtils.getRaw(self,'key');
+          BeautifulProperties.getRaw(self,'key');
         });
         it("beforeGet was called",function(){
           expect(beforeGet).not.toHaveBeenCalled();
@@ -111,7 +111,7 @@ describe("PropertyUtils", function() {
       });
       describe("setRaw",function(){
         beforeEach(function(){
-          PropertyUtils.setRaw(self,'key',1);
+          BeautifulProperties.setRaw(self,'key',1);
         });
         it("beforeGet was called",function(){
           expect(beforeGet).not.toHaveBeenCalled();
@@ -126,7 +126,7 @@ describe("PropertyUtils", function() {
           expect(afterSet).not.toHaveBeenCalled();
         });
         it("value could getRaw",function(){
-          expect(PropertyUtils.getRaw(self,'key')).toBe(1);
+          expect(BeautifulProperties.getRaw(self,'key')).toBe(1);
         })
       });
     });
@@ -142,8 +142,8 @@ describe("PropertyUtils", function() {
         };
         originalValue = 1;
         replacedValue = 2;
-        PropertyUtils.defineHookableProperty(object,'key',hooks);
-        PropertyUtils.setRaw(object,'key',originalValue);
+        BeautifulProperties.defineHookableProperty(object,'key',hooks);
+        BeautifulProperties.setRaw(object,'key',originalValue);
       });
       describe("hooks",function(){
         beforeEach(function(){
@@ -173,8 +173,8 @@ describe("PropertyUtils", function() {
         previousValue = 0;
         originalValue = 1;
         replacedValue = 2;
-        PropertyUtils.defineHookableProperty(object,'key',hooks);
-        PropertyUtils.setRaw(object,'key',previousValue);
+        BeautifulProperties.defineHookableProperty(object,'key',hooks);
+        BeautifulProperties.setRaw(object,'key',previousValue);
       });
       describe("hooks",function(){
         beforeEach(function(){
