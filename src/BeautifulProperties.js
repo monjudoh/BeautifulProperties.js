@@ -7,6 +7,10 @@
  * Copyright (c) 2012 monjudoh
  * Dual licensed under the MIT (MIT-LICENSE.txt)
  * and GPL (GPL-LICENSE.txt) licenses.
+ *
+ * Contributor(s):
+ *  aodag (Atsushi Odagiri) aodagx@gmail.com https://github.com/aodag
+ *    He named this library.
  */
 ;(function(module,moduleName,global){
   // in AMD
