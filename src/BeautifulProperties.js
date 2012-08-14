@@ -287,7 +287,7 @@
      * @param object
      */
     Events.provideMethods = function provideMethods(object) {
-      ['on','off','trigger'].forEach(function(methodName){
+      ['on','off','trigger','triggerWithBubbling'].forEach(function(methodName){
         // defined
         if (object[methodName]) {
           return;
