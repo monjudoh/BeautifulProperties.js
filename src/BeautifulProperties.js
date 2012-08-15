@@ -48,13 +48,13 @@
    *
    * @param object {Object}
    * @param key {String}
-   * @param defaultValueGenerator {Function}
+   * @param defaultValGenerator {Function}
    */
-  BeautifulProperties.defineDefaultValueProperty = function defineDefaultValueProperty(object,key,defaultValueGenerator) {
+  BeautifulProperties.defineDefaultValueProperty = function defineDefaultValueProperty(object,key,defaultValGenerator) {
     Object.defineProperty(object,key,{
       get : function () {
         var self = this;
-        var val = defaultValueGenerator.apply(self);
+        var val = defaultValGenerator.apply(self);
         Object.defineProperty(self,key,{
           value:val,
           writable:true
@@ -105,7 +105,7 @@
    * @param {String} key
    * @param {Object} hooks
    */
-  BeautifulProperties.defineHookableProperty = function defineHookableProperty(object,key,hooks,defaultVal) {
+  BeautifulProperties.defineHookableProperty = function defineHookableProperty(object,key,hooks,options) {
     /**
      *
      * @type {Function}
@@ -126,6 +126,22 @@
      * @type {Function}
      */
     var afterSet = hooks.afterSet;
+    options = options || Object.create(null);
+    function retrieveDefaultVal(){
+      var self = this;
+      var defaultVal = options.defaultVal;
+      var defaultValGenerator = options.defaultValGenerator;
+      if (defaultVal) {
+        return defaultVal;
+      }
+      if (defaultValGenerator) {
+        return defaultValGenerator.apply(self);
+      }
+    }
+    if (options.defaultVal || options.defaultValGenerator) {
+    } else {
+      retrieveDefaultVal = null;
+    }
     Object.defineProperty(object,key,{
       get : function () {
         var self = this;
@@ -133,8 +149,8 @@
           beforeGet.call(self);
         }
         var val = BeautifulProperties.getRaw(self,key);
-        if (defaultVal && val === undefined) {
-          val = defaultVal;
+        if (retrieveDefaultVal && val === undefined) {
+          val = retrieveDefaultVal.apply(self);
         }
         if (afterGet) {
           val = afterGet.call(self,val);
@@ -144,8 +160,8 @@
       set : function (val) {
         var self = this;
         var previousVal = BeautifulProperties.getRaw(self,key);
-        if (defaultVal && previousVal === undefined) {
-          previousVal = defaultVal;
+        if (retrieveDefaultVal && previousVal === undefined) {
+          previousVal = retrieveDefaultVal.apply(self);
         }
         if (beforeSet) {
           val = beforeSet.call(self,val,previousVal);
@@ -309,11 +325,9 @@
    * @param {String} key
    * @param {Object} hooks
    */
-  BeautifulProperties.defineObservableProperty = function defineObservableProperty(object,key,hooks,defaultVal) {
+  BeautifulProperties.defineObservableProperty = function defineObservableProperty(object,key,hooks,options) {
     var wrappedHooks = {};
-    if (!hooks) {
-      hooks = Object.create(null);
-    }
+    hooks = hooks || Object.create(null);
     Object.keys(hooks).forEach(function(key){
       wrappedHooks[key] = hooks[key];
     });
@@ -331,7 +345,7 @@
         BeautifulProperties.Events.trigger(self,('change:' + key),val,previousVal);
       }
     };
-    BeautifulProperties.defineHookableProperty(object,key,wrappedHooks,defaultVal);
+    BeautifulProperties.defineHookableProperty(object,key,wrappedHooks,options);
   };
   return BeautifulProperties;
 })(this),'BeautifulProperties',this);
