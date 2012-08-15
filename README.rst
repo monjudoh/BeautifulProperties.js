@@ -27,17 +27,17 @@ BeautifulProperties.defineDefaultValueProperty define property it has default va
   var boundFunction2 = object2.boundFunction;
   boundFunction2();// {a:2}
 
-defineHookableProperty
+Hookable
 ----------------------
 
-BeautifulProperties.defineHookableProperty supports hooks for setting/getting property,replace or modify value.
+BeautifulProperties.Hookable.define supports hooks for setting/getting property,replace or modify value.
 
 hooks
 
 .. code-block:: javascript
 
   var object = {};
-  BeautifulProperties.defineHookableProperty(object,'key',{
+  BeautifulProperties.Hookable.define(object,'key',{
     beforeGet : function(val){
       console.log('beforeGet');
     },
@@ -62,7 +62,7 @@ modify getting value
 .. code-block:: javascript
 
   var object = {};
-  BeautifulProperties.defineHookableProperty(object,'key',{
+  BeautifulProperties.Hookable.define(object,'key',{
     afterGet : function(val){
       return val * 2;
     }
@@ -75,7 +75,7 @@ modify setting value
 .. code-block:: javascript
 
   var object = {};
-  BeautifulProperties.defineHookableProperty(object,'key',{
+  BeautifulProperties.Hookable.define(object,'key',{
     beforeSet : function(val,previousVal){
       return val * 2;
     }
@@ -86,15 +86,15 @@ modify setting value
 Events
 ------
 
-defineObservableProperty
+Observable
 ------------------------
 
-BeautifulProperties.defineObservableProperty supports key/value observation.
+BeautifulProperties.Observable.define supports key/value observation.
 
 .. code-block:: javascript
 
   var object = {};
-  BeautifulProperties.defineObservableProperty(object,'key');
+  BeautifulProperties.Observable.define(object,'key');
   object.key=1;
   BeautifulProperties.Events.on(object,'change:key',function(val,previousVal){
     console.log(val,previousVal);// val:2,previousVal:1

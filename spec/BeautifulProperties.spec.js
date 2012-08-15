@@ -33,7 +33,7 @@ describe("BeautifulProperties", function() {
       expect(spy).toHaveBeenCalled();
     })
   });
-  describe(".defineHookableProperty", function() {
+  describe(".Hookable.define", function() {
     var beforeGet,afterGet,beforeSet,afterSet;
     beforeEach(function(){
       beforeGet = jasmine.createSpy('beforeGet');
@@ -44,14 +44,14 @@ describe("BeautifulProperties", function() {
     it("define property",function(){
       var object = Object.create(null);
       expect('key' in object).toBe(false);
-      BeautifulProperties.defineHookableProperty(object,'key',{});
+      BeautifulProperties.Hookable.define(object,'key',{});
       expect('key' in object).toBe(true);
     });
     describe("hooks have been or don't to have been called",function(){
       var object;
       beforeEach(function(){
         object = Object.create(null);
-        BeautifulProperties.defineHookableProperty(object,'key',{
+        BeautifulProperties.Hookable.define(object,'key',{
           beforeGet : beforeGet,
           afterGet : afterGet,
           beforeSet : beforeSet,
@@ -142,7 +142,7 @@ describe("BeautifulProperties", function() {
         };
         originalValue = 1;
         replacedValue = 2;
-        BeautifulProperties.defineHookableProperty(object,'key',hooks);
+        BeautifulProperties.Hookable.define(object,'key',hooks);
         BeautifulProperties.setRaw(object,'key',originalValue);
       });
       describe("hooks",function(){
@@ -173,7 +173,7 @@ describe("BeautifulProperties", function() {
         previousValue = 0;
         originalValue = 1;
         replacedValue = 2;
-        BeautifulProperties.defineHookableProperty(object,'key',hooks);
+        BeautifulProperties.Hookable.define(object,'key',hooks);
         BeautifulProperties.setRaw(object,'key',previousValue);
       });
       describe("hooks",function(){

@@ -99,13 +99,14 @@
     var raw = object[internalObjectKey].raw;
     raw[key] = val;
   };
+  BeautifulProperties.Hookable = Object.create(null);
   /**
    *
    * @param {Object} object
    * @param {String} key
    * @param {Object} hooks
    */
-  BeautifulProperties.defineHookableProperty = function defineHookableProperty(object,key,hooks,options) {
+  BeautifulProperties.Hookable.define = function defineHookableProperty(object,key,hooks,options) {
     /**
      *
      * @type {Function}
@@ -319,13 +320,15 @@
       });
     };
   })(BeautifulProperties.Events);
+
+  BeautifulProperties.Observable = Object.create(null);
   /**
    *
    * @param {Object} object
    * @param {String} key
    * @param {Object} hooks
    */
-  BeautifulProperties.defineObservableProperty = function defineObservableProperty(object,key,hooks,options) {
+  BeautifulProperties.Observable.define = function defineObservableProperty(object,key,hooks,options) {
     var wrappedHooks = {};
     hooks = hooks || Object.create(null);
     Object.keys(hooks).forEach(function(key){
@@ -345,7 +348,7 @@
         BeautifulProperties.Events.trigger(self,('change:' + key),val,previousVal);
       }
     };
-    BeautifulProperties.defineHookableProperty(object,key,wrappedHooks,options);
+    BeautifulProperties.Hookable.define(object,key,wrappedHooks,options);
   };
   return BeautifulProperties;
 })(this),'BeautifulProperties',this);
