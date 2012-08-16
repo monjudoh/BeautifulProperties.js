@@ -94,7 +94,7 @@ describe("BeautifulProperties", function() {
       });
       describe("getRaw",function(){
         beforeEach(function(){
-          BeautifulProperties.getRaw(self,'key');
+          BeautifulProperties.getRaw(object,'key');
         });
         it("beforeGet was called",function(){
           expect(beforeGet).not.toHaveBeenCalled();
@@ -111,7 +111,7 @@ describe("BeautifulProperties", function() {
       });
       describe("setRaw",function(){
         beforeEach(function(){
-          BeautifulProperties.setRaw(self,'key',1);
+          BeautifulProperties.setRaw(object,'key',1);
         });
         it("beforeGet was called",function(){
           expect(beforeGet).not.toHaveBeenCalled();
@@ -126,7 +126,7 @@ describe("BeautifulProperties", function() {
           expect(afterSet).not.toHaveBeenCalled();
         });
         it("value could getRaw",function(){
-          expect(BeautifulProperties.getRaw(self,'key')).toBe(1);
+          expect(BeautifulProperties.getRaw(object,'key')).toBe(1);
         })
       });
     });

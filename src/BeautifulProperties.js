@@ -43,7 +43,22 @@
       writable : false
     });
   }
-
+  function retrieveInternalObject(key,object,create) {
+    var internalObjectKey = BeautifulProperties.internalObjectKey;
+    if (!create) {
+      return (object[internalObjectKey] || {})[key];
+    }
+    if (!object[internalObjectKey]) {
+      Object.defineProperty(object,internalObjectKey,{
+        writable : true,
+        configurable : true,
+        enumerable : false,
+        value : new InternalObject()
+      });
+    }
+    return object[internalObjectKey][key];
+  }
+  var retrieveRaw = retrieveInternalObject.bind(null,'raw');
   /**
    *
    * @param object {Object}
@@ -78,12 +93,7 @@
    * @return {*}
    */
   BeautifulProperties.getRaw = function getRaw(object,key) {
-    var internalObjectKey = BeautifulProperties.internalObjectKey;
-    if (!object[internalObjectKey]) {
-      object[internalObjectKey] = new InternalObject();
-    }
-    var raw = object[internalObjectKey].raw;
-    return raw[key];
+    return (retrieveRaw(object) || {})[key];
   };
   /**
    *
@@ -92,11 +102,7 @@
    * @param {*} val
    */
   BeautifulProperties.setRaw = function setRaw(object,key,val) {
-    var internalObjectKey = BeautifulProperties.internalObjectKey;
-    if (!object[internalObjectKey]) {
-      object[internalObjectKey] = new InternalObject();
-    }
-    var raw = object[internalObjectKey].raw;
+    var raw = retrieveRaw(object,true);
     raw[key] = val;
   };
   BeautifulProperties.Hookable = Object.create(null);
@@ -179,27 +185,7 @@
   // https://github.com/documentcloud/backbone
   BeautifulProperties.Events = {};
   (function (Events) {
-    /**
-     * @private
-     * @param {Object}object
-     * @param {Boolean}create
-     * @return {Object}
-     */
-    function getCallbacks(object,create) {
-      var internalObjectKey = BeautifulProperties.internalObjectKey;
-      if (!create) {
-        return (object[internalObjectKey] || {}).callbacks;
-      }
-      if (!object[internalObjectKey]) {
-        Object.defineProperty(object,internalObjectKey,{
-          writable : true,
-          configurable : true,
-          enumerable : false,
-          value : new InternalObject()
-        });
-      }
-      return object[internalObjectKey].callbacks;
-    }
+    var getCallbacks = retrieveInternalObject.bind(null,'callbacks');
     Events.getCallbacks = getCallbacks;
     // Regular expression used to split event strings
     var eventSplitter = /\s+/;
