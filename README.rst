@@ -100,3 +100,33 @@ BeautifulProperties.Observable.define supports key/value observation.
     console.log(val,previousVal);// val:2,previousVal:1
   });
   object.key=2;
+
+
+Installation and usage
+======================
+
+In browsers:
+------------
+
+.. code-block:: html
+
+  <script src="BeautifulProperties.js"></script>
+
+In an AMD loader like RequireJS:
+--------------------------------
+
+.. code-block:: javascript
+
+  require(['BeautifulProperties'], function(BeautifulProperties) {
+  });
+
+Author
+======
+
+monjudoh
+
+Contributors
+============
+
+* aodag (Atsushi Odagiri) aodagx@gmail.com https://github.com/aodag
+  * He named this library.
