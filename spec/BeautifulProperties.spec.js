@@ -86,12 +86,12 @@ describe("BeautifulProperties", function() {
       });
     });
   });
-  describe(".defineDefaultValueProperty", function() {
+  describe(".LazyInitializable.define", function() {
     it("define property",function(){
       var object = Object.create(null);
       var expectedValue = 1;
       expect(object['key']).toBeUndefined();
-      BeautifulProperties.defineDefaultValueProperty(object,'key',function(){
+      BeautifulProperties.LazyInitializable.define(object,'key',function(){
         return expectedValue;
       });
       expect(object['key']).toEqual(expectedValue);
@@ -99,7 +99,7 @@ describe("BeautifulProperties", function() {
     it("defaultValueGenerator to have been called only after first property access",function(){
       var spy = jasmine.createSpy();
       var object = Object.create(null);
-      BeautifulProperties.defineDefaultValueProperty(object,'key',function (){
+      BeautifulProperties.LazyInitializable.define(object,'key',function (){
         spy();
         return 1;
       });
@@ -111,7 +111,7 @@ describe("BeautifulProperties", function() {
     it("defaultValueGenerator's context is saved",function(){
       var spy = jasmine.createSpy();
       var object = Object.create(null);
-      BeautifulProperties.defineDefaultValueProperty(object,'key',function (){
+      BeautifulProperties.LazyInitializable.define(object,'key',function (){
         expect(this).toBe(object);
         spy();
         return 1;

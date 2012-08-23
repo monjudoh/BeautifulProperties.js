@@ -65,17 +65,22 @@
     return object[internalObjectKey][key];
   }
   var retrieveRaw = retrieveInternalObject.bind(null,'raw');
+
+  Object.defineProperty(BeautifulProperties,'LazyInitializable',{
+    value : Object.create(null),
+    writable : false
+  });
   /**
    *
    * @param object {Object}
    * @param key {String}
-   * @param defaultValGenerator {Function}
+   * @param init {Function}
    */
-  BeautifulProperties.defineDefaultValueProperty = function defineDefaultValueProperty(object,key,defaultValGenerator) {
+  BeautifulProperties.LazyInitializable.define = function defineDefaultValueProperty(object,key,init) {
     Object.defineProperty(object,key,{
       get : function () {
         var self = this;
-        var val = defaultValGenerator.apply(self);
+        var val = init.apply(self);
         Object.defineProperty(self,key,{
           value:val,
           writable:true
@@ -304,7 +309,7 @@
         if (object[methodName]) {
           return;
         }
-        BeautifulProperties.defineDefaultValueProperty(object,methodName,function(){
+        BeautifulProperties.LazyInitializable.define(object,methodName,function(){
           var self = this;
           return Events[methodName].bind(Events,self);
         });
