@@ -30,8 +30,8 @@
       return slice.call(arrayLike);
     };
   })();
-
-  BeautifulProperties.internalObjectKey = 'BeautifulProperties::internalObjectKey';
+  BeautifulProperties.Internal = {};
+  BeautifulProperties.Internal.Key = 'BeautifulProperties::internalObjectKey';
   function InternalObject() {
     var self = this;
     Object.defineProperty(self,'raw',{
@@ -43,8 +43,9 @@
       writable : false
     });
   }
+  BeautifulProperties.Internal.retrieve = retrieveInternalObject;
   function retrieveInternalObject(key,object,create) {
-    var internalObjectKey = BeautifulProperties.internalObjectKey;
+    var internalObjectKey = BeautifulProperties.Internal.Key;
     if (!create) {
       return (object[internalObjectKey] || {})[key];
     }
@@ -186,7 +187,6 @@
   BeautifulProperties.Events = {};
   (function (Events) {
     var getCallbacks = retrieveInternalObject.bind(null,'callbacks');
-    Events.getCallbacks = getCallbacks;
     // Regular expression used to split event strings
     var eventSplitter = /\s+/;
     // Bind one or more space separated events, `events`, to a `callback`
