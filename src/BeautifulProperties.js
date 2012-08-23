@@ -194,20 +194,32 @@
 
   // BeautifulProperties.Events 's implementation is cloned from backbone.js and modified.
   // https://github.com/documentcloud/backbone
-  BeautifulProperties.Events = {};
+  Object.defineProperty(BeautifulProperties,'Events',{
+    value : Object.create(null),
+    writable : false
+  });
   (function (Events) {
-    var getCallbacks = retrieveInternalObject.bind(null,'callbacks');
+    var retrieveCallbacks = retrieveInternalObject.bind(null,'callbacks');
     // Regular expression used to split event strings
     var eventSplitter = /\s+/;
-    // Bind one or more space separated events, `events`, to a `callback`
-    Events.on = function on(object, events, callback, context) {
+    /**
+     * Bind one or more space separated events, `events`, to a `callback`
+     * @param object {Object}
+     * @param events {String}
+     * @param callback {Function}
+     * @param options {Object} `context` is the ThisBinding of the callback execution context.
+     */
+    Events.on = function on(object, events, callback, options) {
+      options = options || {};
+//      var label = options.label || null;
+      var context = options.context || null;
       var calls, event, list;
       if (!callback) {
         throw new Error('callback is necessary in BeautifulProperties.Events.on');
       }
 
       events = events.split(eventSplitter);
-      calls = getCallbacks(object,true);
+      calls = retrieveCallbacks(object,true);
 
       while (event = events.shift()) {
         list = calls[event] || (calls[event] = []);
@@ -229,7 +241,7 @@
       var event, calls, list, i;
 
       // No events, or removing *all* events.
-      if (!(calls = getCallbacks(object))){
+      if (!(calls = retrieveCallbacks(object))){
         return;
       }
       if (!(events || callback)) {
@@ -258,7 +270,7 @@
     // Trigger one or many events, firing all bound callbacks. Callbacks are
     // passed the same arguments as `trigger` is, apart from the event name.
     Events.trigger = function trigger(object, events) {
-      var calls = getCallbacks(object);
+      var calls = retrieveCallbacks(object);
       // no callbacks
       if (!calls || Object.keys(calls).length == 0) {
         return;
@@ -288,7 +300,7 @@
       var rest = Array_from(arguments).slice(2);
       var target = object;
       do {
-        var calls = getCallbacks(object);
+        var calls = retrieveCallbacks(object);
         // no callbacks
         if (!calls || Object.keys(calls).length == 0) {
           continue;

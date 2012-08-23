@@ -9,7 +9,7 @@ describe("BeautifulProperties.Events", function() {
       describe("trigger",function () {
         it("callback's context is trrigger target object",function () {
           var spy = jasmine.createSpy();
-          BeautifulProperties.Events.on(targetObject,'test',function (){
+          BeautifulProperties.Events.on(targetObject, 'test', function () {
             expect(this).toBe(targetObject);
             spy();
           });
@@ -20,7 +20,7 @@ describe("BeautifulProperties.Events", function() {
       describe("triggerWithBubbling",function () {
         it("callback's context is trrigger target object",function () {
           var spy = jasmine.createSpy();
-          BeautifulProperties.Events.on(targetPrototype,'test',function (){
+          BeautifulProperties.Events.on(targetPrototype, 'test', function () {
             expect(this).toBe(targetObject);
             spy();
           });
@@ -37,10 +37,10 @@ describe("BeautifulProperties.Events", function() {
       describe("trigger",function () {
         it("callback's context is bound context object",function () {
           var spy = jasmine.createSpy();
-          BeautifulProperties.Events.on(targetObject,'test',function (){
+          BeautifulProperties.Events.on(targetObject, 'test', function () {
             expect(this).toBe(contextObject);
             spy();
-          },contextObject);
+          }, {context : contextObject});
           BeautifulProperties.Events.trigger(targetObject,'test');
           expect(spy).toHaveBeenCalled();
         });
@@ -48,10 +48,10 @@ describe("BeautifulProperties.Events", function() {
       describe("triggerWithBubbling",function () {
         it("callback's context is bound context object",function () {
           var spy = jasmine.createSpy();
-          BeautifulProperties.Events.on(targetPrototype,'test',function (){
+          BeautifulProperties.Events.on(targetPrototype, 'test', function () {
             expect(this).toBe(contextObject);
             spy();
-          },contextObject);
+          }, {context : contextObject});
           BeautifulProperties.Events.triggerWithBubbling(targetObject,'test');
           expect(spy).toHaveBeenCalled();
         });
