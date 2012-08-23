@@ -30,6 +30,10 @@
       return slice.call(arrayLike);
     };
   })();
+  /**
+   * @type {Function}
+   */
+  var hasOwnProperty = Object.hasOwnProperty.call.bind(Object.hasOwnProperty);
   BeautifulProperties.Internal = {};
   BeautifulProperties.Internal.Key = 'BeautifulProperties::internalObjectKey';
   function InternalObject() {
@@ -46,10 +50,11 @@
   BeautifulProperties.Internal.retrieve = retrieveInternalObject;
   function retrieveInternalObject(key,object,create) {
     var internalObjectKey = BeautifulProperties.Internal.Key;
+    var hasInternal = hasOwnProperty(object,internalObjectKey);
     if (!create) {
-      return (object[internalObjectKey] || {})[key];
+      return (hasInternal ? object[internalObjectKey] : {})[key];
     }
-    if (!object[internalObjectKey]) {
+    if (!hasInternal) {
       Object.defineProperty(object,internalObjectKey,{
         writable : true,
         configurable : true,

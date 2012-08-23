@@ -52,7 +52,7 @@ describe("BeautifulProperties.Events", function() {
             expect(this).toBe(contextObject);
             spy();
           },contextObject);
-          BeautifulProperties.Events.trigger(targetObject,'test');
+          BeautifulProperties.Events.triggerWithBubbling(targetObject,'test');
           expect(spy).toHaveBeenCalled();
         });
       });

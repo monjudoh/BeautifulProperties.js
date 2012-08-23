@@ -1,64 +1,87 @@
 describe("BeautifulProperties", function() {
   describe(".Internal", function() {
     describe(".retrieve", function() {
-      var targetObject,retrieveRaw;
+      var target,prototype;
+      /**
+       * @type Function
+       */
+      var retrieveRaw;
       beforeEach(function(){
-        targetObject = {};
+        prototype = {};
+        target = Object.create(prototype);
         retrieveRaw = BeautifulProperties.Internal.retrieve.bind(null,'raw');
       });
-      describe("first call",function () {
+      describe("after create raw for target",function () {
+        beforeEach(function(){
+          retrieveRaw(target,true);
+        });
+        it("internalObject exists",function () {
+          expect(target[BeautifulProperties.Internal.Key]).toBeDefined();
+        });
+        it("internalObject is not enumerable",function () {
+          for (var key in target) {
+            expect(key).not.toBe(BeautifulProperties.Internal.Key);
+          }
+        });
+      });
+      describe("prototype has internalObject",function () {
+        beforeEach(function(){
+          retrieveRaw(prototype,true);
+        });
+        it("can not retrieveRaw from target",function () {
+          expect(retrieveRaw(target)).not.toBeDefined();
+        });
+        it("target's raw isn't same with prototype's raw",function () {
+          var raw = retrieveRaw(target,true);
+          expect(raw).toBeDefined();
+          expect(raw).not.toBe(retrieveRaw(prototype));
+        });
+      });
+      describe("target don't have internalObject",function () {
         describe("no create argument",function () {
           it("raw is not retrieved",function () {
-            expect(retrieveRaw(targetObject)).not.toBeDefined();
+            expect(retrieveRaw(target)).not.toBeDefined();
           });
         });
         describe("create argument is false",function () {
           it("raw is not retrieved",function () {
-            expect(retrieveRaw(targetObject,false)).not.toBeDefined();
+            expect(retrieveRaw(target,false)).not.toBeDefined();
           });
         });
         describe("create argument is true",function () {
           it("raw is retrieved",function () {
-            expect(retrieveRaw(targetObject,true)).toBeDefined();
+            expect(retrieveRaw(target,true)).toBeDefined();
           });
         });
       });
-      describe("after create raw",function () {
+      describe("target has internalObject",function () {
         var raw;
         beforeEach(function(){
-          raw = retrieveRaw(targetObject,true);
+          raw = retrieveRaw(target,true);
         });
         describe("no create argument",function () {
           it("raw is retrieved",function () {
-            expect(retrieveRaw(targetObject)).toBeDefined();
+            expect(retrieveRaw(target)).toBeDefined();
           });
           it("retrieved raw is same",function () {
-            expect(retrieveRaw(targetObject)).toBe(raw);
+            expect(retrieveRaw(target)).toBe(raw);
           });
         });
         describe("create argument is false",function () {
           it("raw is retrieved",function () {
-            expect(retrieveRaw(targetObject,false)).toBeDefined();
+            expect(retrieveRaw(target,false)).toBeDefined();
           });
           it("retrieved raw is same",function () {
-            expect(retrieveRaw(targetObject,false)).toBe(raw);
+            expect(retrieveRaw(target,false)).toBe(raw);
           });
         });
         describe("create argument is true",function () {
           it("raw is retrieved",function () {
-            expect(retrieveRaw(targetObject,true)).toBeDefined();
+            expect(retrieveRaw(target,true)).toBeDefined();
           });
           it("retrieved raw is same",function () {
-            expect(retrieveRaw(targetObject,true)).toBe(raw);
+            expect(retrieveRaw(target,true)).toBe(raw);
           });
-        });
-        it("internalObject exists",function () {
-          expect(targetObject[BeautifulProperties.Internal.Key]).toBeDefined();
-        });
-        it("internalObject is not enumerable",function () {
-          for (var key in targetObject) {
-            expect(key).not.toBe(BeautifulProperties.Internal.Key);
-          }
         });
       });
     });
