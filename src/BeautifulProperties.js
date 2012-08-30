@@ -30,6 +30,12 @@
       return slice.call(arrayLike);
     };
   })();
+
+  Object.defineProperty(BeautifulProperties,'VERSION',{
+    value : '0.1.0',
+    writable : false
+  });
+
   /**
    * @type {Function}
    */
