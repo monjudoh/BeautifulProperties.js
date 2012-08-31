@@ -5,15 +5,15 @@ BeautifulProperties.js - Extension of ECMAScript5 property.
 Features
 ========
 
-defineDefaultValueProperty
+LazyInitializable
 --------------------------
 
-BeautifulProperties.defineDefaultValueProperty define property it has default value depends on instance.
+BeautifulProperties.LazyInitializable.define can define a property, it's initialized at first access.
 
 .. code-block:: javascript
 
   var proto = {};
-  BeautifulProperties.defineDefaultValueProperty(proto,'boundFunction',function(){
+  BeautifulProperties.LazyInitializable.define(proto,'boundFunction',function(){
     return (function () {
       console.log(this);
     }).bind(this);
@@ -21,11 +21,11 @@ BeautifulProperties.defineDefaultValueProperty define property it has default va
   var object1 = Object.create(proto);
   object1.a = 1;
   var boundFunction1 = object1.boundFunction;
-  boundFunction1();// {a:1}
+  boundFunction1();// {a:1,boundFunction:fn}
   var object2 = Object.create(proto);
   object2.a = 2;
   var boundFunction2 = object2.boundFunction;
-  boundFunction2();// {a:2}
+  boundFunction2();// {a:2boundFunction:fn}
 
 Hookable
 ----------------------
