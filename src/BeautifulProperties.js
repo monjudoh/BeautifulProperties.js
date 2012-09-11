@@ -32,7 +32,7 @@
   })();
 
   Object.defineProperty(BeautifulProperties,'VERSION',{
-    value : '0.1.0',
+    value : '0.1.1x',
     writable : false
   });
 
@@ -327,10 +327,12 @@
         if (object[methodName]) {
           return;
         }
-        BeautifulProperties.LazyInitializable.define(object,methodName,function(){
-          var self = this;
-          return Events[methodName].bind(Events,self);
-        });
+        var methodImpl = Events[methodName];
+        object[methodName] = function () {
+          var args = Array_from(arguments);
+          args.unshift(this);
+          methodImpl.apply(Events,args);
+        };
       });
     };
   })(BeautifulProperties.Events);
