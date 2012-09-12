@@ -205,6 +205,30 @@
     writable : false
   });
   (function (Events) {
+    /**
+     *
+     * @property type {String}
+     * @param type
+     * @constructor
+     */
+    function Event(type) {
+      Object.defineProperty(this,'type',{
+        writable:false,
+        value:type
+      });
+    }
+    (function (proto) {
+      Object.defineProperty(proto,'type',{
+        writable:true,
+        value:''
+      });
+      proto.stopPropagation = function stopPropagation () {
+        // TODO implement
+      };
+    })(Event.prototype);
+    Events.Event = Event;
+  })(BeautifulProperties.Events);
+  (function (Events,Event) {
     var retrieveCallbacks = retrieveInternalObject.bind(null,'callbacks');
     // Regular expression used to split event strings
     var eventSplitter = /\s+/;
@@ -297,7 +321,7 @@
         // Execute event callbacks.
         if (list) {
           for (i = 0, length = list.length; i < length; i++) {
-            list[i].apply(object, rest);
+            list[i].apply(object, [new Event(event)].concat(rest));
           }
         }
       }
@@ -314,7 +338,7 @@
         triggerInternal(events, calls, target, rest);
       } while (object = Object.getPrototypeOf(object)) ;
     };
-  })(BeautifulProperties.Events);
+  })(BeautifulProperties.Events,BeautifulProperties.Events.Event);
 
   (function (Events) {
     /**

@@ -96,7 +96,7 @@ BeautifulProperties.Observable.define supports key/value observation.
   var object = {};
   BeautifulProperties.Observable.define(object,'key');
   object.key=1;
-  BeautifulProperties.Events.on(object,'change:key',function(val,previousVal){
+  BeautifulProperties.Events.on(object,'change:key',function(ev,val,previousVal){
     console.log(val,previousVal);// val:2,previousVal:1
   });
   object.key=2;

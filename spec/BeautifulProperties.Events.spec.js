@@ -71,11 +71,11 @@ describe("BeautifulProperties.Events", function() {
       });
       it("with no arguments",function(){
         BeautifulProperties.Events.trigger(targetObject,'test');
-        expect(callbackSpy).toHaveBeenCalledWith();
+        expect(callbackSpy).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event));
       });
       it("with arguments",function(){
         BeautifulProperties.Events.trigger(targetObject,'test',1,'2');
-        expect(callbackSpy).toHaveBeenCalledWith(1,'2');
+        expect(callbackSpy).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event),1,'2');
       });
     });
     describe("triggerWithBubbling",function () {
@@ -97,15 +97,15 @@ describe("BeautifulProperties.Events", function() {
         });
         it("with no arguments",function(){
           BeautifulProperties.Events.triggerWithBubbling(targetObject,'test');
-          expect(callbackSpy1).toHaveBeenCalledWith();
-          expect(callbackSpy2).toHaveBeenCalledWith();
-          expect(callbackSpy3).toHaveBeenCalledWith();
+          expect(callbackSpy1).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event));
+          expect(callbackSpy2).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event));
+          expect(callbackSpy3).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event));
         });
         it("with arguments",function(){
           BeautifulProperties.Events.triggerWithBubbling(targetObject,'test',1,'2');
-          expect(callbackSpy1).toHaveBeenCalledWith(1,'2');
-          expect(callbackSpy2).toHaveBeenCalledWith(1,'2');
-          expect(callbackSpy3).toHaveBeenCalledWith(1,'2');
+          expect(callbackSpy1).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event),1,'2');
+          expect(callbackSpy2).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event),1,'2');
+          expect(callbackSpy3).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event),1,'2');
         });
       });
     });
