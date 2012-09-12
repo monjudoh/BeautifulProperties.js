@@ -129,4 +129,4 @@ Contributors
 ============
 
 * aodag (Atsushi Odagiri) aodagx@gmail.com https://github.com/aodag
-  * He named this library.
+    * He named this library.
