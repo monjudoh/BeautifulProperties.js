@@ -362,33 +362,45 @@
   })(BeautifulProperties.Events);
 
   BeautifulProperties.Observable = Object.create(null);
-  /**
-   *
-   * @param {Object} object
-   * @param {String} key
-   * @param {Object} hooks
-   */
-  BeautifulProperties.Observable.define = function defineObservableProperty(object,key,hooks,options) {
-    var wrappedHooks = {};
-    hooks = hooks || Object.create(null);
-    Object.keys(hooks).forEach(function(key){
-      wrappedHooks[key] = hooks[key];
-    });
+  (function (Observable,Events) {
     /**
      *
-     * @type {Function}
+     * @param {Object} object
+     * @param {String} key
+     * @param {Object} hooks
+     * @param {Object} options
      */
-    var afterSet = hooks.afterSet;
-    wrappedHooks.afterSet = function (val,previousVal) {
-      var self = this;
-      if (afterSet) {
-        afterSet.call(self,val,previousVal);
-      }
-      if (previousVal != val) {
-        BeautifulProperties.Events.trigger(self,('change:' + key),val,previousVal);
-      }
+    Observable.define = function defineObservableProperty(object,key,hooks,options) {
+      var originalOptions = options;
+      options = options || {};
+
+      var wrappedHooks = {};
+      hooks = hooks || Object.create(null);
+      Object.keys(hooks).forEach(function(key){
+        wrappedHooks[key] = hooks[key];
+      });
+
+
+      var trigger = options.bubble
+        ? Events.triggerWithBubbling.bind(Events)
+        : Events.trigger.bind(Events);
+      /**
+       *
+       * @type {Function}
+       */
+      var afterSet = hooks.afterSet;
+      wrappedHooks.afterSet = function (val,previousVal) {
+        var self = this;
+        if (afterSet) {
+          afterSet.call(self,val,previousVal);
+        }
+        if (previousVal != val) {
+          trigger(self,('change:' + key),val,previousVal);
+        }
+      };
+      BeautifulProperties.Hookable.define(object,key,wrappedHooks,originalOptions);
     };
-    BeautifulProperties.Hookable.define(object,key,wrappedHooks,options);
-  };
+  })(BeautifulProperties.Observable,BeautifulProperties.Events);
+
   return BeautifulProperties;
 })(this),'BeautifulProperties',this);
