@@ -13,7 +13,7 @@ describe("BeautifulProperties", function() {
       });
       describe("after create raw for target",function () {
         beforeEach(function(){
-          retrieveRaw(target,true);
+          retrieveRaw(true,target);
         });
         it("internalObject exists",function () {
           expect(target[BeautifulProperties.Internal.Key]).toBeDefined();
@@ -26,61 +26,48 @@ describe("BeautifulProperties", function() {
       });
       describe("prototype has internalObject",function () {
         beforeEach(function(){
-          retrieveRaw(prototype,true);
+          retrieveRaw(true,prototype);
         });
         it("can not retrieveRaw from target",function () {
-          expect(retrieveRaw(target)).not.toBeDefined();
+          expect(retrieveRaw(false,target)).not.toBeDefined();
         });
         it("target's raw isn't same with prototype's raw",function () {
-          var raw = retrieveRaw(target,true);
+          var raw = retrieveRaw(true,target);
           expect(raw).toBeDefined();
-          expect(raw).not.toBe(retrieveRaw(prototype));
+          expect(raw).not.toBe(retrieveRaw(false,prototype));
         });
       });
       describe("target don't have internalObject",function () {
-        describe("no create argument",function () {
-          it("raw is not retrieved",function () {
-            expect(retrieveRaw(target)).not.toBeDefined();
-          });
-        });
         describe("create argument is false",function () {
           it("raw is not retrieved",function () {
-            expect(retrieveRaw(target,false)).not.toBeDefined();
+            expect(retrieveRaw(false,target)).not.toBeDefined();
           });
         });
         describe("create argument is true",function () {
           it("raw is retrieved",function () {
-            expect(retrieveRaw(target,true)).toBeDefined();
+            expect(retrieveRaw(true,target)).toBeDefined();
           });
         });
       });
       describe("target has internalObject",function () {
         var raw;
         beforeEach(function(){
-          raw = retrieveRaw(target,true);
-        });
-        describe("no create argument",function () {
-          it("raw is retrieved",function () {
-            expect(retrieveRaw(target)).toBeDefined();
-          });
-          it("retrieved raw is same",function () {
-            expect(retrieveRaw(target)).toBe(raw);
-          });
+          raw = retrieveRaw(true,target);
         });
         describe("create argument is false",function () {
           it("raw is retrieved",function () {
-            expect(retrieveRaw(target,false)).toBeDefined();
+            expect(retrieveRaw(false,target)).toBeDefined();
           });
           it("retrieved raw is same",function () {
-            expect(retrieveRaw(target,false)).toBe(raw);
+            expect(retrieveRaw(false,target)).toBe(raw);
           });
         });
         describe("create argument is true",function () {
           it("raw is retrieved",function () {
-            expect(retrieveRaw(target,true)).toBeDefined();
+            expect(retrieveRaw(true,target)).toBeDefined();
           });
           it("retrieved raw is same",function () {
-            expect(retrieveRaw(target,true)).toBe(raw);
+            expect(retrieveRaw(true,target)).toBe(raw);
           });
         });
       });

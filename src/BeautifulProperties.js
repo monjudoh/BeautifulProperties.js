@@ -71,7 +71,7 @@
     });
   }
   BeautifulProperties.Internal.retrieve = retrieveInternalObject;
-  function retrieveInternalObject(key,object,create) {
+  function retrieveInternalObject(key, create, object) {
     var internalObjectKey = BeautifulProperties.Internal.Key;
     var hasInternal = hasOwnProperty(object,internalObjectKey);
     if (!create) {
@@ -87,7 +87,6 @@
     }
     return object[internalObjectKey][key];
   }
-  var retrieveRaw = retrieveInternalObject.bind(null,'raw');
 
   Object.defineProperty(BeautifulProperties,'LazyInitializable',{
     value : Object.create(null),
@@ -120,6 +119,7 @@
       configurable : true
     });
   };
+  var retrieveRaw = retrieveInternalObject.bind(null,'raw');
   /**
    *
    * @param {Object} object
@@ -127,7 +127,7 @@
    * @return {*}
    */
   BeautifulProperties.getRaw = function getRaw(object,key) {
-    return (retrieveRaw(object) || {})[key];
+    return (retrieveRaw(false,object) || {})[key];
   };
   /**
    *
@@ -136,7 +136,7 @@
    * @param {*} val
    */
   BeautifulProperties.setRaw = function setRaw(object,key,val) {
-    var raw = retrieveRaw(object,true);
+    var raw = retrieveRaw(true,object);
     raw[key] = val;
   };
 
@@ -144,7 +144,7 @@
    * @function
    * @returns {Meta}
    */
-  var retrieveMeta = retrieveInternalObject.bind(null,'meta');
+  var retrieveMeta = retrieveInternalObject.bind(null,'meta',true);
 
   BeautifulProperties.Hookable = Object.create(null);
   /**
@@ -193,7 +193,7 @@
     Object.defineProperty(object,key,{
       get : function () {
         var self = this;
-        var meta = retrieveMeta(self,true)(key);
+        var meta = retrieveMeta(self)(key);
         if (!meta.isInited && options.init) {
           meta.isInited = true;
           self[key] = options.init.call(self);
@@ -259,7 +259,7 @@
     Events.Event = Event;
   })(BeautifulProperties.Events);
   (function (Events,Event) {
-    var retrieveCallbacks = retrieveInternalObject.bind(null,'callbacks');
+    var retrieveCallbacks = retrieveInternalObject.bind(null,'callbacks',true);
     // Regular expression used to split event strings
     var eventSplitter = /\s+/;
     /**
@@ -279,7 +279,7 @@
       }
 
       events = events.split(eventSplitter);
-      calls = retrieveCallbacks(object,true);
+      calls = retrieveCallbacks(object);
 
       while (event = events.shift()) {
         list = calls[event] || (calls[event] = []);
