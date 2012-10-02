@@ -152,6 +152,7 @@
    * @param {Object} object
    * @param {String} key
    * @param {Object} hooks
+   * @param {Object} options
    */
   BeautifulProperties.Hookable.define = function defineHookableProperty(object,key,hooks,options) {
     /**
@@ -175,6 +176,19 @@
      */
     var afterSet = hooks.afterSet;
     options = options || Object.create(null);
+
+    var value = options.value;
+
+    // TODO remove start
+    if ((options.defaultVal || options.defaultValGenerator) && (global.console && global.console.warn)) {
+      if (options.defaultVal) {
+        console.warn('options.defaultVal is deprecated.You shoud use options.value.',object,key);
+      }
+      if (options.defaultValGenerator) {
+        console.warn('options.defaultValGenerator is deprecated.You shoud use options.init.',object,key);
+      }
+    }
+    value = value || options.defaultVal;
     function retrieveDefaultVal(){
       var self = this;
       var defaultVal = options.defaultVal;
@@ -190,22 +204,29 @@
     } else {
       retrieveDefaultVal = null;
     }
+    // TODO remove end
     Object.defineProperty(object,key,{
       get : function () {
         var self = this;
         var meta = retrieveMeta(self)(key);
-        if (!meta.isInited && options.init) {
+        if (!meta.isInited && (options.init || value)) {
           meta.isInited = true;
-          self[key] = options.init.call(self);
+          if (options.init) {
+            self[key] = options.init.call(self);
+          } else if (value) {
+            self[key] = value;
+          }
           return self[key];
         }
         if (beforeGet) {
           beforeGet.call(self);
         }
         var val = BeautifulProperties.getRaw(self,key);
+        // TODO remove start
         if (retrieveDefaultVal && val === undefined) {
           val = retrieveDefaultVal.apply(self);
         }
+        // TODO remove end
         if (afterGet) {
           val = afterGet.call(self,val);
         }
