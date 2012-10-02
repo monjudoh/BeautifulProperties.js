@@ -37,6 +37,14 @@
   });
 
   /**
+   * @property {Boolean} isInited
+   * @constructor
+   */
+  function Meta(){
+    this.isInited = false;
+  }
+
+  /**
    * @type {Function}
    */
   var hasOwnProperty = Object.hasOwnProperty.call.bind(Object.hasOwnProperty);
@@ -50,6 +58,15 @@
     });
     Object.defineProperty(self,'callbacks',{
       value : {},
+      writable : false
+    });
+    Object.defineProperty(self,'meta',{
+      value : (function(key){
+        if (!this[key]) {
+          this[key] = new Meta;
+        }
+        return this[key];
+      }).bind(Object.create(null)),
       writable : false
     });
   }
@@ -122,6 +139,13 @@
     var raw = retrieveRaw(object,true);
     raw[key] = val;
   };
+
+  /**
+   * @function
+   * @returns {Meta}
+   */
+  var retrieveMeta = retrieveInternalObject.bind(null,'meta');
+
   BeautifulProperties.Hookable = Object.create(null);
   /**
    *
@@ -169,6 +193,12 @@
     Object.defineProperty(object,key,{
       get : function () {
         var self = this;
+        var meta = retrieveMeta(self,true)(key);
+        if (!meta.isInited && options.init) {
+          meta.isInited = true;
+          self[key] = options.init.call(self);
+          return self[key];
+        }
         if (beforeGet) {
           beforeGet.call(self);
         }
