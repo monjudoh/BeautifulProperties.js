@@ -235,9 +235,11 @@
       set : function (val) {
         var self = this;
         var previousVal = BeautifulProperties.getRaw(self,key);
+        // TODO remove start
         if (retrieveDefaultVal && previousVal === undefined) {
           previousVal = retrieveDefaultVal.apply(self);
         }
+        // TODO remove end
         if (beforeSet) {
           val = beforeSet.call(self,val,previousVal);
         }
