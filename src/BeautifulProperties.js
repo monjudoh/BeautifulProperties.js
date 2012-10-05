@@ -30,11 +30,77 @@
       return slice.call(arrayLike);
     };
   })();
+  var toString = Object.prototype.toString;
+  function isFunction(obj) {
+    return toString.call(obj) == '[object Function]';
+  }
+  var hasConsoleWarn = global.console && global.console.warn;
 
   Object.defineProperty(BeautifulProperties,'VERSION',{
     value : '0.1.1x',
     writable : false
   });
+
+  Object.defineProperty(BeautifulProperties,'LazyInitializable',{
+    value : Object.create(null),
+    writable : false
+  });
+  (function (LazyInitializable) {
+    var DescriptorKeys = 'configurable enumerable writable'.split(' ');
+    var defaultDescriptor = (function () {
+      var obj = Object.create(null);
+      Object.defineProperty(obj,'key',{
+        value : 1
+      });
+      return Object.getOwnPropertyDescriptor(obj,'key');
+    })();
+    /**
+     *
+     * @param object {Object}
+     * @param key {String}
+     * @param descriptor {Object}
+     */
+    LazyInitializable.define = function defineLazyInitializableProperty(object,key,descriptor) {
+      var init;
+      // TODO remove start
+      if (isFunction(descriptor)) {
+        if (hasConsoleWarn) {
+          console.warn('init function is deprecated.You shoud use descriptor.init.',object,key);
+        }
+        init = descriptor;
+        descriptor = Object.create(null);
+        descriptor.init = init;
+        descriptor.writable = true;
+      }
+      // TODO remove end
+      init = descriptor.init;
+      var origDescriptor = descriptor;
+      descriptor = Object.create(null);
+      DescriptorKeys.forEach(function(key){
+        var val = origDescriptor[key];
+        if (val !== undefined) {
+          descriptor[key] = val;
+        } else {
+          descriptor[key] = defaultDescriptor[key];
+        }
+      });
+      Object.defineProperty(object,key,{
+        get : function () {
+          var self = this;
+          var val = init.apply(self);
+          descriptor.value = val;
+          Object.defineProperty(self,key,descriptor);
+          return val;
+        },
+        set : function (val) {
+          var self = this;
+          descriptor.value = val;
+          Object.defineProperty(self,key,descriptor);
+        },
+        configurable : true
+      });
+    };
+  })(BeautifulProperties.LazyInitializable);
 
   /**
    * @property {Boolean} isInited
@@ -88,37 +154,6 @@
     return object[internalObjectKey][key];
   }
 
-  Object.defineProperty(BeautifulProperties,'LazyInitializable',{
-    value : Object.create(null),
-    writable : false
-  });
-  /**
-   *
-   * @param object {Object}
-   * @param key {String}
-   * @param init {Function}
-   */
-  BeautifulProperties.LazyInitializable.define = function defineDefaultValueProperty(object,key,init) {
-    Object.defineProperty(object,key,{
-      get : function () {
-        var self = this;
-        var val = init.apply(self);
-        Object.defineProperty(self,key,{
-          value:val,
-          writable:true
-        });
-        return val;
-      },
-      set : function (val) {
-        var self = this;
-        Object.defineProperty(self,key,{
-          value:val,
-          writable:true
-        });
-      },
-      configurable : true
-    });
-  };
   var retrieveRaw = retrieveInternalObject.bind(null,'raw');
   /**
    *
@@ -183,7 +218,7 @@
     var value = options.value;
 
     // TODO remove start
-    if ((options.defaultVal || options.defaultValGenerator) && (global.console && global.console.warn)) {
+    if ((options.defaultVal || options.defaultValGenerator) && hasConsoleWarn) {
       if (options.defaultVal) {
         console.warn('options.defaultVal is deprecated.You shoud use options.value.',object,key);
       }

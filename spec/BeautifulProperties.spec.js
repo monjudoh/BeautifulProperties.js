@@ -74,37 +74,85 @@ describe("BeautifulProperties", function() {
     });
   });
   describe(".LazyInitializable.define", function() {
+    var object,spy;
+    beforeEach(function(){
+      object = Object.create(null);
+      spy = jasmine.createSpy();
+    });
     it("define property",function(){
-      var object = Object.create(null);
       var expectedValue = 1;
       expect(object['key']).toBeUndefined();
-      BeautifulProperties.LazyInitializable.define(object,'key',function(){
-        return expectedValue;
+      BeautifulProperties.LazyInitializable.define(object,'key',{
+        init : function(){
+          return expectedValue;
+        }
       });
       expect(object['key']).toEqual(expectedValue);
     });
-    it("defaultValueGenerator to have been called only after first property access",function(){
-      var spy = jasmine.createSpy();
-      var object = Object.create(null);
-      BeautifulProperties.LazyInitializable.define(object,'key',function (){
-        spy();
-        return 1;
+    it("init to have been called only after first property access",function(){
+      BeautifulProperties.LazyInitializable.define(object,'key',{
+        init : function (){
+          spy();
+          return 1;
+        }
       });
 
       expect(spy).not.toHaveBeenCalled();
       object['key'];
       expect(spy).toHaveBeenCalled();
     });
-    it("defaultValueGenerator's context is saved",function(){
-      var spy = jasmine.createSpy();
-      var object = Object.create(null);
-      BeautifulProperties.LazyInitializable.define(object,'key',function (){
-        expect(this).toBe(object);
-        spy();
-        return 1;
+    it("init's context is saved",function(){
+      BeautifulProperties.LazyInitializable.define(object,'key',{
+        init : function (){
+          expect(this).toBe(object);
+          spy();
+          return 1;
+        }
       });
       object['key'];
       expect(spy).toHaveBeenCalled();
-    })
+    });
+    [{
+      value:1,
+      configurable : true,
+      enumerable : true,
+      writable : true
+    },
+    {
+      value:1,
+      configurable : false,
+      enumerable : false,
+      writable : false
+    }].forEach(function(expectedDescriptor){
+      it("can set property descriptor",function(){
+        BeautifulProperties.LazyInitializable.define(object,'key',{
+          init : function (){
+            return expectedDescriptor.value;
+          },
+          configurable : expectedDescriptor.configurable,
+          enumerable : expectedDescriptor.enumerable,
+          writable : expectedDescriptor.writable
+        });
+        object['key'];
+        var actualDescriptor = Object.getOwnPropertyDescriptor(object,'key');
+        expect(actualDescriptor).toEqual(expectedDescriptor);
+      });
+    });
+    it("default property descriptor",function(){
+      var temp = Object.create(null);
+      Object.defineProperty(temp,'key',{
+        value : 1
+      });
+      var expectedDescriptor = Object.getOwnPropertyDescriptor(temp,'key');
+      BeautifulProperties.LazyInitializable.define(object,'key',{
+        init : function (){
+          return 1;
+        }
+      });
+      object['key'];
+      var actualDescriptor = Object.getOwnPropertyDescriptor(object,'key');
+      expect(actualDescriptor).toEqual(expectedDescriptor);
+    });
+
   });
 });
