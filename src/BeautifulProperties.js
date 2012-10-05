@@ -147,6 +147,8 @@
   var retrieveMeta = retrieveInternalObject.bind(null,'meta',true);
 
   BeautifulProperties.Hookable = Object.create(null);
+
+  BeautifulProperties.Hookable.Undefined = Object.create(null);
   /**
    *
    * @param {Object} object
@@ -155,24 +157,25 @@
    * @param {Object} options
    */
   BeautifulProperties.Hookable.define = function defineHookableProperty(object,key,hooks,options) {
+    var Undefined = BeautifulProperties.Hookable.Undefined;
     /**
      *
-     * @type {Function}
+     * @function
      */
     var beforeGet = hooks.beforeGet;
     /**
      *
-     * @type {Function}
+     * @function
      */
     var afterGet = hooks.afterGet;
     /**
      *
-     * @type {Function}
+     * @function
      */
     var beforeSet = hooks.beforeSet;
     /**
      *
-     * @type {Function}
+     * @function
      */
     var afterSet = hooks.afterSet;
     options = options || Object.create(null);
@@ -228,7 +231,13 @@
         }
         // TODO remove end
         if (afterGet) {
-          val = afterGet.call(self,val);
+          var replacedVal = afterGet.call(self,val);
+          if (replacedVal === undefined && replacedVal !== Undefined) {
+          } else if (replacedVal === Undefined) {
+            val = undefined;
+          } else {
+            val = replacedVal;
+          }
         }
         return val;
       },
@@ -241,7 +250,13 @@
         }
         // TODO remove end
         if (beforeSet) {
-          val = beforeSet.call(self,val,previousVal);
+          var replacedVal = beforeSet.call(self,val,previousVal);
+          if (replacedVal === undefined && replacedVal !== Undefined) {
+          } else if (replacedVal === Undefined) {
+            val = undefined;
+          } else {
+            val = replacedVal;
+          }
         }
         BeautifulProperties.setRaw(self,key,val);
         if (afterSet) {
