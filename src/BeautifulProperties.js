@@ -37,7 +37,7 @@
   var hasConsoleWarn = global.console && global.console.warn;
 
   Object.defineProperty(BeautifulProperties,'VERSION',{
-    value : '0.1.1x',
+    value : '0.1.1',
     writable : false
   });
 
