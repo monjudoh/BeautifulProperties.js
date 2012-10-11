@@ -278,6 +278,10 @@
       },
       set : function (val) {
         var self = this;
+        var meta = retrieveMeta(self)(key);
+        if (!meta.isInited) {
+          meta.isInited = true;
+        }
         var previousVal = BeautifulProperties.getRaw(self,key);
         // TODO remove start
         if (retrieveDefaultVal && previousVal === undefined) {
