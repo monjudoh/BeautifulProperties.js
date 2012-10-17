@@ -2,7 +2,7 @@
  * BeautifulProperties.js - Extension of ECMAScript5 property.
  *
  * https://github.com/monjudoh/BeautifulProperties.js
- * version: 0.1
+ * version: 0.1.2
  *
  * Copyright (c) 2012 monjudoh
  * Dual licensed under the MIT (MIT-LICENSE.txt)
@@ -34,10 +34,18 @@
   function isFunction(obj) {
     return toString.call(obj) == '[object Function]';
   }
+  /**
+   * @function
+   * @param obj
+   * @param key
+   * @return {Boolean}
+   */
+  var hasOwn = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty);
   var hasConsoleWarn = global.console && global.console.warn;
+  var hasConsoleError = global.console && global.console.warn;
 
   Object.defineProperty(BeautifulProperties,'VERSION',{
-    value : '0.1.1',
+    value : '0.1.2x',
     writable : false
   });
 
@@ -87,9 +95,28 @@
       Object.defineProperty(object,key,{
         get : function () {
           var self = this;
+          var currentDescriptor = Object.getOwnPropertyDescriptor(self,key);
+          // The getter is rarely called twice in Mobile Safari(iOS6.0).
+          // Given init function is called twice when the getter is called twice.
+          // If descriptor.writable or descriptor.configurable is false,
+          // "Attempting to change value of a readonly property." error is thrown
+          // when calling given init function for the second time.
+          var isInitialized = !!currentDescriptor && hasOwn(currentDescriptor,'value');
+          if (isInitialized) {
+            return currentDescriptor.value;
+          }
           var val = init.apply(self);
           descriptor.value = val;
-          Object.defineProperty(self,key,descriptor);
+          try {
+            Object.defineProperty(self, key, descriptor);
+          } catch (e) {
+            if (hasConsoleError) {
+              console.error(e);
+              console.error(e.stack);
+              console.error(self, key, descriptor, currentDescriptor);
+            }
+            throw e;
+          }
           return val;
         },
         set : function (val) {
@@ -110,10 +137,6 @@
     this.isInited = false;
   }
 
-  /**
-   * @type {Function}
-   */
-  var hasOwnProperty = Object.hasOwnProperty.call.bind(Object.hasOwnProperty);
   BeautifulProperties.Internal = {};
   BeautifulProperties.Internal.Key = 'BeautifulProperties::internalObjectKey';
   function InternalObject() {
@@ -139,7 +162,7 @@
   BeautifulProperties.Internal.retrieve = retrieveInternalObject;
   function retrieveInternalObject(key, create, object) {
     var internalObjectKey = BeautifulProperties.Internal.Key;
-    var hasInternal = hasOwnProperty(object,internalObjectKey);
+    var hasInternal = hasOwn(object,internalObjectKey);
     if (!create) {
       return (hasInternal ? object[internalObjectKey] : {})[key];
     }
