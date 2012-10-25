@@ -69,19 +69,7 @@
      * @param descriptor {Object}
      */
     LazyInitializable.define = function defineLazyInitializableProperty(object,key,descriptor) {
-      var init;
-      // TODO remove start
-      if (isFunction(descriptor)) {
-        if (hasConsoleWarn) {
-          console.warn('init function is deprecated.You shoud use descriptor.init.',object,key);
-        }
-        init = descriptor;
-        descriptor = Object.create(null);
-        descriptor.init = init;
-        descriptor.writable = true;
-      }
-      // TODO remove end
-      init = descriptor.init;
+      var init = descriptor.init;
       var origDescriptor = descriptor;
       descriptor = Object.create(null);
       DescriptorKeys.forEach(function(key){
@@ -239,33 +227,6 @@
     options = options || Object.create(null);
 
     var value = options.value;
-
-    // TODO remove start
-    if ((options.defaultVal || options.defaultValGenerator) && hasConsoleWarn) {
-      if (options.defaultVal) {
-        console.warn('options.defaultVal is deprecated.You shoud use options.value.',object,key);
-      }
-      if (options.defaultValGenerator) {
-        console.warn('options.defaultValGenerator is deprecated.You shoud use options.init.',object,key);
-      }
-    }
-    value = value || options.defaultVal;
-    function retrieveDefaultVal(){
-      var self = this;
-      var defaultVal = options.defaultVal;
-      var defaultValGenerator = options.defaultValGenerator;
-      if (defaultVal) {
-        return defaultVal;
-      }
-      if (defaultValGenerator) {
-        return defaultValGenerator.apply(self);
-      }
-    }
-    if (options.defaultVal || options.defaultValGenerator) {
-    } else {
-      retrieveDefaultVal = null;
-    }
-    // TODO remove end
     Object.defineProperty(object,key,{
       get : function () {
         var self = this;
@@ -283,11 +244,6 @@
           beforeGet.call(self);
         }
         var val = BeautifulProperties.getRaw(self,key);
-        // TODO remove start
-        if (retrieveDefaultVal && val === undefined) {
-          val = retrieveDefaultVal.apply(self);
-        }
-        // TODO remove end
         if (afterGet) {
           var replacedVal = afterGet.call(self,val);
           if (replacedVal === undefined && replacedVal !== Undefined) {
@@ -306,11 +262,6 @@
           meta.isInited = true;
         }
         var previousVal = BeautifulProperties.getRaw(self,key);
-        // TODO remove start
-        if (retrieveDefaultVal && previousVal === undefined) {
-          previousVal = retrieveDefaultVal.apply(self);
-        }
-        // TODO remove end
         if (beforeSet) {
           var replacedVal = beforeSet.call(self,val,previousVal);
           if (replacedVal === undefined && replacedVal !== Undefined) {
