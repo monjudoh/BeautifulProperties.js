@@ -135,14 +135,6 @@
     };
   })(BeautifulProperties.LazyInitializable);
 
-  /**
-   * @property {Boolean} isInited
-   * @constructor
-   */
-  function Meta(){
-    this.isInited = false;
-  }
-
   BeautifulProperties.Internal = {};
   BeautifulProperties.Internal.Key = 'BeautifulProperties::internalObjectKey';
   function InternalObject() {
@@ -153,15 +145,6 @@
     });
     Object.defineProperty(self,'callbacks',{
       value : {},
-      writable : false
-    });
-    Object.defineProperty(self,'meta',{
-      value : (function(key){
-        if (!this[key]) {
-          this[key] = new Meta;
-        }
-        return this[key];
-      }).bind(Object.create(null)),
       writable : false
     });
   }
@@ -204,92 +187,111 @@
     raw[key] = val;
   };
 
-  /**
-   * @function
-   * @returns {Meta}
-   */
-  var retrieveMeta = retrieveInternalObject.bind(null,'meta',true);
-
   BeautifulProperties.Hookable = Object.create(null);
-
-  BeautifulProperties.Hookable.Undefined = Object.create(null);
-  /**
-   *
-   * @param {Object} object
-   * @param {string} key
-   * @param {?{beforeGet:?function,afterGet:?function,beforeSet:?function,afterSet:?function}} hooks
-   * @param {?{value:?*,init:?function,writable:?boolean}} descriptor
-   *  descriptor.writable's default value is false in ES5,but it's true in BeautifulProperties.Hookable.
-   */
-  BeautifulProperties.Hookable.define = function defineHookableProperty(object,key,hooks,descriptor) {
-    var Undefined = BeautifulProperties.Hookable.Undefined;
-
-    hooks = hooks || Object.create(null);
-    var beforeGet = hooks.beforeGet;
-    var afterGet = hooks.afterGet;
-    var beforeSet = hooks.beforeSet;
-    var afterSet = hooks.afterSet;
-    descriptor = applyDefaultDescriptor(descriptor,{writable:true});
-
-    var isValueExist = descriptor.value !== undefined;
-    Object.defineProperty(object,key,{
-      get : function () {
-        var meta = retrieveMeta(this)(key);
-        if (!meta.isInited && (descriptor.init || isValueExist)) {
-          meta.isInited = true;
-          var initialValue;
-          if (descriptor.init) {
-            initialValue = descriptor.init.call(this);
-          } else if (isValueExist) {
-            initialValue = descriptor.value;
-          }
-          if (descriptor.writable) {
-            this[key] = initialValue;
-          } else {
-            BeautifulProperties.setRaw(this,key,initialValue);
+  (function (Hookable,LazyInitializable) {
+    /**
+     * @property {Boolean} isInited
+     * @constructor
+     */
+    function Meta(){
+      this.isInited = false;
+    }
+    LazyInitializable.define(InternalObject.prototype,'Hookable::Meta',{
+      init: function() {
+        return (function(key){
+          if (!this[key]) {
+            this[key] = new Meta;
           }
           return this[key];
-        }
-        if (beforeGet) {
-          beforeGet.call(this);
-        }
-        var val = BeautifulProperties.getRaw(this,key);
-        if (afterGet) {
-          var replacedVal = afterGet.call(this,val);
-          if (replacedVal === undefined && replacedVal !== Undefined) {
-          } else if (replacedVal === Undefined) {
-            val = undefined;
-          } else {
-            val = replacedVal;
-          }
-        }
-        return val;
-      },
-      set : function (val) {
-        if (!descriptor.writable) {
-          return;
-        }
-        var meta = retrieveMeta(this)(key);
-        if (!meta.isInited) {
-          meta.isInited = true;
-        }
-        var previousVal = BeautifulProperties.getRaw(this,key);
-        if (beforeSet) {
-          var replacedVal = beforeSet.call(this,val,previousVal);
-          if (replacedVal === undefined && replacedVal !== Undefined) {
-          } else if (replacedVal === Undefined) {
-            val = undefined;
-          } else {
-            val = replacedVal;
-          }
-        }
-        BeautifulProperties.setRaw(this,key,val);
-        if (afterSet) {
-          afterSet.call(this,val,previousVal);
-        }
-      }
+        }).bind(Object.create(null));
+      },writable:false
     });
-  };
+
+    /**
+     * @function
+     * @returns {Meta}
+     */
+    var retrieveMeta = retrieveInternalObject.bind(null,'Hookable::Meta',true);
+
+    Hookable.Undefined = Object.create(null);
+    /**
+     *
+     * @param {Object} object
+     * @param {string} key
+     * @param {?{beforeGet:?function,afterGet:?function,beforeSet:?function,afterSet:?function}} hooks
+     * @param {?{value:?*,init:?function,writable:?boolean}} descriptor
+     *  descriptor.writable's default value is false in ES5,but it's true in BeautifulProperties.Hookable.
+     */
+    Hookable.define = function defineHookableProperty(object,key,hooks,descriptor) {
+      var Undefined = Hookable.Undefined;
+
+      hooks = hooks || Object.create(null);
+      var beforeGet = hooks.beforeGet;
+      var afterGet = hooks.afterGet;
+      var beforeSet = hooks.beforeSet;
+      var afterSet = hooks.afterSet;
+      descriptor = applyDefaultDescriptor(descriptor,{writable:true});
+
+      var isValueExist = descriptor.value !== undefined;
+      Object.defineProperty(object,key,{
+        get : function () {
+          var meta = retrieveMeta(this)(key);
+          if (!meta.isInited && (descriptor.init || isValueExist)) {
+            meta.isInited = true;
+            var initialValue;
+            if (descriptor.init) {
+              initialValue = descriptor.init.call(this);
+            } else if (isValueExist) {
+              initialValue = descriptor.value;
+            }
+            if (descriptor.writable) {
+              this[key] = initialValue;
+            } else {
+              BeautifulProperties.setRaw(this,key,initialValue);
+            }
+            return this[key];
+          }
+          if (beforeGet) {
+            beforeGet.call(this);
+          }
+          var val = BeautifulProperties.getRaw(this,key);
+          if (afterGet) {
+            var replacedVal = afterGet.call(this,val);
+            if (replacedVal === undefined && replacedVal !== Undefined) {
+            } else if (replacedVal === Undefined) {
+              val = undefined;
+            } else {
+              val = replacedVal;
+            }
+          }
+          return val;
+        },
+        set : function (val) {
+          if (!descriptor.writable) {
+            return;
+          }
+          var meta = retrieveMeta(this)(key);
+          if (!meta.isInited) {
+            meta.isInited = true;
+          }
+          var previousVal = BeautifulProperties.getRaw(this,key);
+          if (beforeSet) {
+            var replacedVal = beforeSet.call(this,val,previousVal);
+            if (replacedVal === undefined && replacedVal !== Undefined) {
+            } else if (replacedVal === Undefined) {
+              val = undefined;
+            } else {
+              val = replacedVal;
+            }
+          }
+          BeautifulProperties.setRaw(this,key,val);
+          if (afterSet) {
+            afterSet.call(this,val,previousVal);
+          }
+        }
+      });
+    };
+  })(BeautifulProperties.Hookable,BeautifulProperties.LazyInitializable);
 
   // BeautifulProperties.Events 's implementation is cloned from backbone.js and modified.
   // https://github.com/documentcloud/backbone
