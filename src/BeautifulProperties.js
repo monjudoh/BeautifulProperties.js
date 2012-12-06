@@ -49,19 +49,40 @@
     writable : false
   });
 
+  /**
+   * @function
+   * @param {{configurable:?boolean,enumerable:?boolean,writable:?boolean}} descriptor
+   * @return {{configurable:?boolean,enumerable:?boolean,writable:?boolean}} descriptor
+   */
+  var applyDefaultDescriptor = (function () {
+    var obj = Object.create(null);
+    Object.defineProperty(obj,'key',{
+      value : 1
+    });
+    var globalDefaultDescriptor = Object.getOwnPropertyDescriptor(obj,'key');
+    var DescriptorKeys = 'configurable enumerable writable'.split(' ');
+    function applyDefaultDescriptor(descriptor){
+      var origDescriptor = descriptor;
+      descriptor = Object.create(null);
+      for (var key in origDescriptor) {
+        descriptor[key] = origDescriptor[key];
+      }
+      for (var i = 0; i < DescriptorKeys.length; i++) {
+        var key = DescriptorKeys[i];
+        if (descriptor[key] === undefined) {
+          descriptor[key] = globalDefaultDescriptor[key];
+        }
+      }
+      return descriptor;
+    }
+    return applyDefaultDescriptor;
+  })();
+
   Object.defineProperty(BeautifulProperties,'LazyInitializable',{
     value : Object.create(null),
     writable : false
   });
   (function (LazyInitializable) {
-    var DescriptorKeys = 'configurable enumerable writable'.split(' ');
-    var defaultDescriptor = (function () {
-      var obj = Object.create(null);
-      Object.defineProperty(obj,'key',{
-        value : 1
-      });
-      return Object.getOwnPropertyDescriptor(obj,'key');
-    })();
     /**
      *
      * @param object {Object}
@@ -70,16 +91,7 @@
      */
     LazyInitializable.define = function defineLazyInitializableProperty(object,key,descriptor) {
       var init = descriptor.init;
-      var origDescriptor = descriptor;
-      descriptor = Object.create(null);
-      DescriptorKeys.forEach(function(key){
-        var val = origDescriptor[key];
-        if (val !== undefined) {
-          descriptor[key] = val;
-        } else {
-          descriptor[key] = defaultDescriptor[key];
-        }
-      });
+      descriptor = applyDefaultDescriptor(descriptor);
       Object.defineProperty(object,key,{
         get : function () {
           var self = this;
