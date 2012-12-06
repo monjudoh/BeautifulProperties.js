@@ -226,17 +226,17 @@
     var afterSet = hooks.afterSet;
     options = options || Object.create(null);
 
-    var value = options.value;
+    var isValueExist = options.value !== undefined;
     Object.defineProperty(object,key,{
       get : function () {
         var self = this;
         var meta = retrieveMeta(self)(key);
-        if (!meta.isInited && (options.init || value)) {
+        if (!meta.isInited && (options.init || isValueExist)) {
           meta.isInited = true;
           if (options.init) {
             self[key] = options.init.call(self);
-          } else if (value) {
-            self[key] = value;
+          } else if (isValueExist) {
+            self[key] = options.value;
           }
           return self[key];
         }

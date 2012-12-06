@@ -218,5 +218,26 @@ describe("BeautifulProperties.Hookable", function() {
         });
       });
     });
+    describe("options",function(){
+      describe("value",function(){
+        var object,hooks;
+        beforeEach(function(){
+          object = Object.create(null);
+          hooks = Object.create(null);
+        });
+        it("could set initial value.",function(){
+          BeautifulProperties.Hookable.define(object,'key',hooks,{
+            value:1
+          });
+          expect(object['key']).toBe(1);
+        });
+        it("could set initial value.",function(){
+          BeautifulProperties.Hookable.define(object,'key',hooks,{
+            value:0
+          });
+          expect(object['key']).toBe(0);
+        });
+      });
+    });
   });
 });
