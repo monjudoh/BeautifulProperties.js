@@ -198,31 +198,15 @@
   /**
    *
    * @param {Object} object
-   * @param {String} key
-   * @param {Object} hooks
-   * @param {Object} options
+   * @param {string} key
+   * @param {{beforeGet:?function,afterGet:?function,beforeSet:?function,afterSet:?function}} hooks
+   * @param {?{value:?*,init:?function}} options
    */
   BeautifulProperties.Hookable.define = function defineHookableProperty(object,key,hooks,options) {
     var Undefined = BeautifulProperties.Hookable.Undefined;
-    /**
-     *
-     * @function
-     */
     var beforeGet = hooks.beforeGet;
-    /**
-     *
-     * @function
-     */
     var afterGet = hooks.afterGet;
-    /**
-     *
-     * @function
-     */
     var beforeSet = hooks.beforeSet;
-    /**
-     *
-     * @function
-     */
     var afterSet = hooks.afterSet;
     options = options || Object.create(null);
 
@@ -447,9 +431,9 @@
     /**
      *
      * @param {Object} object
-     * @param {String} key
-     * @param {Object} hooks
-     * @param {Object} options
+     * @param {string} key
+     * @param {{beforeGet:?function,afterGet:?function,beforeSet:?function,afterSet:?function}} hooks
+     * @param {?{value:?*,init:?function,bubble:?boolean}} options
      */
     Observable.define = function defineObservableProperty(object,key,hooks,options) {
       var originalOptions = options;
@@ -465,10 +449,6 @@
       var trigger = options.bubble
         ? Events.triggerWithBubbling.bind(Events)
         : Events.trigger.bind(Events);
-      /**
-       *
-       * @type {Function}
-       */
       var afterSet = hooks.afterSet;
       wrappedHooks.afterSet = function (val,previousVal) {
         var self = this;
