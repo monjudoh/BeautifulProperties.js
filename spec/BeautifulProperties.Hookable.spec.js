@@ -218,7 +218,7 @@ describe("BeautifulProperties.Hookable", function() {
         });
       });
     });
-    describe("options",function(){
+    describe("descriptor",function(){
       describe("value",function(){
         var object,hooks;
         beforeEach(function(){
@@ -236,6 +236,48 @@ describe("BeautifulProperties.Hookable", function() {
             value:0
           });
           expect(object['key']).toBe(0);
+        });
+      });
+      describe("writable=false (readonly)",function(){
+        var object,hooks;
+        beforeEach(function(){
+          object = Object.create(null);
+          hooks = Object.create(null);
+        });
+
+        describe("value",function(){
+          beforeEach(function(){
+            BeautifulProperties.Hookable.define(object,'key',hooks,{
+              value:1,
+              writable:false
+            });
+          });
+          it("could set initial value.",function(){
+            expect(object['key']).toBe(1);
+          });
+          it("could not overwrite value.",function(){
+            object['key'] = 2;
+            expect(object['key']).toBe(1);
+          });
+        });
+        describe("init",function(){
+          var descriptor;
+          beforeEach(function(){
+
+            BeautifulProperties.Hookable.define(object,'key',hooks,{
+              init:function(){
+                return 1;
+              },
+              writable:false
+            });
+          });
+          it("could set initial value.",function(){
+            expect(object['key']).toBe(1);
+          });
+          it("could not overwrite value.",function(){
+            object['key'] = 2;
+            expect(object['key']).toBe(1);
+          });
         });
       });
     });

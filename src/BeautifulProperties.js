@@ -52,6 +52,7 @@
   /**
    * @function
    * @param {{configurable:?boolean,enumerable:?boolean,writable:?boolean}} descriptor
+   * @param {{configurable:?boolean,enumerable:?boolean,writable:?boolean}} defaultDescriptor
    * @return {{configurable:?boolean,enumerable:?boolean,writable:?boolean}} descriptor
    */
   var applyDefaultDescriptor = (function () {
@@ -61,17 +62,22 @@
     });
     var globalDefaultDescriptor = Object.getOwnPropertyDescriptor(obj,'key');
     var DescriptorKeys = 'configurable enumerable writable'.split(' ');
-    function applyDefaultDescriptor(descriptor){
-      var origDescriptor = descriptor;
+    function applyDefaultDescriptor(descriptor,defaultDescriptor){
+      var origDescriptor = descriptor || Object.create(null);
       descriptor = Object.create(null);
       for (var key in origDescriptor) {
         descriptor[key] = origDescriptor[key];
       }
       for (var i = 0; i < DescriptorKeys.length; i++) {
         var key = DescriptorKeys[i];
-        if (descriptor[key] === undefined) {
-          descriptor[key] = globalDefaultDescriptor[key];
+        if (descriptor[key] !== undefined) {
+          continue;
         }
+        if (defaultDescriptor && defaultDescriptor[key] !== undefined) {
+          descriptor[key] = defaultDescriptor[key];
+          continue;
+        }
+        descriptor[key] = globalDefaultDescriptor[key];
       }
       return descriptor;
     }
@@ -211,37 +217,45 @@
    *
    * @param {Object} object
    * @param {string} key
-   * @param {{beforeGet:?function,afterGet:?function,beforeSet:?function,afterSet:?function}} hooks
-   * @param {?{value:?*,init:?function}} options
+   * @param {?{beforeGet:?function,afterGet:?function,beforeSet:?function,afterSet:?function}} hooks
+   * @param {?{value:?*,init:?function,writable:?boolean}} descriptor
+   *  descriptor.writable's default value is false in ES5,but it's true in BeautifulProperties.Hookable.
    */
-  BeautifulProperties.Hookable.define = function defineHookableProperty(object,key,hooks,options) {
+  BeautifulProperties.Hookable.define = function defineHookableProperty(object,key,hooks,descriptor) {
     var Undefined = BeautifulProperties.Hookable.Undefined;
+
+    hooks = hooks || Object.create(null);
     var beforeGet = hooks.beforeGet;
     var afterGet = hooks.afterGet;
     var beforeSet = hooks.beforeSet;
     var afterSet = hooks.afterSet;
-    options = options || Object.create(null);
+    descriptor = applyDefaultDescriptor(descriptor,{writable:true});
 
-    var isValueExist = options.value !== undefined;
+    var isValueExist = descriptor.value !== undefined;
     Object.defineProperty(object,key,{
       get : function () {
-        var self = this;
-        var meta = retrieveMeta(self)(key);
-        if (!meta.isInited && (options.init || isValueExist)) {
+        var meta = retrieveMeta(this)(key);
+        if (!meta.isInited && (descriptor.init || isValueExist)) {
           meta.isInited = true;
-          if (options.init) {
-            self[key] = options.init.call(self);
+          var initialValue;
+          if (descriptor.init) {
+            initialValue = descriptor.init.call(this);
           } else if (isValueExist) {
-            self[key] = options.value;
+            initialValue = descriptor.value;
           }
-          return self[key];
+          if (descriptor.writable) {
+            this[key] = initialValue;
+          } else {
+            BeautifulProperties.setRaw(this,key,initialValue);
+          }
+          return this[key];
         }
         if (beforeGet) {
-          beforeGet.call(self);
+          beforeGet.call(this);
         }
-        var val = BeautifulProperties.getRaw(self,key);
+        var val = BeautifulProperties.getRaw(this,key);
         if (afterGet) {
-          var replacedVal = afterGet.call(self,val);
+          var replacedVal = afterGet.call(this,val);
           if (replacedVal === undefined && replacedVal !== Undefined) {
           } else if (replacedVal === Undefined) {
             val = undefined;
@@ -252,14 +266,16 @@
         return val;
       },
       set : function (val) {
-        var self = this;
-        var meta = retrieveMeta(self)(key);
+        if (!descriptor.writable) {
+          return;
+        }
+        var meta = retrieveMeta(this)(key);
         if (!meta.isInited) {
           meta.isInited = true;
         }
-        var previousVal = BeautifulProperties.getRaw(self,key);
+        var previousVal = BeautifulProperties.getRaw(this,key);
         if (beforeSet) {
-          var replacedVal = beforeSet.call(self,val,previousVal);
+          var replacedVal = beforeSet.call(this,val,previousVal);
           if (replacedVal === undefined && replacedVal !== Undefined) {
           } else if (replacedVal === Undefined) {
             val = undefined;
@@ -267,9 +283,9 @@
             val = replacedVal;
           }
         }
-        BeautifulProperties.setRaw(self,key,val);
+        BeautifulProperties.setRaw(this,key,val);
         if (afterSet) {
-          afterSet.call(self,val,previousVal);
+          afterSet.call(this,val,previousVal);
         }
       }
     });
@@ -445,11 +461,12 @@
      * @param {Object} object
      * @param {string} key
      * @param {{beforeGet:?function,afterGet:?function,beforeSet:?function,afterSet:?function}} hooks
-     * @param {?{value:?*,init:?function,bubble:?boolean}} options
+     * @param {?{value:?*,init:?function,bubble:?boolean,writable:?boolean}} descriptor
+     *  descriptor.writable's default value is false in ES5,but it's true in BeautifulProperties.Hookable.
      */
-    Observable.define = function defineObservableProperty(object,key,hooks,options) {
-      var originalOptions = options;
-      options = options || {};
+    Observable.define = function defineObservableProperty(object,key,hooks,descriptor) {
+      var originalOptions = descriptor;
+      descriptor = descriptor || {};
 
       var wrappedHooks = {};
       hooks = hooks || Object.create(null);
@@ -458,7 +475,7 @@
       });
 
 
-      var trigger = options.bubble
+      var trigger = descriptor.bubble
         ? Events.triggerWithBubbling.bind(Events)
         : Events.trigger.bind(Events);
       var afterSet = hooks.afterSet;
