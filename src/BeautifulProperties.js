@@ -205,7 +205,7 @@
      * @constructor
      */
     function Hooks(){
-      this.isInited = false;
+      this.isDefined = false;
       this.beforeGet = [];
       this.afterGet = [];
       this.beforeSet = [];
@@ -242,10 +242,7 @@
      */
     Hookable.define = function defineHookableProperty(object,key,hooks,descriptor) {
       var Undefined = Hookable.Undefined;
-
-
       var storedHooks = retrieveHooks(object)(key);
-
       hooks = hooks || Object.create(null);
       'beforeGet afterGet beforeSet afterSet'.split(' ').forEach(function(key){
         if (hooks[key]) {
@@ -255,6 +252,12 @@
       descriptor = applyDefaultDescriptor(descriptor,{writable:true});
 
       var isValueExist = descriptor.value !== undefined;
+      // The hookable property is already defined.
+      // TODO modify descriptor
+      if (storedHooks.isDefined) {
+        return;
+      }
+      storedHooks.isDefined = true;
       Object.defineProperty(object,key,{
         get : function () {
           var self = this;
