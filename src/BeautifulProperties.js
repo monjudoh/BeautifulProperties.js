@@ -2,7 +2,7 @@
  * BeautifulProperties.js - Extension of ECMAScript5 property.
  *
  * https://github.com/monjudoh/BeautifulProperties.js
- * version: 0.1.2
+ * version: 0.1.3
  *
  * Copyright (c) 2012 monjudoh
  * Dual licensed under the MIT (MIT-LICENSE.txt)
@@ -45,7 +45,7 @@
   var hasConsoleError = global.console && global.console.warn;
 
   Object.defineProperty(BeautifulProperties,'VERSION',{
-    value : '0.1.2',
+    value : '0.1.3x',
     writable : false
   });
 
@@ -191,35 +191,45 @@
   (function (Hookable,LazyInitializable) {
     /**
      * @property {boolean} isInited
+     * @constructor
+     */
+    function Meta(){
+      this.isInited = false;
+    }
+    /**
+     * @property {boolean} isInited
      * @property {Array.<function>} beforeGet
      * @property {Array.<function>} afterGet
      * @property {Array.<function>} beforeSet
      * @property {Array.<function>} afterSet
      * @constructor
      */
-    function Meta(){
+    function Hooks(){
       this.isInited = false;
       this.beforeGet = [];
       this.afterGet = [];
       this.beforeSet = [];
       this.afterSet = [];
     }
-    LazyInitializable.define(InternalObject.prototype,'Hookable::Meta',{
-      init: function() {
-        return (function(key){
-          if (!this[key]) {
-            this[key] = new Meta;
-          }
-          return this[key];
-        }).bind(Object.create(null));
-      },writable:false
+    var key2constructor = {
+      'Hookable::Meta' : Meta,
+      'Hookable::Hooks' : Hooks
+    };
+    Object.keys(key2constructor).forEach(function(key){
+      var Con = key2constructor[key];
+      LazyInitializable.define(InternalObject.prototype,key,{
+        init: function() {
+          return (function(key){
+            if (!this[key]) {
+              this[key] = new Con;
+            }
+            return this[key];
+          }).bind(Object.create(null));
+        },writable:false
+      });
     });
-
-    /**
-     * @function
-     * @return {Meta}
-     */
     var retrieveMeta = retrieveInternalObject.bind(null,'Hookable::Meta',true);
+    var retrieveHooks = retrieveInternalObject.bind(null,'Hookable::Hooks',true);
 
     Hookable.Undefined = Object.create(null);
     /**
@@ -234,12 +244,12 @@
       var Undefined = Hookable.Undefined;
 
 
-      var meta = retrieveMeta(object)(key);
+      var storedHooks = retrieveHooks(object)(key);
 
       hooks = hooks || Object.create(null);
       'beforeGet afterGet beforeSet afterSet'.split(' ').forEach(function(key){
         if (hooks[key]) {
-          meta[key].push(hooks[key]);
+          storedHooks[key].push(hooks[key]);
         }
       });
       descriptor = applyDefaultDescriptor(descriptor,{writable:true});
@@ -248,9 +258,9 @@
       Object.defineProperty(object,key,{
         get : function () {
           var self = this;
-          var instanceMeta = retrieveMeta(this)(key);
-          if (!instanceMeta.isInited && (descriptor.init || isValueExist)) {
-            instanceMeta.isInited = true;
+          var meta = retrieveMeta(this)(key);
+          if (!meta.isInited && (descriptor.init || isValueExist)) {
+            meta.isInited = true;
             var initialValue;
             if (descriptor.init) {
               initialValue = descriptor.init.call(this);
@@ -264,11 +274,12 @@
             }
             return this[key];
           }
-          meta.beforeGet.forEach(function(beforeGet){
+          var storedHooks = retrieveHooks(object)(key);
+          storedHooks.beforeGet.forEach(function(beforeGet){
             beforeGet.call(self);
           });
           var val = BeautifulProperties.getRaw(this,key);
-          meta.afterGet.forEach(function(afterGet){
+          storedHooks.afterGet.forEach(function(afterGet){
             var replacedVal = afterGet.call(self,val);
             if (replacedVal === undefined && replacedVal !== Undefined) {
             } else if (replacedVal === Undefined) {
@@ -284,12 +295,13 @@
             return;
           }
           var self = this;
-          var instanceMeta = retrieveMeta(this)(key);
-          if (!instanceMeta.isInited) {
-            instanceMeta.isInited = true;
+          var meta = retrieveMeta(this)(key);
+          if (!meta.isInited) {
+            meta.isInited = true;
           }
+          var storedHooks = retrieveHooks(object)(key);
           var previousVal = BeautifulProperties.getRaw(this,key);
-          meta.beforeSet.forEach(function(beforeSet){
+          storedHooks.beforeSet.forEach(function(beforeSet){
             var replacedVal = beforeSet.call(self,val,previousVal);
             if (replacedVal === undefined && replacedVal !== Undefined) {
             } else if (replacedVal === Undefined) {
@@ -299,7 +311,7 @@
             }
           });
           BeautifulProperties.setRaw(this,key,val);
-          meta.afterSet.forEach(function(afterSet){
+          storedHooks.afterSet.forEach(function(afterSet){
             afterSet.call(self,val,previousVal);
           });
         }
@@ -476,7 +488,7 @@
      * @function
      * @return {Meta}
      */
-    var retrieveMeta = retrieveInternalObject.bind(null,'Hookable::Meta',true);
+    var retrieveHooks = retrieveInternalObject.bind(null,'Hookable::Hooks',true);
 
     /**
      *
@@ -494,8 +506,8 @@
         ? Events.triggerWithBubbling.bind(Events)
         : Events.trigger.bind(Events);
       BeautifulProperties.Hookable.define(object,key,hooks,originalOptions);
-      var meta = retrieveMeta(object)(key);
-      meta.afterSet.push(function afterSet(val,previousVal) {
+      var storedHooks = retrieveHooks(object)(key);
+      storedHooks.afterSet.push(function afterSet(val,previousVal) {
         if (previousVal != val) {
           trigger(this,('change:' + key),val,previousVal);
         }
