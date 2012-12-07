@@ -190,11 +190,19 @@
   BeautifulProperties.Hookable = Object.create(null);
   (function (Hookable,LazyInitializable) {
     /**
-     * @property {Boolean} isInited
+     * @property {boolean} isInited
+     * @property {Array.<function>} beforeGet
+     * @property {Array.<function>} afterGet
+     * @property {Array.<function>} beforeSet
+     * @property {Array.<function>} afterSet
      * @constructor
      */
     function Meta(){
       this.isInited = false;
+      this.beforeGet = [];
+      this.afterGet = [];
+      this.beforeSet = [];
+      this.afterSet = [];
     }
     LazyInitializable.define(InternalObject.prototype,'Hookable::Meta',{
       init: function() {
@@ -209,7 +217,7 @@
 
     /**
      * @function
-     * @returns {Meta}
+     * @return {Meta}
      */
     var retrieveMeta = retrieveInternalObject.bind(null,'Hookable::Meta',true);
 
@@ -225,19 +233,24 @@
     Hookable.define = function defineHookableProperty(object,key,hooks,descriptor) {
       var Undefined = Hookable.Undefined;
 
+
+      var meta = retrieveMeta(object)(key);
+
       hooks = hooks || Object.create(null);
-      var beforeGet = hooks.beforeGet;
-      var afterGet = hooks.afterGet;
-      var beforeSet = hooks.beforeSet;
-      var afterSet = hooks.afterSet;
+      'beforeGet afterGet beforeSet afterSet'.split(' ').forEach(function(key){
+        if (hooks[key]) {
+          meta[key].push(hooks[key]);
+        }
+      });
       descriptor = applyDefaultDescriptor(descriptor,{writable:true});
 
       var isValueExist = descriptor.value !== undefined;
       Object.defineProperty(object,key,{
         get : function () {
-          var meta = retrieveMeta(this)(key);
-          if (!meta.isInited && (descriptor.init || isValueExist)) {
-            meta.isInited = true;
+          var self = this;
+          var instanceMeta = retrieveMeta(this)(key);
+          if (!instanceMeta.isInited && (descriptor.init || isValueExist)) {
+            instanceMeta.isInited = true;
             var initialValue;
             if (descriptor.init) {
               initialValue = descriptor.init.call(this);
@@ -251,43 +264,44 @@
             }
             return this[key];
           }
-          if (beforeGet) {
-            beforeGet.call(this);
-          }
+          meta.beforeGet.forEach(function(beforeGet){
+            beforeGet.call(self);
+          });
           var val = BeautifulProperties.getRaw(this,key);
-          if (afterGet) {
-            var replacedVal = afterGet.call(this,val);
+          meta.afterGet.forEach(function(afterGet){
+            var replacedVal = afterGet.call(self,val);
             if (replacedVal === undefined && replacedVal !== Undefined) {
             } else if (replacedVal === Undefined) {
               val = undefined;
             } else {
               val = replacedVal;
             }
-          }
+          });
           return val;
         },
         set : function (val) {
           if (!descriptor.writable) {
             return;
           }
-          var meta = retrieveMeta(this)(key);
-          if (!meta.isInited) {
-            meta.isInited = true;
+          var self = this;
+          var instanceMeta = retrieveMeta(this)(key);
+          if (!instanceMeta.isInited) {
+            instanceMeta.isInited = true;
           }
           var previousVal = BeautifulProperties.getRaw(this,key);
-          if (beforeSet) {
-            var replacedVal = beforeSet.call(this,val,previousVal);
+          meta.beforeSet.forEach(function(beforeSet){
+            var replacedVal = beforeSet.call(self,val,previousVal);
             if (replacedVal === undefined && replacedVal !== Undefined) {
             } else if (replacedVal === Undefined) {
               val = undefined;
             } else {
               val = replacedVal;
             }
-          }
+          });
           BeautifulProperties.setRaw(this,key,val);
-          if (afterSet) {
-            afterSet.call(this,val,previousVal);
-          }
+          meta.afterSet.forEach(function(afterSet){
+            afterSet.call(self,val,previousVal);
+          });
         }
       });
     };
@@ -459,6 +473,12 @@
   BeautifulProperties.Observable = Object.create(null);
   (function (Observable,Events) {
     /**
+     * @function
+     * @return {Meta}
+     */
+    var retrieveMeta = retrieveInternalObject.bind(null,'Hookable::Meta',true);
+
+    /**
      *
      * @param {Object} object
      * @param {string} key
@@ -470,27 +490,16 @@
       var originalOptions = descriptor;
       descriptor = descriptor || {};
 
-      var wrappedHooks = {};
-      hooks = hooks || Object.create(null);
-      Object.keys(hooks).forEach(function(key){
-        wrappedHooks[key] = hooks[key];
-      });
-
-
       var trigger = descriptor.bubble
         ? Events.triggerWithBubbling.bind(Events)
         : Events.trigger.bind(Events);
-      var afterSet = hooks.afterSet;
-      wrappedHooks.afterSet = function (val,previousVal) {
-        var self = this;
-        if (afterSet) {
-          afterSet.call(self,val,previousVal);
-        }
+      BeautifulProperties.Hookable.define(object,key,hooks,originalOptions);
+      var meta = retrieveMeta(object)(key);
+      meta.afterSet.push(function afterSet(val,previousVal) {
         if (previousVal != val) {
-          trigger(self,('change:' + key),val,previousVal);
+          trigger(this,('change:' + key),val,previousVal);
         }
-      };
-      BeautifulProperties.Hookable.define(object,key,wrappedHooks,originalOptions);
+      });
     };
   })(BeautifulProperties.Observable,BeautifulProperties.Events);
 
