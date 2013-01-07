@@ -280,6 +280,51 @@ describe("BeautifulProperties.Hookable", function() {
           });
         });
       });
+      describe("get",function(){
+        var object,hooks,refresh;
+        beforeEach(function(){
+          object = Object.create(null);
+          hooks = Object.create(null);
+          refresh = jasmine.createSpy('refresh');
+        });
+        it("object could get value.",function(){
+          BeautifulProperties.Hookable.define(object,'key',hooks,{
+            get:function(){
+              return 1;
+            }
+          });
+          expect(object['key']).toBe(1);
+        });
+        it("sub object could get value.",function(){
+          BeautifulProperties.Hookable.define(object,'key',hooks,{
+            get:function(){
+              return 1;
+            }
+          });
+          var subObject = Object.create(object);
+          expect(subObject['key']).toBe(1);
+        });
+        it("refresh hook should be called.",function(){
+          hooks.refresh = refresh;
+          BeautifulProperties.Hookable.define(object,'key',hooks,{
+            get:function(){
+              return 1;
+            }
+          });
+          BeautifulProperties.Hookable.Get.refreshProperty(object,'key');
+          expect(refresh).toHaveBeenCalledWith(1,undefined);
+        });
+        it("Get.getSilently skip refresh hook.",function(){
+          hooks.refresh = refresh;
+          BeautifulProperties.Hookable.define(object,'key',hooks,{
+            get:function(){
+              return 1;
+            }
+          });
+          expect(BeautifulProperties.Hookable.Get.getSilently(object,'key')).toBe(1);
+          expect(refresh).not.toHaveBeenCalledWith(1,undefined);
+        });
+      });
     });
   });
 });

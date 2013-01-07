@@ -77,6 +77,9 @@
           descriptor[key] = defaultDescriptor[key];
           continue;
         }
+        if (origDescriptor['get'] !== undefined) {
+          descriptor['get'] = origDescriptor['get'];
+        }
         descriptor[key] = globalDefaultDescriptor[key];
       }
       return descriptor;
@@ -210,6 +213,7 @@
       this.afterGet = [];
       this.beforeSet = [];
       this.afterSet = [];
+      this.refresh = [];
     }
     var key2constructor = {
       'Hookable::Meta' : Meta,
@@ -228,23 +232,99 @@
         },writable:false
       });
     });
+    LazyInitializable.define(InternalObject.prototype,'Hookable::Descriptors',{
+      init: function() {
+        return Object.create(null);
+      },writable:false
+    });
     var retrieveMeta = retrieveInternalObject.bind(null,'Hookable::Meta',true);
     var retrieveHooks = retrieveInternalObject.bind(null,'Hookable::Hooks',true);
+    var retrieveDescriptors = retrieveInternalObject.bind(null,'Hookable::Descriptors',true);
 
     Hookable.Undefined = Object.create(null);
+
+    var Get = Object.create(null);
+    Hookable.Get = Get;
+    (function (Get) {
+      var retrieveDescriptors = retrieveInternalObject.bind(null,'Hookable::Descriptors',false);
+      function retrievePrototype(object,key) {
+        var meta = retrieveMeta(object)(key);
+        var descriptor;
+        if (meta.proto) {
+          return meta.proto;
+        }
+        // Walk the prototype chain until it found descriptor.
+        var proto = object;
+        while (!descriptor && proto) {
+          descriptor = retrieveDescriptors(proto)[key];
+          if (descriptor) {
+            meta.proto = proto;
+            return proto;
+          }
+          proto = Object.getPrototypeOf(proto);
+        }
+      }
+      /**
+       *
+       * @param object
+       * @param key
+       */
+      Get.refreshProperty = function refreshProperty(object,key){
+        var previousVal = BeautifulProperties.getRaw(object,key);
+        var proto = retrievePrototype(object,key);
+        var descriptor = retrieveDescriptors(proto)[key];
+        var retriever = descriptor.get;
+        var val = retriever.call(object);
+        BeautifulProperties.setRaw(object,key,val);
+        var storedHooks = retrieveHooks(proto)(key);
+        storedHooks.refresh.forEach(function(refresh){
+          refresh.call(object,val,previousVal);
+        });
+      };
+      /**
+       *
+       * @param object
+       * @param key
+       * @return {*}
+       */
+      Get.getSilently = function getSilently(object,key){
+        var proto = retrievePrototype(object,key);
+        var descriptor = retrieveDescriptors(proto)[key];
+        var retriever = descriptor.get;
+        return retriever.call(object);
+      };
+      /**
+       *
+       * @param object
+       */
+      Get.provideMethods = function provideMethods(object) {
+        ['refreshProperty','getSilently'].forEach(function(methodName){
+          // defined
+          if (object[methodName]) {
+            return;
+          }
+          var methodImpl = Get[methodName];
+          object[methodName] = function () {
+            var args = Array_from(arguments);
+            args.unshift(this);
+            return methodImpl.apply(Get,args);
+          };
+        });
+      };
+    })(Hookable.Get);
     /**
      *
      * @param {Object} object
      * @param {string} key
-     * @param {?{beforeGet:?function,afterGet:?function,beforeSet:?function,afterSet:?function}} hooks
-     * @param {?{value:?*,init:?function,writable:?boolean}} descriptor
+     * @param {?{beforeGet:?function,afterGet:?function,beforeSet:?function,afterSet:?function,refresh:?function}} hooks
+     * @param {?{value:?*,init:?function,writable:?boolean,get:?function}} descriptor
      *  descriptor.writable's default value is false in ES5,but it's true in BeautifulProperties.Hookable.
      */
     Hookable.define = function defineHookableProperty(object,key,hooks,descriptor) {
       var Undefined = Hookable.Undefined;
       var storedHooks = retrieveHooks(object)(key);
       hooks = hooks || Object.create(null);
-      'beforeGet afterGet beforeSet afterSet'.split(' ').forEach(function(key){
+      'beforeGet afterGet beforeSet afterSet refresh'.split(' ').forEach(function(key){
         if (hooks[key]) {
           storedHooks[key].push(hooks[key]);
         }
@@ -258,9 +338,11 @@
         return;
       }
       storedHooks.isDefined = true;
+      retrieveDescriptors(object)[key] = descriptor;
       Object.defineProperty(object,key,{
         get : function () {
           var self = this;
+          var descriptor = retrieveDescriptors(object)[key];
           var meta = retrieveMeta(this)(key);
           if (!meta.isInited && (descriptor.init || isValueExist)) {
             meta.isInited = true;
@@ -281,6 +363,9 @@
           storedHooks.beforeGet.forEach(function(beforeGet){
             beforeGet.call(self);
           });
+          if (descriptor.get) {
+            Get.refreshProperty(this,key);
+          }
           var val = BeautifulProperties.getRaw(this,key);
           storedHooks.afterGet.forEach(function(afterGet){
             var replacedVal = afterGet.call(self,val);
@@ -294,6 +379,7 @@
           return val;
         },
         set : function (val) {
+          var descriptor = retrieveDescriptors(object)[key];
           if (!descriptor.writable) {
             return;
           }
