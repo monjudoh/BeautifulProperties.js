@@ -87,6 +87,30 @@
     return applyDefaultDescriptor;
   })();
 
+  /**
+   *
+   * @param namespaceObject {object}
+   * @param keys {Array.<string>}
+   * @return {function}
+   */
+  function provideMethodsFactory(namespaceObject,keys) {
+    function provideMethods(object) {
+      keys.forEach(function(methodName){
+        // defined
+        if (object[methodName]) {
+          return;
+        }
+        var methodImpl = namespaceObject[methodName];
+        object[methodName] = function () {
+          var args = Array_from(arguments);
+          args.unshift(this);
+          return methodImpl.apply(namespaceObject,args);
+        };
+      });
+    }
+    return provideMethods;
+  }
+
   Object.defineProperty(BeautifulProperties,'LazyInitializable',{
     value : Object.create(null),
     writable : false
@@ -297,20 +321,7 @@
        *
        * @param object
        */
-      Get.provideMethods = function provideMethods(object) {
-        ['refreshProperty','getSilently'].forEach(function(methodName){
-          // defined
-          if (object[methodName]) {
-            return;
-          }
-          var methodImpl = Get[methodName];
-          object[methodName] = function () {
-            var args = Array_from(arguments);
-            args.unshift(this);
-            return methodImpl.apply(Get,args);
-          };
-        });
-      };
+      Get.provideMethods = provideMethodsFactory(Get,['refreshProperty','getSilently']);
     })(Hookable.Get);
     /**
      *
@@ -555,20 +566,7 @@
      *
      * @param object
      */
-    Events.provideMethods = function provideMethods(object) {
-      ['on','off','trigger','triggerWithBubbling'].forEach(function(methodName){
-        // defined
-        if (object[methodName]) {
-          return;
-        }
-        var methodImpl = Events[methodName];
-        object[methodName] = function () {
-          var args = Array_from(arguments);
-          args.unshift(this);
-          methodImpl.apply(Events,args);
-        };
-      });
-    };
+    Events.provideMethods = provideMethodsFactory(Events,['on','off','trigger','triggerWithBubbling']);
   })(BeautifulProperties.Events);
 
   BeautifulProperties.Observable = Object.create(null);
