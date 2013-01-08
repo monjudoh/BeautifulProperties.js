@@ -584,7 +584,7 @@
      * @param {Object} object
      * @param {string} key
      * @param {{beforeGet:?function,afterGet:?function,beforeSet:?function,afterSet:?function}} hooks
-     * @param {?{value:?*,init:?function,bubble:?boolean,writable:?boolean}} descriptor
+     * @param {?{value:?*,init:?function,writable:?boolean,get:?function,bubble:?boolean,equals:?function}} descriptor
      *  descriptor.writable's default value is false in ES5,but it's true in BeautifulProperties.Hookable.
      */
     Observable.define = function defineObservableProperty(object,key,hooks,descriptor) {
@@ -596,11 +596,20 @@
         : Events.trigger.bind(Events);
       BeautifulProperties.Hookable.define(object,key,hooks,originalOptions);
       var storedHooks = retrieveHooks(object)(key);
-      storedHooks.afterSet.push(function afterSet(val,previousVal) {
-        if (previousVal != val) {
+      function checkChangeAndTrigger(val,previousVal) {
+        var equals = descriptor.equals;
+        if (!equals && previousVal != val) {
           trigger(this,('change:' + key),val,previousVal);
         }
-      });
+        if (equals && !equals.call(this,val,previousVal)) {
+          trigger(this,('change:' + key),val,previousVal);
+        }
+      }
+      if (descriptor.get) {
+        storedHooks.refresh.push(checkChangeAndTrigger);
+      } else {
+        storedHooks.afterSet.push(checkChangeAndTrigger);
+      }
     };
   })(BeautifulProperties.Observable,BeautifulProperties.Events);
 
