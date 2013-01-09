@@ -180,6 +180,50 @@
       writable : false
     });
   }
+  InternalObject.PropertySpecific = Object.create(null);
+  (function (PropertySpecific,LazyInitializable) {
+    /**
+     *
+     * @param key
+     * @param constructor
+     */
+    PropertySpecific.mixinRetriever = function mixinRetriever(key,constructor) {
+      LazyInitializable.define(InternalObject.prototype,key,{
+        init: function() {
+          var object = Object.create(null);
+          var canCreate = typeof constructor === 'function';
+          var boundRetrieve = (function retrieve(key,create){
+            if (create === undefined) {
+              create = true;
+            }
+            if (canCreate && create && !this[key]) {
+              this[key] = new constructor;
+            }
+            return this[key];
+          }).bind(object);
+          boundRetrieve.store = (function store(key,value) {
+            this[key] = value;
+          }).bind(object);
+          return boundRetrieve;
+        },writable:false
+      });
+    };
+    /**
+     *
+     * @param key
+     * @param create
+     * @return {function}
+     */
+    PropertySpecific.retrieverFactory = function retrieverFactory(key,create) {
+      var getRetrieverFromObject = retrieveInternalObject.bind(null,key,create);
+      return function (object,key) {
+        var retrieve = getRetrieverFromObject(object);
+        return retrieve !== undefined
+          ? retrieve(key,create)
+          : undefined;
+      }
+    };
+  })(InternalObject.PropertySpecific,BeautifulProperties.LazyInitializable);
   BeautifulProperties.Internal.retrieve = retrieveInternalObject;
   function retrieveInternalObject(key, create, object) {
     var internalObjectKey = BeautifulProperties.Internal.Key;
@@ -221,7 +265,7 @@
 
   BeautifulProperties.Hookable = Object.create(null);
   Internal.Hookable = Object.create(null);
-  (function (LazyInitializable) {
+  (function (LazyInitializable,PropertySpecific) {
     /**
      * @property {boolean} isInited
      * @constructor
@@ -249,33 +293,18 @@
       'Hookable::Meta' : Meta,
       'Hookable::Hooks' : Hooks
     };
-    Object.keys(key2constructor).forEach(function(key){
-      var Con = key2constructor[key];
-      LazyInitializable.define(InternalObject.prototype,key,{
-        init: function() {
-          return (function(key){
-            if (!this[key]) {
-              this[key] = new Con;
-            }
-            return this[key];
-          }).bind(Object.create(null));
-        },writable:false
-      });
-    });
-    LazyInitializable.define(InternalObject.prototype,'Hookable::Descriptors',{
-      init: function() {
-        return Object.create(null);
-      },writable:false
-    });
-    Internal.Hookable.retrieveMeta = retrieveInternalObject.bind(null,'Hookable::Meta',true);
-    Internal.Hookable.retrieveHooks = retrieveInternalObject.bind(null,'Hookable::Hooks',true);
-    Internal.Hookable.retrieveDescriptors = retrieveInternalObject.bind(null,'Hookable::Descriptors',true);
+    PropertySpecific.mixinRetriever('Hookable::Meta',Meta);
+    PropertySpecific.mixinRetriever('Hookable::Hooks',Hooks);
+    PropertySpecific.mixinRetriever('Hookable::Descriptor');
+    Internal.Hookable.retrieveMeta = PropertySpecific.retrieverFactory('Hookable::Meta',true);
+    Internal.Hookable.retrieveHooks = PropertySpecific.retrieverFactory('Hookable::Hooks',true);
+    Internal.Hookable.retrieveDescriptor = PropertySpecific.retrieverFactory('Hookable::Descriptor',false);
     (function () {
       var retrieveMeta = Internal.Hookable.retrieveMeta;
-      var retrieveDescriptors = retrieveInternalObject.bind(null,'Hookable::Descriptors',false);
+      var retrieveDescriptor = Internal.Hookable.retrieveDescriptor;
       Internal.Hookable.retrievePrototype = retrievePrototype;
       function retrievePrototype(object,key) {
-        var meta = retrieveMeta(object)(key);
+        var meta = retrieveMeta(object,key);
         var descriptor;
         if (meta.proto) {
           return meta.proto;
@@ -283,7 +312,7 @@
         // Walk the prototype chain until it found descriptor.
         var proto = object;
         while (!descriptor && proto) {
-          descriptor = retrieveDescriptors(proto)[key];
+          descriptor = retrieveDescriptor(proto,key);
           if (descriptor) {
             meta.proto = proto;
             return proto;
@@ -292,12 +321,12 @@
         }
       }
     })();
-  })(BeautifulProperties.LazyInitializable);
+  })(BeautifulProperties.LazyInitializable,InternalObject.PropertySpecific);
   BeautifulProperties.Hookable.Get = Object.create(null);
   (function (Get) {
     // internal functions
     var retrieveHooks = Internal.Hookable.retrieveHooks;
-    var retrieveDescriptors = Internal.Hookable.retrieveDescriptors;
+    var retrieveDescriptor = Internal.Hookable.retrieveDescriptor;
     var retrievePrototype = Internal.Hookable.retrievePrototype;
     /**
      *
@@ -307,11 +336,11 @@
     Get.refreshProperty = function refreshProperty(object,key){
       var previousVal = BeautifulProperties.getRaw(object,key);
       var proto = retrievePrototype(object,key);
-      var descriptor = retrieveDescriptors(proto)[key];
+      var descriptor = retrieveDescriptor(proto,key);
       var retriever = descriptor.get;
       var val = retriever.call(object);
       BeautifulProperties.setRaw(object,key,val);
-      var storedHooks = retrieveHooks(proto)(key);
+      var storedHooks = retrieveHooks(proto,key);
       storedHooks.refresh.forEach(function(refresh){
         refresh.call(object,val,previousVal);
       });
@@ -324,7 +353,7 @@
      */
     Get.getSilently = function getSilently(object,key){
       var proto = retrievePrototype(object,key);
-      var descriptor = retrieveDescriptors(proto)[key];
+      var descriptor = retrieveDescriptor(object,key);
       var retriever = descriptor.get;
       return retriever.call(object);
     };
@@ -338,7 +367,7 @@
     // internal functions
     var retrieveMeta = Internal.Hookable.retrieveMeta;
     var retrieveHooks = Internal.Hookable.retrieveHooks;
-    var retrieveDescriptors = Internal.Hookable.retrieveDescriptors;
+    var retrieveDescriptor = Internal.Hookable.retrieveDescriptor;
 
     Hookable.Undefined = Object.create(null);
     /**
@@ -351,7 +380,7 @@
      */
     Hookable.define = function defineHookableProperty(object,key,hooks,descriptor) {
       var Undefined = Hookable.Undefined;
-      var storedHooks = retrieveHooks(object)(key);
+      var storedHooks = retrieveHooks(object,key);
       hooks = hooks || Object.create(null);
       'beforeGet afterGet beforeSet afterSet refresh'.split(' ').forEach(function(key){
         if (hooks[key]) {
@@ -367,12 +396,12 @@
         return;
       }
       storedHooks.isDefined = true;
-      retrieveDescriptors(object)[key] = descriptor;
+      retrieveInternalObject.bind(null,'Hookable::Descriptor',true)(object).store(key,descriptor);
       Object.defineProperty(object,key,{
         get : function () {
           var self = this;
-          var descriptor = retrieveDescriptors(object)[key];
-          var meta = retrieveMeta(this)(key);
+          var descriptor = retrieveDescriptor(object,key);
+          var meta = retrieveMeta(this,key);
           if (!meta.isInited && (descriptor.init || isValueExist)) {
             meta.isInited = true;
             var initialValue;
@@ -388,7 +417,7 @@
             }
             return this[key];
           }
-          var storedHooks = retrieveHooks(object)(key);
+          var storedHooks = retrieveHooks(object,key);
           storedHooks.beforeGet.forEach(function(beforeGet){
             beforeGet.call(self);
           });
@@ -408,16 +437,16 @@
           return val;
         },
         set : function (val) {
-          var descriptor = retrieveDescriptors(object)[key];
+          var descriptor = retrieveDescriptor(object,key);
           if (!descriptor.writable) {
             return;
           }
           var self = this;
-          var meta = retrieveMeta(this)(key);
+          var meta = retrieveMeta(this,key);
           if (!meta.isInited) {
             meta.isInited = true;
           }
-          var storedHooks = retrieveHooks(object)(key);
+          var storedHooks = retrieveHooks(object,key);
           var previousVal = BeautifulProperties.getRaw(this,key);
           storedHooks.beforeSet.forEach(function(beforeSet){
             var replacedVal = beforeSet.call(self,val,previousVal);
@@ -591,7 +620,7 @@
   (function (Observable,Events) {
     // internal functions
     var retrieveHooks = Internal.Hookable.retrieveHooks;
-    var retrieveDescriptors = Internal.Hookable.retrieveDescriptors;
+    var retrieveDescriptor = Internal.Hookable.retrieveDescriptor;
 
     /**
      *
@@ -605,11 +634,11 @@
       var originalDescriptor = descriptor;
       BeautifulProperties.Hookable.define(object,key,hooks,originalDescriptor);
 
-      descriptor = retrieveDescriptors(object)[key];
+      descriptor = retrieveDescriptor(object,key);
       var trigger = descriptor.bubble
       ? Events.triggerWithBubbling.bind(Events)
       : Events.trigger.bind(Events);
-      var hooks = retrieveHooks(object)(key);
+      var hooks = retrieveHooks(object,key);
       function checkChangeAndTrigger(val,previousVal) {
         var equals = descriptor.equals;
         if (!equals && previousVal != val) {
