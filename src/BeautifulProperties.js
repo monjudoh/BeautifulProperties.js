@@ -613,8 +613,37 @@
     Events.provideMethods = provideMethodsFactory(Events,['on','off','trigger','triggerWithBubbling']);
   })(BeautifulProperties.Events);
 
+  BeautifulProperties.Equals = Object.create(null);
+  BeautifulProperties.Equals.Functions = Object.create(null);
+  (function (Functions) {
+    Functions.StrictEqual = function StrictEqual(value,otherValue){
+      return value === otherValue;
+    };
+  })(BeautifulProperties.Equals.Functions);
+  (function (Equals,Functions,PropertySpecific) {
+    PropertySpecific.mixinRetriever('Equals');
+    var retrieve = retrieveInternalObject.bind(null,'Equals',true);
+    Equals.set = function set(object,key,equalsFn){
+      equalsFn = equalsFn || Functions.StrictEqual;
+      retrieve(object).store(key,equalsFn);
+    };
+    var walkAndRetrieve = InternalObject.PrototypeWalker.retrieve.bind(null,'Equals');
+    Equals.equals = function equals(object,key,value,otherValue){
+      var equalsFn = walkAndRetrieve(object,key);
+      if (!equalsFn) {
+        return value === otherValue;
+      }
+      if (equalsFn === Functions.StrictEqual){
+        return value === otherValue;
+      }
+      return equalsFn.call(object,value,otherValue);
+    };
+  })(BeautifulProperties.Equals,BeautifulProperties.Equals.Functions,InternalObject.PropertySpecific);
+
+
+
   BeautifulProperties.Observable = Object.create(null);
-  (function (Observable,Events) {
+  (function (Observable,Events,Equals) {
     // internal functions
     var retrieveHooks = Internal.Hookable.retrieveHooks;
     var retrieveDescriptor = Internal.Hookable.retrieveDescriptor;
@@ -632,16 +661,13 @@
       BeautifulProperties.Hookable.define(object,key,hooks,originalDescriptor);
 
       descriptor = retrieveDescriptor(object,key);
+      Equals.set(object,key,descriptor.equals);
       var trigger = descriptor.bubble
       ? Events.triggerWithBubbling.bind(Events)
       : Events.trigger.bind(Events);
       var hooks = retrieveHooks(object,key);
       function checkChangeAndTrigger(val,previousVal) {
-        var equals = descriptor.equals;
-        if (!equals && previousVal != val) {
-          trigger(this,('change:' + key),val,previousVal);
-        }
-        if (equals && !equals.call(this,val,previousVal)) {
+        if (!Equals.equals(this,key,val,previousVal)){
           trigger(this,('change:' + key),val,previousVal);
         }
       }
@@ -651,7 +677,7 @@
         hooks.afterSet.push(checkChangeAndTrigger);
       }
     };
-  })(BeautifulProperties.Observable,BeautifulProperties.Events);
+  })(BeautifulProperties.Observable,BeautifulProperties.Events,BeautifulProperties.Equals);
 
   return BeautifulProperties;
 })(this),'BeautifulProperties',this);
