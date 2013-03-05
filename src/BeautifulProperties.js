@@ -64,6 +64,25 @@
   var Internal = Object.create(null);
 
   /**
+   * @name BeautifulProperties.GenericDescriptor
+   * @typedef {{configurable:?boolean,enumerable:?boolean}}
+   * @description GenericDescriptor
+   * http://www.ecma-international.org/ecma-262/5.1/#sec-8.10.3
+   */
+  /**
+   * @name BeautifulProperties.DataDescriptor
+   * @typedef {{configurable:?boolean,enumerable:?boolean,writable:?boolean,value:?*,init:?function}}
+   * @description DataDescriptor.
+   * http://www.ecma-international.org/ecma-262/5.1/#sec-8.10.2
+   */
+  /**
+   * @name BeautifulProperties.AccessorDescriptor
+   * @typedef {{configurable:?boolean,enumerable:?boolean,get:?function,set:?function}}
+   * @description AccessorDescriptor.Either get or set is necessary.
+   * http://www.ecma-international.org/ecma-262/5.1/#sec-8.10.1
+   */
+
+  /**
    * @function
    * @param {{configurable:?boolean,enumerable:?boolean,writable:?boolean}} descriptor
    * @param {{configurable:?boolean,enumerable:?boolean,writable:?boolean}} defaultDescriptor
@@ -106,6 +125,7 @@
    * @param namespaceObject {object}
    * @param keys {Array.<string>}
    * @return {function}
+   * @private
    */
   function provideMethodsFactory(namespaceObject,keys) {
     function provideMethods(object) {
@@ -137,9 +157,10 @@
   (function (LazyInitializable) {
     /**
      *
-     * @param object {Object}
-     * @param key {String}
-     * @param descriptor {Object}
+     * @param {object} object
+     * @param {string} key
+     * @param {BeautifulProperties.DataDescriptor} descriptor
+     * @name define
      * @memberOf BeautifulProperties.LazyInitializable
      * @function
      */
@@ -202,6 +223,7 @@
      *
      * @param key
      * @param constructor
+     * @private
      */
     PropertySpecific.mixinRetriever = function mixinRetriever(key,constructor) {
       LazyInitializable.define(InternalObject.prototype,key,{
@@ -229,6 +251,7 @@
      * @param key
      * @param create
      * @return {function}
+     * @private
      */
     PropertySpecific.retrieverFactory = function retrieverFactory(key,create) {
       var getRetrieverFromObject = retrieveInternalObject.bind(null,key,create);
@@ -321,11 +344,12 @@
       this.isInited = false;
     }
     /**
-     * @property {boolean} isInited
+     * @property {boolean} isDefined
      * @property {Array.<function>} beforeGet
      * @property {Array.<function>} afterGet
      * @property {Array.<function>} beforeSet
      * @property {Array.<function>} afterSet
+     * @property {Array.<function>} refresh
      * @constructor
      * @private
      */
@@ -400,15 +424,21 @@
     var retrieveHooks = Internal.Hookable.retrieveHooks;
     var retrieveDescriptor = Internal.Hookable.retrieveDescriptor;
 
+    /**
+     * @name Undefined
+     * @memberOf BeautifulProperties.Hookable
+     */
     Hookable.Undefined = Object.create(null);
     /**
+     * @function
+     * @name define
+     * @memberOf BeautifulProperties.Hookable
      *
-     * @param {Object} object
+     * @param {object} object
      * @param {string} key
      * @param {?{beforeGet:?function,afterGet:?function,beforeSet:?function,afterSet:?function,refresh:?function}} hooks
-     * @param {?{value:?*,init:?function,writable:?boolean,get:?function}} descriptor
+     * @param {BeautifulProperties.DataDescriptor|BeautifulProperties.AccessorDescriptor|BeautifulProperties.GenericDescriptor} descriptor
      *  descriptor.writable's default value is false in ES5,but it's true in BeautifulProperties.Hookable.
-     * @memberOf BeautifulProperties.Hookable
      */
     Hookable.define = function defineHookableProperty(object,key,hooks,descriptor) {
       var Undefined = Hookable.Undefined;
@@ -713,11 +743,13 @@
     PropertySpecific.mixinRetriever('Equals');
     var retrieve = retrieveInternalObject.bind(null,'Equals',true);
     /**
-     *
-     * @param object
-     * @param key
-     * @param equalsFn
+     * @name set
      * @memberOf BeautifulProperties.Equals
+     * @function
+     *
+     * @param {object} object
+     * @param {string} key
+     * @param {function} equalsFn
      */
     Equals.set = function set(object,key,equalsFn){
       equalsFn = equalsFn || Functions.StrictEqual;
@@ -748,13 +780,15 @@
     var retrieveDescriptor = Internal.Hookable.retrieveDescriptor;
 
     /**
+     * @function
+     * @name define
+     * @memberOf BeautifulProperties.Observable
      *
-     * @param {Object} object
+     * @param {object} object
      * @param {string} key
      * @param {{beforeGet:?function,afterGet:?function,beforeSet:?function,afterSet:?function}} hooks
-     * @param {?{value:?*,init:?function,writable:?boolean,get:?function,bubble:?boolean,equals:?function}} descriptor
+     * @param {BeautifulProperties.DataDescriptor|BeautifulProperties.AccessorDescriptor|BeautifulProperties.GenericDescriptor} descriptor
      *  descriptor.writable's default value is false in ES5,but it's true in BeautifulProperties.Hookable.
-     * @memberOf BeautifulProperties.Observable
      */
     Observable.define = function defineObservableProperty(object,key,hooks,descriptor) {
       var originalDescriptor = descriptor;
