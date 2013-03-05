@@ -82,6 +82,40 @@
    * http://www.ecma-international.org/ecma-262/5.1/#sec-8.10.1
    */
 
+  Internal.Descriptor = Object.create(null);
+  (function (Descriptor) {
+    Descriptor.GenericDescriptor = Object.create(null);
+    Descriptor.DataDescriptor = Object.create(null);
+    Descriptor.AccessorDescriptor = Object.create(null);
+    Descriptor.InvalidDescriptor = Object.create(null);
+    Descriptor.getTypeOf = function getTypeOf(descriptor){
+      if (descriptor === undefined) {
+        return Descriptor.InvalidDescriptor;
+      }
+      var isDataDescriptor = descriptor.writable !== undefined || descriptor.value !== undefined || descriptor.init!== undefined;
+      var isAccessorDescriptor = descriptor.get !== undefined || descriptor.set !== undefined;
+      if (!isDataDescriptor && !isAccessorDescriptor) {
+        return Descriptor.GenericDescriptor;
+      }
+      if (isDataDescriptor && isAccessorDescriptor) {
+        return Descriptor.InvalidDescriptor;
+      }
+      if (isDataDescriptor) {
+        return Descriptor.DataDescriptor;
+      }
+      if (isAccessorDescriptor) {
+        return Descriptor.AccessorDescriptor;
+      }
+    };
+    Descriptor.createTypeError = function createTypeError(invalidDescriptor){
+      try{
+        Object.defineProperty(Object.create(null),'prop', invalidDescriptor);
+      }catch(e){
+        return new TypeError(e.message);
+      }
+    };
+  })(Internal.Descriptor);
+
   /**
    * @function
    * @param {{configurable:?boolean,enumerable:?boolean,writable:?boolean}} descriptor
@@ -90,28 +124,25 @@
    */
   var applyDefaultDescriptor = (function () {
     var obj = Object.create(null);
-    Object.defineProperty(obj,'key',{
-      value : 1
-    });
+    Object.defineProperty(obj,'key',{});
     var globalDefaultDescriptor = Object.getOwnPropertyDescriptor(obj,'key');
-    var DescriptorKeys = 'configurable enumerable writable'.split(' ');
+    var DescriptorKeys = 'configurable enumerable writable value init'.split(' ');
     function applyDefaultDescriptor(descriptor,defaultDescriptor){
       var origDescriptor = descriptor || Object.create(null);
       descriptor = Object.create(null);
-      for (var key in origDescriptor) {
+      var i,key;
+      for (i = 0; i < DescriptorKeys.length; i++) {
+        key = DescriptorKeys[i];
         descriptor[key] = origDescriptor[key];
       }
-      for (var i = 0; i < DescriptorKeys.length; i++) {
-        var key = DescriptorKeys[i];
+      for (i = 0; i < DescriptorKeys.length; i++) {
+        key = DescriptorKeys[i];
         if (descriptor[key] !== undefined) {
           continue;
         }
         if (defaultDescriptor && defaultDescriptor[key] !== undefined) {
           descriptor[key] = defaultDescriptor[key];
           continue;
-        }
-        if (origDescriptor['get'] !== undefined) {
-          descriptor['get'] = origDescriptor['get'];
         }
         descriptor[key] = globalDefaultDescriptor[key];
       }
@@ -418,7 +449,7 @@
      */
     Get.provideMethods = provideMethodsFactory(Get,['refreshProperty','getSilently']);
   })(BeautifulProperties.Hookable.Get);
-  (function (Hookable,Get) {
+  (function (Hookable,Get,Descriptor) {
     // internal functions
     var retrieveMeta = Internal.Hookable.retrieveMeta;
     var retrieveHooks = Internal.Hookable.retrieveHooks;
@@ -449,9 +480,18 @@
           storedHooks[key].push(hooks[key]);
         }
       });
-      descriptor = applyDefaultDescriptor(descriptor,{writable:true});
-
-      var isValueExist = descriptor.value !== undefined;
+      descriptor = descriptor || Object.create(null);
+      // TODO store
+      var type = Descriptor.getTypeOf(descriptor);
+      if (type === Descriptor.InvalidDescriptor) {
+        throw Descriptor.createTypeError(descriptor);
+      }
+      if (type !== Descriptor.AccessorDescriptor) {
+        descriptor = applyDefaultDescriptor(descriptor,{writable:true});
+        type = Descriptor.DataDescriptor;
+      } else {
+        // TODO clone
+      }
       // The hookable property is already defined.
       // TODO modify descriptor
       if (storedHooks.isDefined) {
@@ -459,74 +499,122 @@
       }
       storedHooks.isDefined = true;
       retrieveInternalObject.bind(null,'Hookable::Descriptor',true)(object).store(key,descriptor);
+
+      // internal functions
+      function init_DataDescriptor(){
+        var descriptor = retrieveDescriptor(object,key);
+        var meta = retrieveMeta(this,key);
+        var isValueExist = descriptor.value !== undefined;
+        meta.isInited = true;
+        var initialValue;
+        if (descriptor.init) {
+          initialValue = descriptor.init.call(this);
+        } else if (isValueExist) {
+          initialValue = descriptor.value;
+        }
+        if (descriptor.writable) {
+          this[key] = initialValue;
+        } else {
+          BeautifulProperties.setRaw(this,key,initialValue);
+        }
+      }
+      function get_beforeGet(){
+        var self = this;
+        var storedHooks = retrieveHooks(object,key);
+        storedHooks.beforeGet.forEach(function(beforeGet){
+          beforeGet.call(self);
+        });
+      }
+
+      function get_afterGet(val){
+        var self = this;
+        var storedHooks = retrieveHooks(object,key);
+        storedHooks.afterGet.forEach(function(afterGet){
+          var replacedVal = afterGet.call(self,val);
+          if (replacedVal === undefined && replacedVal !== Undefined) {
+          } else if (replacedVal === Undefined) {
+            val = undefined;
+          } else {
+            val = replacedVal;
+          }
+        });
+        return val;
+      }
+      function set_beforeSet(val,previousVal){
+        var self = this;
+        var storedHooks = retrieveHooks(object,key);
+        storedHooks.beforeSet.forEach(function(beforeSet){
+          var replacedVal = beforeSet.call(self,val,previousVal);
+          if (replacedVal === undefined && replacedVal !== Undefined) {
+          } else if (replacedVal === Undefined) {
+            val = undefined;
+          } else {
+            val = replacedVal;
+          }
+        });
+        return val;
+      }
+      function set_afterSet(val,previousVal){
+        var self = this;
+        var storedHooks = retrieveHooks(object,key);
+        storedHooks.afterSet.forEach(function(afterSet){
+          afterSet.call(self,val,previousVal);
+        });
+      }
       Object.defineProperty(object,key,{
-        get : function () {
-          var self = this;
+        get : function __BeautifulProperties_Hookable_get() {
           var descriptor = retrieveDescriptor(object,key);
           var meta = retrieveMeta(this,key);
-          if (!meta.isInited && (descriptor.init || isValueExist)) {
-            meta.isInited = true;
-            var initialValue;
-            if (descriptor.init) {
-              initialValue = descriptor.init.call(this);
-            } else if (isValueExist) {
-              initialValue = descriptor.value;
-            }
-            if (descriptor.writable) {
-              this[key] = initialValue;
-            } else {
-              BeautifulProperties.setRaw(this,key,initialValue);
-            }
-            return this[key];
+          switch (type) {
+            case Descriptor.DataDescriptor:
+              var isValueExist = descriptor.value !== undefined;
+              if (!meta.isInited && (descriptor.init || isValueExist)) {
+                init_DataDescriptor.call(this);
+                return this[key];
+              } else {
+                get_beforeGet.call(this);
+                return get_afterGet.call(this,BeautifulProperties.getRaw(this,key));
+              }
+            case Descriptor.AccessorDescriptor:
+              // XXX Is property write only if descriptor don't have get.
+              get_beforeGet.call(this);
+              if (descriptor.get) {
+                Get.refreshProperty(this,key);
+              }
+              return get_afterGet.call(this,BeautifulProperties.getRaw(this,key));
+            default :
+              // TODO error
           }
-          var storedHooks = retrieveHooks(object,key);
-          storedHooks.beforeGet.forEach(function(beforeGet){
-            beforeGet.call(self);
-          });
-          if (descriptor.get) {
-            Get.refreshProperty(this,key);
-          }
-          var val = BeautifulProperties.getRaw(this,key);
-          storedHooks.afterGet.forEach(function(afterGet){
-            var replacedVal = afterGet.call(self,val);
-            if (replacedVal === undefined && replacedVal !== Undefined) {
-            } else if (replacedVal === Undefined) {
-              val = undefined;
-            } else {
-              val = replacedVal;
-            }
-          });
-          return val;
         },
-        set : function (val) {
+        set : function __BeautifulProperties_Hookable_set(val) {
           var descriptor = retrieveDescriptor(object,key);
-          if (!descriptor.writable) {
-            return;
+          switch (type) {
+            case Descriptor.DataDescriptor:
+              if (!descriptor.writable) {
+                return;
+              }
+              var meta = retrieveMeta(this,key);
+              if (!meta.isInited) {
+                meta.isInited = true;
+              }
+              var previousVal = BeautifulProperties.getRaw(this,key);
+              val = set_beforeSet.call(this,val,previousVal);
+              BeautifulProperties.setRaw(this,key,val);
+              set_afterSet.call(this,val,previousVal);
+              break;
+            case Descriptor.AccessorDescriptor:
+              if (!descriptor.set) {
+                return;
+              }
+              // TODO implements
+              break;
+            default :
+            // TODO error
           }
-          var self = this;
-          var meta = retrieveMeta(this,key);
-          if (!meta.isInited) {
-            meta.isInited = true;
-          }
-          var storedHooks = retrieveHooks(object,key);
-          var previousVal = BeautifulProperties.getRaw(this,key);
-          storedHooks.beforeSet.forEach(function(beforeSet){
-            var replacedVal = beforeSet.call(self,val,previousVal);
-            if (replacedVal === undefined && replacedVal !== Undefined) {
-            } else if (replacedVal === Undefined) {
-              val = undefined;
-            } else {
-              val = replacedVal;
-            }
-          });
-          BeautifulProperties.setRaw(this,key,val);
-          storedHooks.afterSet.forEach(function(afterSet){
-            afterSet.call(self,val,previousVal);
-          });
         }
       });
     };
-  })(BeautifulProperties.Hookable,BeautifulProperties.Hookable.Get);
+  })(BeautifulProperties.Hookable,BeautifulProperties.Hookable.Get,Internal.Descriptor);
 
   // BeautifulProperties.Events 's implementation is cloned from backbone.js and modified.
   // https://github.com/documentcloud/backbone
@@ -791,12 +879,12 @@
      *  descriptor.writable's default value is false in ES5,but it's true in BeautifulProperties.Hookable.
      */
     Observable.define = function defineObservableProperty(object,key,hooks,descriptor) {
-      var originalDescriptor = descriptor;
-      BeautifulProperties.Hookable.define(object,key,hooks,originalDescriptor);
+      var options = descriptor || Object.create(null);
+      BeautifulProperties.Hookable.define(object,key,hooks,descriptor);
 
       descriptor = retrieveDescriptor(object,key);
-      Equals.set(object,key,descriptor.equals);
-      var trigger = descriptor.bubble
+      Equals.set(object,key,options.equals);
+      var trigger = options.bubble
       ? Events.triggerWithBubbling.bind(Events)
       : Events.trigger.bind(Events);
       var hooks = retrieveHooks(object,key);
