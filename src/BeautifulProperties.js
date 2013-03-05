@@ -23,6 +23,10 @@
     global[moduleName] = module;
   }
 })((function(global, undefined) {
+  /**
+   * @name BeautifulProperties
+   * @namespace
+   */
   var BeautifulProperties = Object.create(null);
   var Array_from = (function () {
     return function(arrayLike) {
@@ -44,6 +48,11 @@
   var hasConsoleWarn = global.console && global.console.warn;
   var hasConsoleError = global.console && global.console.warn;
 
+  /**
+   * @constant
+   * @name VERSION
+   * @memberOf BeautifulProperties
+   */
   Object.defineProperty(BeautifulProperties,'VERSION',{
     value : '0.1.3x',
     writable : false
@@ -116,6 +125,11 @@
     return provideMethods;
   }
 
+  /**
+   * @name LazyInitializable
+   * @namespace
+   * @memberOf BeautifulProperties
+   */
   Object.defineProperty(BeautifulProperties,'LazyInitializable',{
     value : Object.create(null),
     writable : false
@@ -126,6 +140,8 @@
      * @param object {Object}
      * @param key {String}
      * @param descriptor {Object}
+     * @memberOf BeautifulProperties.LazyInitializable
+     * @function
      */
     LazyInitializable.define = function defineLazyInitializableProperty(object,key,descriptor) {
       var init = descriptor.init;
@@ -289,12 +305,17 @@
     raw[key] = val;
   };
 
+  /**
+   *
+   * @namespace
+   */
   BeautifulProperties.Hookable = Object.create(null);
   Internal.Hookable = Object.create(null);
   (function (LazyInitializable,PropertySpecific) {
     /**
      * @property {boolean} isInited
      * @constructor
+     * @private
      */
     function Meta(){
       this.isInited = false;
@@ -306,6 +327,7 @@
      * @property {Array.<function>} beforeSet
      * @property {Array.<function>} afterSet
      * @constructor
+     * @private
      */
     function Hooks(){
       this.isDefined = false;
@@ -322,6 +344,9 @@
     Internal.Hookable.retrieveHooks = PropertySpecific.retrieverFactory('Hookable::Hooks',true);
     Internal.Hookable.retrieveDescriptor = PropertySpecific.retrieverFactory('Hookable::Descriptor',false);
   })(BeautifulProperties.LazyInitializable,InternalObject.PropertySpecific);
+  /**
+   * @namespace
+   */
   BeautifulProperties.Hookable.Get = Object.create(null);
   (function (Get) {
     // internal functions
@@ -331,6 +356,9 @@
      *
      * @param object
      * @param key
+     * @name refreshProperty
+     * @memberOf BeautifulProperties.Hookable.Get
+     * @function
      */
     Get.refreshProperty = function refreshProperty(object,key){
       var previousVal = BeautifulProperties.getRaw(object,key);
@@ -348,6 +376,9 @@
      * @param object
      * @param key
      * @return {*}
+     * @name getSilently
+     * @memberOf BeautifulProperties.Hookable.Get
+     * @function
      */
     Get.getSilently = function getSilently(object,key){
       var descriptor = retrieveDescriptor(object,key);
@@ -357,6 +388,9 @@
     /**
      *
      * @param object
+     * @name provideMethods
+     * @memberOf BeautifulProperties.Hookable.Get
+     * @function
      */
     Get.provideMethods = provideMethodsFactory(Get,['refreshProperty','getSilently']);
   })(BeautifulProperties.Hookable.Get);
@@ -374,6 +408,7 @@
      * @param {?{beforeGet:?function,afterGet:?function,beforeSet:?function,afterSet:?function,refresh:?function}} hooks
      * @param {?{value:?*,init:?function,writable:?boolean,get:?function}} descriptor
      *  descriptor.writable's default value is false in ES5,but it's true in BeautifulProperties.Hookable.
+     * @memberOf BeautifulProperties.Hookable
      */
     Hookable.define = function defineHookableProperty(object,key,hooks,descriptor) {
       var Undefined = Hookable.Undefined;
@@ -465,6 +500,10 @@
 
   // BeautifulProperties.Events 's implementation is cloned from backbone.js and modified.
   // https://github.com/documentcloud/backbone
+  /**
+   * @name BeautifulProperties.Events
+   * @namespace
+   */
   Object.defineProperty(BeautifulProperties,'Events',{
     value : Object.create(null),
     writable : false
@@ -472,9 +511,9 @@
   (function (Events) {
     /**
      *
-     * @property type {String}
      * @param type
      * @constructor
+     * @memberOf BeautifulProperties.Events
      */
     function Event(type) {
       Object.defineProperty(this,'type',{
@@ -483,10 +522,20 @@
       });
     }
     (function (proto) {
+      /**
+       * @type {string}
+       * @name type
+       * @memberOf BeautifulProperties.Events.Event
+       */
       Object.defineProperty(proto,'type',{
         writable:true,
         value:''
       });
+      /**
+       * @function
+       * @name stopPropagation
+       * @memberOf BeautifulProperties.Events.Event
+       */
       proto.stopPropagation = function stopPropagation () {
         // TODO implement
       };
@@ -503,6 +552,9 @@
      * @param events {String}
      * @param callback {Function}
      * @param options {Object} `context` is the ThisBinding of the callback execution context.
+     * @name on
+     * @memberOf BeautifulProperties.Events
+     * @function
      */
     Events.on = function on(object, events, callback, options) {
       options = options || {};
@@ -532,6 +584,15 @@
     // Remove one or many callbacks. If `context` is null, removes all callbacks
     // with that function. If `callback` is null, removes all callbacks for the
     // event. If `events` is null, removes all bound callbacks for all events.
+    /**
+     *
+     * @param object
+     * @param events
+     * @param callback
+     * @name off
+     * @memberOf BeautifulProperties.Events
+     * @function
+     */
     Events.off = function off(object, events, callback) {
       var event, calls, list, i;
 
@@ -564,6 +625,14 @@
     };
     // Trigger one or many events, firing all bound callbacks. Callbacks are
     // passed the same arguments as `trigger` is, apart from the event name.
+    /**
+     *
+     * @param object
+     * @param events
+     * @name trigger
+     * @memberOf BeautifulProperties.Events
+     * @function
+     */
     Events.trigger = function trigger(object, events) {
       var calls = retrieveCallbacks(object);
       // no callbacks
@@ -591,6 +660,15 @@
         }
       }
     }
+
+    /**
+     *
+     * @param object
+     * @param events
+     * @name triggerWithBubbling
+     * @memberOf BeautifulProperties.Events
+     * @function
+     */
     Events.triggerWithBubbling = function triggerWithBubbling(object, events) {
       var rest = Array_from(arguments).slice(2);
       var target = object;
@@ -609,11 +687,22 @@
     /**
      *
      * @param object
+     * @name provideMethods
+     * @memberOf BeautifulProperties.Events
+     * @function
      */
     Events.provideMethods = provideMethodsFactory(Events,['on','off','trigger','triggerWithBubbling']);
   })(BeautifulProperties.Events);
 
+  /**
+   *
+   * @namespace
+   */
   BeautifulProperties.Equals = Object.create(null);
+  /**
+   *
+   * @namespace
+   */
   BeautifulProperties.Equals.Functions = Object.create(null);
   (function (Functions) {
     Functions.StrictEqual = function StrictEqual(value,otherValue){
@@ -623,6 +712,13 @@
   (function (Equals,Functions,PropertySpecific) {
     PropertySpecific.mixinRetriever('Equals');
     var retrieve = retrieveInternalObject.bind(null,'Equals',true);
+    /**
+     *
+     * @param object
+     * @param key
+     * @param equalsFn
+     * @memberOf BeautifulProperties.Equals
+     */
     Equals.set = function set(object,key,equalsFn){
       equalsFn = equalsFn || Functions.StrictEqual;
       retrieve(object).store(key,equalsFn);
@@ -641,7 +737,10 @@
   })(BeautifulProperties.Equals,BeautifulProperties.Equals.Functions,InternalObject.PropertySpecific);
 
 
-
+  /**
+   *
+   * @namespace
+   */
   BeautifulProperties.Observable = Object.create(null);
   (function (Observable,Events,Equals) {
     // internal functions
@@ -655,6 +754,7 @@
      * @param {{beforeGet:?function,afterGet:?function,beforeSet:?function,afterSet:?function}} hooks
      * @param {?{value:?*,init:?function,writable:?boolean,get:?function,bubble:?boolean,equals:?function}} descriptor
      *  descriptor.writable's default value is false in ES5,but it's true in BeautifulProperties.Hookable.
+     * @memberOf BeautifulProperties.Observable
      */
     Observable.define = function defineObservableProperty(object,key,hooks,descriptor) {
       var originalDescriptor = descriptor;
