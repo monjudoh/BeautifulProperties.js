@@ -287,32 +287,39 @@ describe("BeautifulProperties.Hookable", function() {
           hooks = Object.create(null);
           refresh = jasmine.createSpy('refresh');
         });
-        it("object could get value.",function(){
-          BeautifulProperties.Hookable.define(object,'key',hooks,{
-            get:function(){
-              return 1;
-            }
+        describe("",function(){
+          beforeEach(function(){
+            BeautifulProperties.Hookable.define(object,'key',hooks,{
+              get:function(){
+                return 1;
+              }
+            });
           });
-          expect(object['key']).toBe(1);
+          it("object could get value.",function(){
+            expect(object['key']).toBe(1);
+          });
+          it("sub object could get value.",function(){
+            var subObject = Object.create(object);
+            expect(subObject['key']).toBe(1);
+          });
         });
-        it("sub object could get value.",function(){
-          BeautifulProperties.Hookable.define(object,'key',hooks,{
-            get:function(){
-              return 1;
-            }
+        describe("refresh hook should be called",function(){
+          beforeEach(function(){
+            hooks.refresh = refresh;
+            BeautifulProperties.Hookable.define(object,'key',hooks,{
+              get:function(){
+                return 1;
+              }
+            });
           });
-          var subObject = Object.create(object);
-          expect(subObject['key']).toBe(1);
-        });
-        it("refresh hook should be called.",function(){
-          hooks.refresh = refresh;
-          BeautifulProperties.Hookable.define(object,'key',hooks,{
-            get:function(){
-              return 1;
-            }
+          it(" when refreshProperty is called.",function(){
+            BeautifulProperties.Hookable.Get.refreshProperty(object,'key');
+            expect(refresh).toHaveBeenCalledWith(1,undefined);
           });
-          BeautifulProperties.Hookable.Get.refreshProperty(object,'key');
-          expect(refresh).toHaveBeenCalledWith(1,undefined);
+          it(" when property is accessed.",function(){
+            object['key'];
+            expect(refresh).toHaveBeenCalledWith(1,undefined);
+          });
         });
         it("Get.getSilently skip refresh hook.",function(){
           hooks.refresh = refresh;
