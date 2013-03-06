@@ -576,20 +576,22 @@
                 return get_afterGet.call(this,BeautifulProperties.getRaw(this,key));
               }
             case Descriptor.AccessorDescriptor:
-              // XXX Is property write only if descriptor don't have get.
-              get_beforeGet.call(this);
-              if (descriptor.get) {
-                Get.refreshProperty(this,key);
+              // write only
+              if (!descriptor.get) {
+                return undefined;
               }
+              get_beforeGet.call(this);
+              Get.refreshProperty(this,key);
               return get_afterGet.call(this,BeautifulProperties.getRaw(this,key));
             default :
-              // TODO error
+              throw new Error('InvalidState');
           }
         },
         set : function __BeautifulProperties_Hookable_set(val) {
           var descriptor = retrieveDescriptor(object,key);
           switch (type) {
             case Descriptor.DataDescriptor:
+              // read only
               if (!descriptor.writable) {
                 return;
               }
@@ -603,13 +605,20 @@
               set_afterSet.call(this,val,previousVal);
               break;
             case Descriptor.AccessorDescriptor:
+              // read only
               if (!descriptor.set) {
                 return;
               }
-              // TODO implements
+              var previousVal = BeautifulProperties.getRaw(this,key);
+              val = set_beforeSet.call(this,val,previousVal);
+              descriptor.set.call(this,val);
+              if (descriptor.get) {
+                Get.refreshProperty(this,key);
+              }
+              set_afterSet.call(this,val,previousVal);
               break;
             default :
-            // TODO error
+              throw new Error('InvalidState');
           }
         }
       });

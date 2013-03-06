@@ -332,6 +332,48 @@ describe("BeautifulProperties.Hookable", function() {
           expect(refresh).not.toHaveBeenCalledWith(1,undefined);
         });
       });
+      describe("set",function(){
+        var object,hooks,set,refresh;
+        beforeEach(function(){
+          object = Object.create(null);
+          hooks = Object.create(null);
+          set = jasmine.createSpy('set');
+          refresh = jasmine.createSpy('refresh');
+        });
+        describe("write only",function(){
+          beforeEach(function(){
+            hooks.refresh = refresh;
+            BeautifulProperties.Hookable.define(object,'key',hooks,{
+              set:set
+            });
+          });
+          it(" when property is accessed.",function(){
+            object['key'] = 1;
+            expect(set).toHaveBeenCalledWith(1);
+          });
+          it("refresh hook shouldn't be called when property is accessed.",function(){
+            object['key'] = 1;
+            expect(refresh).not.toHaveBeenCalledWith(1);
+          });
+        });
+        describe("rw",function(){
+          beforeEach(function(){
+            hooks.refresh = refresh;
+            var value;
+            BeautifulProperties.Hookable.define(object,'key',hooks,{
+              set:function(val){
+                value = val;
+              },get:function(){
+                return value;
+              }
+            });
+          });
+          it("refresh hook should be called when property is accessed.",function(){
+            object['key'] = 1;
+            expect(refresh).toHaveBeenCalledWith(1,undefined);
+          });
+        });
+      });
     });
   });
 });
