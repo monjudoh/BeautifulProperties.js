@@ -63,7 +63,7 @@
    * @memberOf BeautifulProperties
    */
   Object.defineProperty(BeautifulProperties,'VERSION',{
-    value : '0.1.3x',
+    value : '0.1.3',
     writable : false
   });
 
