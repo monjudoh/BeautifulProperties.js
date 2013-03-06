@@ -12,6 +12,14 @@
  *  aodag (Atsushi Odagiri) aodagx@gmail.com https://github.com/aodag
  *    He named this library.
  */
+/**
+ * @module BeautifulProperties
+ * @version 0.1.3
+ * @author monjudoh
+ * @copyright (c) 2012 monjudoh
+ * Dual licensed under the MIT (MIT-LICENSE.txt)
+ * and GPL (GPL-LICENSE.txt) licenses.
+ */
 ;(function(module,moduleName,global){
   // in AMD
   if (typeof define == 'function' && typeof define.amd == 'object' && define.amd) {
@@ -26,6 +34,7 @@
   /**
    * @name BeautifulProperties
    * @namespace
+   * @alias module:BeautifulProperties
    */
   var BeautifulProperties = Object.create(null);
   var Array_from = (function () {
@@ -66,19 +75,20 @@
   /**
    * @name BeautifulProperties.GenericDescriptor
    * @typedef {{configurable:?boolean,enumerable:?boolean}}
-   * @description GenericDescriptor
+   * @description GenericDescriptor<br>
    * http://www.ecma-international.org/ecma-262/5.1/#sec-8.10.3
    */
   /**
    * @name BeautifulProperties.DataDescriptor
    * @typedef {{configurable:?boolean,enumerable:?boolean,writable:?boolean,value:?*,init:?function}}
-   * @description DataDescriptor.
+   * @description DataDescriptor<br>
    * http://www.ecma-international.org/ecma-262/5.1/#sec-8.10.2
    */
   /**
    * @name BeautifulProperties.AccessorDescriptor
    * @typedef {{configurable:?boolean,enumerable:?boolean,get:?function,set:?function}}
-   * @description AccessorDescriptor.Either get or set is necessary.
+   * @description AccessorDescriptor.<br>
+   * Either get or set is necessary.<br>
    * http://www.ecma-international.org/ecma-262/5.1/#sec-8.10.1
    */
 
@@ -187,13 +197,13 @@
   });
   (function (LazyInitializable) {
     /**
+     * @name define
+     * @memberOf BeautifulProperties.LazyInitializable
+     * @function
      *
      * @param {object} object
      * @param {string} key
      * @param {BeautifulProperties.DataDescriptor} descriptor
-     * @name define
-     * @memberOf BeautifulProperties.LazyInitializable
-     * @function
      */
     LazyInitializable.define = function defineLazyInitializableProperty(object,key,descriptor) {
       var init = descriptor.init;
@@ -360,8 +370,9 @@
   };
 
   /**
-   *
+   * @name Hookable
    * @namespace
+   * @memberOf BeautifulProperties
    */
   BeautifulProperties.Hookable = Object.create(null);
   Internal.Hookable = Object.create(null);
@@ -400,7 +411,9 @@
     Internal.Hookable.retrieveDescriptor = PropertySpecific.retrieverFactory('Hookable::Descriptor',false);
   })(BeautifulProperties.LazyInitializable,InternalObject.PropertySpecific);
   /**
+   * @name Get
    * @namespace
+   * @memberOf BeautifulProperties.Hookable
    */
   BeautifulProperties.Hookable.Get = Object.create(null);
   (function (Get) {
@@ -408,12 +421,12 @@
     var retrieveHooks = InternalObject.PrototypeWalker.retrieve.bind(null,'Hookable::Hooks');
     var retrieveDescriptor = InternalObject.PrototypeWalker.retrieve.bind(null,'Hookable::Descriptor');
     /**
-     *
-     * @param object
-     * @param key
      * @name refreshProperty
      * @memberOf BeautifulProperties.Hookable.Get
      * @function
+     *
+     * @param {object} object
+     * @param {string} key
      */
     Get.refreshProperty = function refreshProperty(object,key){
       var previousVal = BeautifulProperties.getRaw(object,key);
@@ -427,13 +440,13 @@
       });
     };
     /**
-     *
-     * @param object
-     * @param key
-     * @return {*}
      * @name getSilently
      * @memberOf BeautifulProperties.Hookable.Get
      * @function
+     *
+     * @param {object} object
+     * @param {string} key
+     * @return {*}
      */
     Get.getSilently = function getSilently(object,key){
       var descriptor = retrieveDescriptor(object,key);
@@ -441,11 +454,12 @@
       return retriever.call(object);
     };
     /**
-     *
-     * @param object
      * @name provideMethods
      * @memberOf BeautifulProperties.Hookable.Get
      * @function
+     * @description Provide refreshProperty method and getSilently method to object.
+     *
+     * @param {object} object
      */
     Get.provideMethods = provideMethodsFactory(Get,['refreshProperty','getSilently']);
   })(BeautifulProperties.Hookable.Get);
@@ -675,13 +689,14 @@
     var eventSplitter = /\s+/;
     /**
      * Bind one or more space separated events, `events`, to a `callback`
-     * @param object {Object}
-     * @param events {String}
-     * @param callback {Function}
-     * @param options {Object} `context` is the ThisBinding of the callback execution context.
      * @name on
      * @memberOf BeautifulProperties.Events
      * @function
+     *
+     * @param {object} object
+     * @param {string} events
+     * @param {function} callback
+     * @param {{context:?*}} options`context` is the ThisBinding of the callback execution context.
      */
     Events.on = function on(object, events, callback, options) {
       options = options || {};
@@ -712,13 +727,13 @@
     // with that function. If `callback` is null, removes all callbacks for the
     // event. If `events` is null, removes all bound callbacks for all events.
     /**
-     *
-     * @param object
-     * @param events
-     * @param callback
      * @name off
      * @memberOf BeautifulProperties.Events
      * @function
+     *
+     * @param {object} object
+     * @param {string} events
+     * @param {function} callback
      */
     Events.off = function off(object, events, callback) {
       var event, calls, list, i;
@@ -754,11 +769,12 @@
     // passed the same arguments as `trigger` is, apart from the event name.
     /**
      *
-     * @param object
-     * @param events
      * @name trigger
      * @memberOf BeautifulProperties.Events
      * @function
+     *
+     * @param {object} object
+     * @param {string} events
      */
     Events.trigger = function trigger(object, events) {
       var calls = retrieveCallbacks(object);
@@ -790,11 +806,12 @@
 
     /**
      *
-     * @param object
-     * @param events
      * @name triggerWithBubbling
      * @memberOf BeautifulProperties.Events
      * @function
+     *
+     * @param {object} object
+     * @param {string} events
      */
     Events.triggerWithBubbling = function triggerWithBubbling(object, events) {
       var rest = Array_from(arguments).slice(2);
@@ -812,23 +829,25 @@
 
   (function (Events) {
     /**
-     *
-     * @param object
      * @name provideMethods
      * @memberOf BeautifulProperties.Events
      * @function
+     *
+     * @param {object} object
      */
     Events.provideMethods = provideMethodsFactory(Events,['on','off','trigger','triggerWithBubbling']);
   })(BeautifulProperties.Events);
 
   /**
-   *
+   * @name Equals
    * @namespace
+   * @memberOf BeautifulProperties
    */
   BeautifulProperties.Equals = Object.create(null);
   /**
-   *
+   * @name Functions
    * @namespace
+   * @memberOf BeautifulProperties.Equals
    */
   BeautifulProperties.Equals.Functions = Object.create(null);
   (function (Functions) {
@@ -867,8 +886,9 @@
 
 
   /**
-   *
+   * @name Observable
    * @namespace
+   * @memberOf BeautifulProperties
    */
   BeautifulProperties.Observable = Object.create(null);
   (function (Observable,Events,Equals) {
