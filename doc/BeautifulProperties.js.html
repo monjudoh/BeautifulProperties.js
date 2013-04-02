@@ -29,7 +29,7 @@
  * BeautifulProperties.js - Extension of ECMAScript5 property.
  *
  * https://github.com/monjudoh/BeautifulProperties.js
- * version: 0.1.3
+ * version: 0.1.4
  *
  * Copyright (c) 2012 monjudoh
  * Dual licensed under the MIT (MIT-LICENSE.txt)
@@ -41,7 +41,7 @@
  */
 /**
  * @module BeautifulProperties
- * @version 0.1.3
+ * @version 0.1.4
  * @author monjudoh
  * @copyright (c) 2012 monjudoh
  * Dual licensed under the MIT (MIT-LICENSE.txt)
@@ -90,7 +90,7 @@
    * @memberOf BeautifulProperties
    */
   Object.defineProperty(BeautifulProperties,'VERSION',{
-    value : '0.1.3',
+    value : '0.1.4',
     writable : false
   });
 
@@ -101,19 +101,19 @@
 
   /**
    * @name BeautifulProperties.GenericDescriptor
-   * @typedef {{configurable:?boolean,enumerable:?boolean}}
+   * @typedef {{configurable:boolean=,enumerable:boolean=}}
    * @description GenericDescriptor&lt;br>
    * http://www.ecma-international.org/ecma-262/5.1/#sec-8.10.3
    */
   /**
    * @name BeautifulProperties.DataDescriptor
-   * @typedef {{configurable:?boolean,enumerable:?boolean,writable:?boolean,value:?*,init:?function}}
+   * @typedef {{configurable:boolean=,enumerable:boolean=,writable:boolean=,value:*=,init:function=}}
    * @description DataDescriptor&lt;br>
    * http://www.ecma-international.org/ecma-262/5.1/#sec-8.10.2
    */
   /**
    * @name BeautifulProperties.AccessorDescriptor
-   * @typedef {{configurable:?boolean,enumerable:?boolean,get:?function,set:?function}}
+   * @typedef {{configurable:boolean=,enumerable:boolean=,get:function=,set:function=}}
    * @description AccessorDescriptor.&lt;br>
    * Either get or set is necessary.&lt;br>
    * http://www.ecma-international.org/ecma-262/5.1/#sec-8.10.1
@@ -272,7 +272,7 @@
     };
   })(BeautifulProperties.LazyInitializable);
 
-  BeautifulProperties.Internal = {};
+  BeautifulProperties.Internal = Object.create(null);
   BeautifulProperties.Internal.Key = 'BeautifulProperties::internalObjectKey';
   function InternalObject() {
     var self = this;
@@ -508,8 +508,8 @@
      *
      * @param {object} object
      * @param {string} key
-     * @param {?{beforeGet:?function,afterGet:?function,beforeSet:?function,afterSet:?function,refresh:?function}} hooks
-     * @param {BeautifulProperties.DataDescriptor|BeautifulProperties.AccessorDescriptor|BeautifulProperties.GenericDescriptor} descriptor
+     * @param {{beforeGet:function=,afterGet:function=,beforeSet:function=,afterSet:function=,refresh:function=}=} hooks
+     * @param {(BeautifulProperties.DataDescriptor|BeautifulProperties.AccessorDescriptor|BeautifulProperties.GenericDescriptor)=} descriptor
      *  descriptor.writable's default value is false in ES5,but it's true in BeautifulProperties.Hookable.
      */
     Hookable.define = function defineHookableProperty(object,key,hooks,descriptor) {
@@ -723,10 +723,10 @@
      * @param {object} object
      * @param {string} events
      * @param {function} callback
-     * @param {{context:?*}} options`context` is the ThisBinding of the callback execution context.
+     * @param {{context:*=}=} options `context` is the ThisBinding of the callback execution context.
      */
     Events.on = function on(object, events, callback, options) {
-      options = options || {};
+      options = options || Object.create(null);
 //      var label = options.label || null;
       var context = options.context || null;
       var calls, event, list;
@@ -875,9 +875,20 @@
    * @name Functions
    * @namespace
    * @memberOf BeautifulProperties.Equals
+   * @see BeautifulProperties.Equals.equals
    */
   BeautifulProperties.Equals.Functions = Object.create(null);
   (function (Functions) {
+    /**
+     * @name StrictEqual
+     * @memberOf BeautifulProperties.Equals.Functions
+     * @function
+     *
+     * @param {*} value
+     * @param {*} otherValue
+     * @returns {boolean}
+     * @description ===
+     */
     Functions.StrictEqual = function StrictEqual(value,otherValue){
       return value === otherValue;
     };
@@ -889,16 +900,30 @@
      * @name set
      * @memberOf BeautifulProperties.Equals
      * @function
+     * @see BeautifulProperties.Equals.equals
      *
      * @param {object} object
      * @param {string} key
-     * @param {function} equalsFn
+     * @param {function(*,*):boolean} equalsFn equals function for BeautifulProperties.Equals.equals.
+     * @description It set the equals function on the property.
      */
     Equals.set = function set(object,key,equalsFn){
       equalsFn = equalsFn || Functions.StrictEqual;
       retrieve(object).store(key,equalsFn);
     };
     var walkAndRetrieve = InternalObject.PrototypeWalker.retrieve.bind(null,'Equals');
+    /**
+     * @name equals
+     * @memberOf BeautifulProperties.Equals
+     * @function
+     *
+     * @param {object} object
+     * @param {string} key
+     * @param {*} value
+     * @param {*} otherValue
+     * @returns {boolean}
+     * @description If it returns true,value is equal to otherValue in the property.
+     */
     Equals.equals = function equals(object,key,value,otherValue){
       var equalsFn = walkAndRetrieve(object,key);
       if (!equalsFn) {
@@ -927,11 +952,12 @@
      * @function
      * @name define
      * @memberOf BeautifulProperties.Observable
+     * @see BeautifulProperties.Equals.equals
      *
      * @param {object} object
      * @param {string} key
-     * @param {{beforeGet:?function,afterGet:?function,beforeSet:?function,afterSet:?function}} hooks
-     * @param {BeautifulProperties.DataDescriptor|BeautifulProperties.AccessorDescriptor|BeautifulProperties.GenericDescriptor} descriptor
+     * @param {{beforeGet:function=,afterGet:function=,beforeSet:function=,afterSet:function=,refresh:function=}=} hooks
+     * @param {(BeautifulProperties.DataDescriptor|BeautifulProperties.AccessorDescriptor|BeautifulProperties.GenericDescriptor)=} descriptor
      *  descriptor.writable's default value is false in ES5,but it's true in BeautifulProperties.Hookable.
      */
     Observable.define = function defineObservableProperty(object,key,hooks,descriptor) {
@@ -939,7 +965,6 @@
       BeautifulProperties.Hookable.define(object,key,hooks,descriptor);
 
       descriptor = retrieveDescriptor(object,key);
-      Equals.set(object,key,options.equals);
       var trigger = options.bubble
       ? Events.triggerWithBubbling.bind(Events)
       : Events.trigger.bind(Events);
@@ -957,6 +982,155 @@
     };
   })(BeautifulProperties.Observable,BeautifulProperties.Events,BeautifulProperties.Equals);
 
+  /**
+   * @name Versionizable
+   * @namespace
+   * @memberOf BeautifulProperties
+   */
+  BeautifulProperties.Versionizable = Object.create(null);
+  (function (Versionizable) {
+    /**
+     * @constructor
+     * @memberOf BeautifulProperties.Versionizable
+     *
+     * @property {boolean} isNull
+     * @property {*} value
+     * @property {number}　timestamp
+     */
+    function Version(){
+    }
+    Object.defineProperty(Version.prototype,'isNull',{
+      value:false,
+      writable:true
+    });
+    Versionizable.Version = Version;
+  })(BeautifulProperties.Versionizable);
+  (function (Versionizable,Hookable,Equals,PropertySpecific) {
+    PropertySpecific.mixinRetriever('Versionizable::History',Array);
+    /**
+     * @function
+     * @inner
+     * @param {object} object
+     * @returns {function(string):Array.&lt;BeautifulProperties.Versionizable.Version>}
+     */
+    var retrieveHistory = retrieveInternalObject.bind(null,'Versionizable::History',true);
+    // internal functions
+    var retrieveHooks = Internal.Hookable.retrieveHooks;
+    var retrieveDescriptor = Internal.Hookable.retrieveDescriptor;
+    var hasHooks = (function (retrieve) {
+      function hasHooks(object,key) {
+        return !!retrieve(object,key);
+      }
+      return hasHooks;
+    })(PropertySpecific.retrieverFactory('Hookable::Hooks',false));
+
+    /**
+     * @function
+     * @name getHistoryLength
+     * @memberOf BeautifulProperties.Versionizable
+     *
+     * @param {object} object
+     * @param {string} key
+     * @returns {number}
+     */
+    Versionizable.getHistoryLength = function getHistoryLength(object,key) {
+      var history = retrieveHistory(object)(key);
+      return history.length;
+    };
+    var aNullVersion = new (Versionizable.Version)();
+    (function (version) {
+      Object.defineProperty(version,'isNull',{
+        value:true,
+        writable:false
+      });
+      Object.defineProperty(version,'value',{
+        value:undefined,
+        writable:false
+      });
+    })(aNullVersion);
+    /**
+     * @function
+     * @name getVersions
+     * @memberOf BeautifulProperties.Versionizable
+     *
+     * @param {object} object
+     * @param {string} key
+     * @returns {Array.&lt;BeautifulProperties.Versionizable.Version>}
+     */
+    Versionizable.getVersions = function getVersions(object,key) {
+      var history = retrieveHistory(object)(key);
+      return history.slice();
+    };
+    /**
+     * @function
+     * @name getVersion
+     * @memberOf BeautifulProperties.Versionizable
+     *
+     * @param {object} object
+     * @param {string} key
+     * @param {number} index
+     * @returns {BeautifulProperties.Versionizable.Version}
+     */
+    Versionizable.getVersion = function getVersion(object,key,index) {
+      var history = retrieveHistory(object)(key);
+      return history[index] || aNullVersion;
+    };
+    /**
+     * @function
+     * @name getPreviousValue
+     * @memberOf BeautifulProperties.Versionizable
+     *
+     * @param {object} object
+     * @param {string} key
+     * @returns {*}
+     */
+    Versionizable.getPreviousValue = function getPreviousValue(object,key) {
+      var history = retrieveHistory(object)(key);
+      return (history[1] || aNullVersion).value;
+    };
+    /**
+     * @function
+     * @name define
+     * @memberOf BeautifulProperties.Versionizable
+     * @see BeautifulProperties.Equals.equals
+     *
+     * @param {object} object
+     * @param {string} key
+     * @param {{length:number=}=} options
+     *  length's default value is 2.
+     */
+    Versionizable.define = function define(object,key,options) {
+      options = options || Object.create(null);
+      if (options.length === undefined) {
+        options.length = 2;
+      }
+      // Versionizable property depends on Hookable.
+      if (!hasHooks(object,key)) {
+        Hookable.define(object,key);
+      }
+      var descriptor = retrieveDescriptor(object,key);
+      var hooks = retrieveHooks(object,key);
+      function checkChangeAndEnqueue(val,previousVal) {
+        if (!Equals.equals(this,key,val,previousVal)) {
+          var history = retrieveHistory(this)(key);
+          var version = new (Versionizable.Version);
+          version.value = val;
+          version.timestamp = Date.now();
+          history.unshift(version);
+          // truncate
+          if (history.length > options.length){
+            history.length = options.length;
+          }
+        }
+      }
+      if (descriptor.get) {
+        hooks.refresh.unshift(checkChangeAndEnqueue);
+      } else {
+        hooks.afterSet.unshift(checkChangeAndEnqueue);
+      }
+    };
+  })(BeautifulProperties.Versionizable,BeautifulProperties.Hookable,BeautifulProperties.Equals,InternalObject.PropertySpecific);
+
   return BeautifulProperties;
 })(this),'BeautifulProperties',this);</code></pre>
         </article>
@@ -968,13 +1142,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-BeautifulProperties.html">BeautifulProperties</a></li></ul><h3>Classes</h3><ul><li><a href="BeautifulProperties.Events.Event.html">Event</a></li></ul><h3>Namespaces</h3><ul><li><a href="BeautifulProperties.html">BeautifulProperties</a></li><li><a href="BeautifulProperties.Equals.html">Equals</a></li><li><a href="BeautifulProperties.Equals.Functions.html">Functions</a></li><li><a href="BeautifulProperties.Events.html">Events</a></li><li><a href="BeautifulProperties.Hookable.html">Hookable</a></li><li><a href="BeautifulProperties.Hookable.Get.html">Get</a></li><li><a href="BeautifulProperties.LazyInitializable.html">LazyInitializable</a></li><li><a href="BeautifulProperties.Observable.html">Observable</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-BeautifulProperties.html">BeautifulProperties</a></li></ul><h3>Classes</h3><ul><li><a href="BeautifulProperties.Events.Event.html">Event</a></li><li><a href="BeautifulProperties.Versionizable.Version.html">Version</a></li></ul><h3>Namespaces</h3><ul><li><a href="BeautifulProperties.html">BeautifulProperties</a></li><li><a href="BeautifulProperties.Equals.html">Equals</a></li><li><a href="BeautifulProperties.Equals.Functions.html">Functions</a></li><li><a href="BeautifulProperties.Events.html">Events</a></li><li><a href="BeautifulProperties.Hookable.html">Hookable</a></li><li><a href="BeautifulProperties.Hookable.Get.html">Get</a></li><li><a href="BeautifulProperties.LazyInitializable.html">LazyInitializable</a></li><li><a href="BeautifulProperties.Observable.html">Observable</a></li><li><a href="BeautifulProperties.Versionizable.html">Versionizable</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Wed Mar 06 2013 15:46:10 GMT+0900 (JST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Tue Apr 02 2013 15:05:28 GMT+0900 (JST)
 </footer>
 
 <script> prettyPrint(); </script>

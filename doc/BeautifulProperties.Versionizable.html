@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Namespace: Events</title>
+    <title>JSDoc: Namespace: Versionizable</title>
     
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">Namespace: Events</h1>
+    <h1 class="page-title">Namespace: Versionizable</h1>
     
     
 
@@ -29,7 +29,7 @@
     <h2>
         <span class="ancestors"><a href="BeautifulProperties.html">BeautifulProperties</a>.</span>
     
-    Events
+    Versionizable
     </h2>
     
 </header>  
@@ -64,7 +64,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="BeautifulProperties.js.html">BeautifulProperties.js</a>, line 644
+        <a href="BeautifulProperties.js.html">BeautifulProperties.js</a>, line 958
     </li></ul></dd>
     
     
@@ -90,7 +90,7 @@
         <h3 class="subsection-title">Classes</h3>
         
         <dl>
-            <dt><a href="BeautifulProperties.Events.Event.html">Event</a></dt>
+            <dt><a href="BeautifulProperties.Versionizable.Version.html">Version</a></dt>
             <dd></dd>
         </dl>
     
@@ -105,171 +105,12 @@
         <dl>
             
 <dt>
-    <h4 class="name" id="off"><span class="type-signature">&lt;static> </span>off<span class="signature">(object, events, callback)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="define"><span class="type-signature">&lt;static> </span>define<span class="signature">(object, key, <span class="optional">options</span>)</span><span class="type-signature"></span></h4>
     
     
 </dt>
 <dd>
     
-    
-
-    
-    
-    
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
-        <tr>
-            
-                <td class="name"><code>object</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-            
-            
-            
-            
-            
-            <td class="description last"></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>events</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-            
-            
-            
-            
-            
-            <td class="description last"></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>callback</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-            
-            
-            
-            
-            
-            <td class="description last"></td>
-        </tr>
-	
-	
-	</tbody>
-</table>
-    
-    
-    
-<dl class="details">
-    
-        
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="BeautifulProperties.js.html">BeautifulProperties.js</a>, line 729
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
-    
-</dl>
-
-    
-    
-    
-    
-    
-    
-    
-    
-</dd>
-
-        
-            
-<dt>
-    <h4 class="name" id="on"><span class="type-signature">&lt;static> </span>on<span class="signature">(object, events, callback, <span class="optional">options</span>)</span><span class="type-signature"></span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        Bind one or more space separated events, `events`, to a `callback`
-    </div>
     
 
     
@@ -333,42 +174,13 @@
 	
         <tr>
             
-                <td class="name"><code>events</code></td>
+                <td class="name"><code>key</code></td>
             
             
             <td class="type">
             
                 
 <span class="param-type">string</span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    
-                
-                </td>
-            
-            
-            
-            
-            <td class="description last"></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>callback</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
 
 
             
@@ -397,7 +209,7 @@
             <td class="type">
             
                 
-<span class="param-type">{context:*=}</span>
+<span class="param-type">{length:number=}</span>
 
 
             
@@ -415,7 +227,7 @@
             
             
             
-            <td class="description last">`context` is the ThisBinding of the callback execution context.</td>
+            <td class="description last">length's default value is 2.</td>
         </tr>
 	
 	
@@ -446,12 +258,19 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="BeautifulProperties.js.html">BeautifulProperties.js</a>, line 690
+        <a href="BeautifulProperties.js.html">BeautifulProperties.js</a>, line 1064
     </li></ul></dd>
     
     
     
     
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="BeautifulProperties.Equals.html#equals">BeautifulProperties.Equals.equals</a></li>
+        </ul>
+    </dd>
     
     
     
@@ -470,116 +289,7 @@
         
             
 <dt>
-    <h4 class="name" id="provideMethods"><span class="type-signature">&lt;static> </span>provideMethods<span class="signature">(object)</span><span class="type-signature"></span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-
-    
-    
-    
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
-        <tr>
-            
-                <td class="name"><code>object</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-            
-            
-            
-            
-            
-            <td class="description last"></td>
-        </tr>
-	
-	
-	</tbody>
-</table>
-    
-    
-    
-<dl class="details">
-    
-        
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="BeautifulProperties.js.html">BeautifulProperties.js</a>, line 831
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
-    
-</dl>
-
-    
-    
-    
-    
-    
-    
-    
-    
-</dd>
-
-        
-            
-<dt>
-    <h4 class="name" id="trigger"><span class="type-signature">&lt;static> </span>trigger<span class="signature">(object, events)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="getHistoryLength"><span class="type-signature">&lt;static> </span>getHistoryLength<span class="signature">(object, key)</span><span class="type-signature"> &rarr; {number}</span></h4>
     
     
 </dt>
@@ -640,7 +350,7 @@
 	
         <tr>
             
-                <td class="name"><code>events</code></td>
+                <td class="name"><code>key</code></td>
             
             
             <td class="type">
@@ -687,7 +397,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="BeautifulProperties.js.html">BeautifulProperties.js</a>, line 770
+        <a href="BeautifulProperties.js.html">BeautifulProperties.js</a>, line 1000
     </li></ul></dd>
     
     
@@ -704,6 +414,24 @@
     
     
     
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">number</span>
+
+
+	</dd>
+</dl>
+
+        
     
     
 </dd>
@@ -711,7 +439,7 @@
         
             
 <dt>
-    <h4 class="name" id="triggerWithBubbling"><span class="type-signature">&lt;static> </span>triggerWithBubbling<span class="signature">(object, events)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="getPreviousValue"><span class="type-signature">&lt;static> </span>getPreviousValue<span class="signature">(object, key)</span><span class="type-signature"> &rarr; {*}</span></h4>
     
     
 </dt>
@@ -772,7 +500,7 @@
 	
         <tr>
             
-                <td class="name"><code>events</code></td>
+                <td class="name"><code>key</code></td>
             
             
             <td class="type">
@@ -819,7 +547,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="BeautifulProperties.js.html">BeautifulProperties.js</a>, line 807
+        <a href="BeautifulProperties.js.html">BeautifulProperties.js</a>, line 1051
     </li></ul></dd>
     
     
@@ -836,6 +564,347 @@
     
     
     
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">*</span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="getVersion"><span class="type-signature">&lt;static> </span>getVersion<span class="signature">(object, key, index)</span><span class="type-signature"> &rarr; {<a href="BeautifulProperties.Versionizable.Version.html">BeautifulProperties.Versionizable.Version</a>}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>object</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>key</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>index</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="BeautifulProperties.js.html">BeautifulProperties.js</a>, line 1037
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type"><a href="BeautifulProperties.Versionizable.Version.html">BeautifulProperties.Versionizable.Version</a></span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="getVersions"><span class="type-signature">&lt;static> </span>getVersions<span class="signature">(object, key)</span><span class="type-signature"> &rarr; {Array.&lt;BeautifulProperties.Versionizable.Version>}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>object</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>key</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="BeautifulProperties.js.html">BeautifulProperties.js</a>, line 1024
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">Array.&lt;BeautifulProperties.Versionizable.Version></span>
+
+
+	</dd>
+</dl>
+
+        
     
     
 </dd>
