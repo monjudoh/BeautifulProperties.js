@@ -912,7 +912,6 @@
       BeautifulProperties.Hookable.define(object,key,hooks,descriptor);
 
       descriptor = retrieveDescriptor(object,key);
-      Equals.set(object,key,options.equals);
       var trigger = options.bubble
       ? Events.triggerWithBubbling.bind(Events)
       : Events.trigger.bind(Events);
