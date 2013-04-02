@@ -848,9 +848,20 @@
    * @name Functions
    * @namespace
    * @memberOf BeautifulProperties.Equals
+   * @see BeautifulProperties.Equals.equals
    */
   BeautifulProperties.Equals.Functions = Object.create(null);
   (function (Functions) {
+    /**
+     * @name StrictEqual
+     * @memberOf BeautifulProperties.Equals.Functions
+     * @function
+     *
+     * @param {*} value
+     * @param {*} otherValue
+     * @returns {boolean}
+     * @description ===
+     */
     Functions.StrictEqual = function StrictEqual(value,otherValue){
       return value === otherValue;
     };
@@ -862,16 +873,30 @@
      * @name set
      * @memberOf BeautifulProperties.Equals
      * @function
+     * @see BeautifulProperties.Equals.equals
      *
      * @param {object} object
      * @param {string} key
-     * @param {function(*,*):boolean} equalsFn
+     * @param {function(*,*):boolean} equalsFn equals function for BeautifulProperties.Equals.equals.
+     * @description It set the equals function on the property.
      */
     Equals.set = function set(object,key,equalsFn){
       equalsFn = equalsFn || Functions.StrictEqual;
       retrieve(object).store(key,equalsFn);
     };
     var walkAndRetrieve = InternalObject.PrototypeWalker.retrieve.bind(null,'Equals');
+    /**
+     * @name equals
+     * @memberOf BeautifulProperties.Equals
+     * @function
+     *
+     * @param {object} object
+     * @param {string} key
+     * @param {*} value
+     * @param {*} otherValue
+     * @returns {boolean}
+     * @description If it returns true,value is equal to otherValue in the property.
+     */
     Equals.equals = function equals(object,key,value,otherValue){
       var equalsFn = walkAndRetrieve(object,key);
       if (!equalsFn) {
@@ -900,6 +925,7 @@
      * @function
      * @name define
      * @memberOf BeautifulProperties.Observable
+     * @see BeautifulProperties.Equals.equals
      *
      * @param {object} object
      * @param {string} key
@@ -1039,6 +1065,7 @@
      * @function
      * @name define
      * @memberOf BeautifulProperties.Versionizable
+     * @see BeautifulProperties.Equals.equals
      *
      * @param {object} object
      * @param {string} key
