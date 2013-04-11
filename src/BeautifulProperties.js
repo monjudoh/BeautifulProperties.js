@@ -683,7 +683,8 @@
     })(Event.prototype);
     Events.Event = Event;
   })(BeautifulProperties.Events);
-  (function (Events,Event) {
+  // event binding
+  (function (Events) {
     var retrieveCallbacks = retrieveInternalObject.bind(null,'callbacks',true);
     // Regular expression used to split event strings
     var eventSplitter = /\s+/;
@@ -765,6 +766,10 @@
         }
       }
     };
+  })(BeautifulProperties.Events);
+  // event triggering
+  (function (Events,Event) {
+    var retrieveCallbacks = retrieveInternalObject.bind(null,'callbacks',false);
     // Trigger one or many events, firing all bound callbacks. Callbacks are
     // passed the same arguments as `trigger` is, apart from the event name.
     /**
