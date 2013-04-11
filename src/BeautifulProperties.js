@@ -686,71 +686,63 @@
   // event binding
   (function (Events) {
     var retrieveCallbacks = retrieveInternalObject.bind(null,'callbacks',true);
-    // Regular expression used to split event strings
-    var eventSplitter = /\s+/;
     /**
-     * Bind one or more space separated events, `events`, to a `callback`
      * @name on
      * @memberOf BeautifulProperties.Events
      * @function
      *
      * @param {object} object
-     * @param {string} events
+     * @param {string} event
      * @param {function} callback
      * @param {{context:*=}=} options `context` is the ThisBinding of the callback execution context.
      */
-    Events.on = function on(object, events, callback, options) {
+    Events.on = function on(object, event, callback, options) {
       options = options || Object.create(null);
-//      var label = options.label || null;
       var context = options.context || null;
-      var calls, event, list;
       if (!callback) {
         throw new Error('callback is necessary in BeautifulProperties.Events.on');
       }
 
-      events = events.split(eventSplitter);
-      calls = retrieveCallbacks(object);
-
-      while (event = events.shift()) {
-        list = calls[event] || (calls[event] = []);
-        var boundCallback = context
-          ? callback.bind(context)
-          : function () {
-            var self = this;
-            callback.apply(self,Array_from(arguments));
-          };
-        boundCallback.originalCallback = callback;
-        list.push(boundCallback);
-      }
+      var calls = retrieveCallbacks(object);
+      var list = calls[event] || (calls[event] = []);
+      var boundCallback = context
+        ? callback.bind(context)
+        : function () {
+          var self = this;
+          callback.apply(self,Array_from(arguments));
+      };
+      boundCallback.originalCallback = callback;
+      list.push(boundCallback);
     };
 
-    // Remove one or many callbacks. If `context` is null, removes all callbacks
-    // with that function. If `callback` is null, removes all callbacks for the
-    // event. If `events` is null, removes all bound callbacks for all events.
     /**
      * @name off
      * @memberOf BeautifulProperties.Events
      * @function
      *
      * @param {object} object
-     * @param {string} events
+     * @param {string} event
      * @param {function} callback
+     *
+     * @description Remove callbacks.<br/>
+     * If `callback` is null, removes all callbacks for the event.<br/>
+     * If `event` is null, removes all bound callbacks for all events.
      */
-    Events.off = function off(object, events, callback) {
-      var event, calls, list, i;
+    Events.off = function off(object, event, callback) {
+      var events, calls, list, i;
 
-      // No events, or removing *all* events.
+      // No event, or removing *all* event.
       if (!(calls = retrieveCallbacks(object))){
         return;
       }
-      if (!(events || callback)) {
+      if (!(event || callback)) {
         Object.keys(calls).forEach(function(event){
           delete calls[event];
         });
         return;
       }
 
-      events = events ? events.split(eventSplitter) : Object.keys(calls);
+      events = event ? [event] : Object.keys(calls);
 
       // Loop through the callback list, splicing where appropriate.
       while (event = events.shift()) {
@@ -779,32 +771,27 @@
      * @function
      *
      * @param {object} object
-     * @param {string} events
+     * @param {string} event
      */
-    Events.trigger = function trigger(object, events) {
+    Events.trigger = function trigger(object, event) {
       var calls = retrieveCallbacks(object);
       // no callbacks
       if (!calls || Object.keys(calls).length == 0) {
         return;
       }
-      triggerInternal(events, calls, object, Array_from(arguments).slice(2));
+      triggerInternal(event, calls, object, Array_from(arguments).slice(2));
     };
-    function triggerInternal(events, calls, object, rest) {
-      events = events.split(eventSplitter);
-      var event, list, i, length;
-      // For each event, walk through the list of callbacks twice, first to
-      // trigger the event, then to trigger any `"all"` callbacks.
-      while (event = events.shift()) {
-        // Copy callback lists to prevent modification.
-        if (list = calls[event]) {
-          list = list.slice()
-        }
+    function triggerInternal(event, calls, object, rest) {
+      var list, i, length;
+      // Copy callback lists to prevent modification.
+      if (list = calls[event]) {
+        list = list.slice()
+      }
 
-        // Execute event callbacks.
-        if (list) {
-          for (i = 0, length = list.length; i < length; i++) {
-            list[i].apply(object, [new Event(event)].concat(rest));
-          }
+      // Execute event callbacks.
+      if (list) {
+        for (i = 0, length = list.length; i < length; i++) {
+          list[i].apply(object, [new Event(event)].concat(rest));
         }
       }
     }
@@ -816,9 +803,9 @@
      * @function
      *
      * @param {object} object
-     * @param {string} events
+     * @param {string} event
      */
-    Events.triggerWithBubbling = function triggerWithBubbling(object, events) {
+    Events.triggerWithBubbling = function triggerWithBubbling(object, event) {
       var rest = Array_from(arguments).slice(2);
       var target = object;
       do {
@@ -827,7 +814,7 @@
         if (!calls || Object.keys(calls).length == 0) {
           continue;
         }
-        triggerInternal(events, calls, target, rest);
+        triggerInternal(event, calls, target, rest);
       } while (object = Object.getPrototypeOf(object)) ;
     };
   })(BeautifulProperties.Events,BeautifulProperties.Events.Event);
