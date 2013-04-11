@@ -657,6 +657,11 @@
      * @memberOf BeautifulProperties.Events
      */
     function Event(type) {
+      /**
+       * @type {string}
+       * @name type
+       * @memberOf BeautifulProperties.Events.Event
+       */
       Object.defineProperty(this,'type',{
         writable:false,
         value:type
@@ -664,13 +669,23 @@
     }
     (function (proto) {
       /**
-       * @type {string}
-       * @name type
+       * @type {boolean}
+       * @name bubbles
        * @memberOf BeautifulProperties.Events.Event
        */
-      Object.defineProperty(proto,'type',{
+      Object.defineProperty(proto,'bubbles',{
         writable:true,
-        value:''
+        value:true
+      });
+      /**
+       * @type {boolean}
+       * @name isPropagationStopped
+       * @memberOf BeautifulProperties.Events.Event
+       * @description stop propagation flag
+       */
+      Object.defineProperty(proto,'isPropagationStopped',{
+        writable:true,
+        value:false
       });
       /**
        * @function
@@ -678,10 +693,11 @@
        * @memberOf BeautifulProperties.Events.Event
        */
       proto.stopPropagation = function stopPropagation () {
-        // TODO implement
+        this.isPropagationStopped = true;
       };
     })(Event.prototype);
     Events.Event = Event;
+
   })(BeautifulProperties.Events);
   // event binding
   (function (Events) {
@@ -781,19 +797,20 @@
       }
       triggerInternal(event, calls, object, Array_from(arguments).slice(2));
     };
-    function triggerInternal(event, calls, object, rest) {
+    function triggerInternal(eventType, calls, object, rest) {
       var list, i, length;
       // Copy callback lists to prevent modification.
-      if (list = calls[event]) {
+      if (list = calls[eventType]) {
         list = list.slice()
       }
-
+      var event = new Event(eventType);
       // Execute event callbacks.
       if (list) {
         for (i = 0, length = list.length; i < length; i++) {
-          list[i].apply(object, [new Event(event)].concat(rest));
+          list[i].apply(object, [event].concat(rest));
         }
       }
+      return event;
     }
 
     /**
@@ -803,10 +820,11 @@
      * @function
      *
      * @param {object} object
-     * @param {string} event
+     * @param {string} eventType
      */
-    Events.triggerWithBubbling = function triggerWithBubbling(object, event) {
+    Events.triggerWithBubbling = function triggerWithBubbling(object, eventType) {
       var rest = Array_from(arguments).slice(2);
+      var event;
       var target = object;
       do {
         var calls = retrieveCallbacks(object);
@@ -814,7 +832,11 @@
         if (!calls || Object.keys(calls).length == 0) {
           continue;
         }
-        triggerInternal(event, calls, target, rest);
+        event = triggerInternal(eventType, calls, target, rest);
+        // TODO check event.bubbles
+        if (event.isPropagationStopped) {
+          break;
+        }
       } while (object = Object.getPrototypeOf(object)) ;
     };
   })(BeautifulProperties.Events,BeautifulProperties.Events.Event);
