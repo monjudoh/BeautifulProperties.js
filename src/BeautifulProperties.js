@@ -650,22 +650,38 @@
     writable : false
   });
   (function (Events) {
+    var readonlyKeys = 'type target'.split(' ');
+    var necessaryKeys = 'type target'.split(' ');
+    var optionalKeys = 'bubbles'.split(' ');
     /**
      *
-     * @param type
+     * @param {{type:string,target:object,bubbles:boolean=}} options
      * @constructor
      * @memberOf BeautifulProperties.Events
+     * @property {string} type
+     * @property {object} target
+     * @property {boolean} bubbles Default value is true;
      */
-    function Event(type) {
-      /**
-       * @type {string}
-       * @name type
-       * @memberOf BeautifulProperties.Events.Event
-       */
-      Object.defineProperty(this,'type',{
-        writable:false,
-        value:type
+    function Event(options) {
+      var event = this;
+      necessaryKeys.forEach(function(key){
+        if (!(key in options)) {
+          throw new Error(key + "is necessary in Event's options.");
+        }
+        event[key] = options[key];
       });
+      optionalKeys.forEach(function(key){
+        if (!(key in options)) {
+          return;
+        }
+        event[key] = options[key];
+      });
+      readonlyKeys.forEach(function(key){
+        Object.defineProperty(event,key,{
+          writable:false
+        });
+      });
+
     }
     (function (proto) {
       /**
@@ -673,20 +689,20 @@
        * @name bubbles
        * @memberOf BeautifulProperties.Events.Event
        */
-      Object.defineProperty(proto,'bubbles',{
-        writable:true,
-        value:true
-      });
+      proto.bubbles = true;
       /**
        * @type {boolean}
        * @name isPropagationStopped
        * @memberOf BeautifulProperties.Events.Event
        * @description stop propagation flag
        */
-      Object.defineProperty(proto,'isPropagationStopped',{
-        writable:true,
-        value:false
-      });
+      proto.isPropagationStopped = false;
+      /**
+       * @type {object}
+       * @name currentTarget
+       * @memberOf BeautifulProperties.Events.Event
+       */
+      this.currentTarget = null;
       /**
        * @function
        * @name stopPropagation
@@ -697,7 +713,6 @@
       };
     })(Event.prototype);
     Events.Event = Event;
-
   })(BeautifulProperties.Events);
   // event binding
   (function (Events) {
@@ -787,30 +802,30 @@
      * @function
      *
      * @param {object} object
-     * @param {string} event
+     * @param {string} eventType
      */
-    Events.trigger = function trigger(object, event) {
+    Events.trigger = function trigger(object, eventType) {
       var calls = retrieveCallbacks(object);
       // no callbacks
       if (!calls || Object.keys(calls).length == 0) {
         return;
       }
+      var event = new Event({type: eventType, target: object});
+      event.currentTarget = object;
       triggerInternal(event, calls, object, Array_from(arguments).slice(2));
     };
-    function triggerInternal(eventType, calls, object, rest) {
+    function triggerInternal(event, calls, object, rest) {
       var list, i, length;
       // Copy callback lists to prevent modification.
-      if (list = calls[eventType]) {
+      if (list = calls[event.type]) {
         list = list.slice()
       }
-      var event = new Event(eventType);
       // Execute event callbacks.
       if (list) {
         for (i = 0, length = list.length; i < length; i++) {
           list[i].apply(object, [event].concat(rest));
         }
       }
-      return event;
     }
 
     /**
@@ -824,20 +839,22 @@
      */
     Events.triggerWithBubbling = function triggerWithBubbling(object, eventType) {
       var rest = Array_from(arguments).slice(2);
-      var event;
       var target = object;
+      var event = new Event({type:eventType,target:target});
       do {
         var calls = retrieveCallbacks(object);
         // no callbacks
         if (!calls || Object.keys(calls).length == 0) {
           continue;
         }
-        event = triggerInternal(eventType, calls, target, rest);
+        event.currentTarget = object;
+        triggerInternal(event, calls, target, rest);
         // TODO check event.bubbles
         if (event.isPropagationStopped) {
           break;
         }
       } while (object = Object.getPrototypeOf(object)) ;
+      event.currentTarget = null;
     };
   })(BeautifulProperties.Events,BeautifulProperties.Events.Event);
 
