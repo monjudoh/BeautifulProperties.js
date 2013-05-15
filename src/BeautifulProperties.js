@@ -187,6 +187,20 @@
   }
 
   /**
+   *
+   * @param {object} source
+   * @returns {object}
+   * @inner
+   */
+  function cloneDict(source){
+    var target = Object.create(null);
+    for (var key in source) {
+      target[key] = source[key];
+    }
+    return target;
+  }
+
+  /**
    * @name LazyInitializable
    * @namespace
    * @memberOf BeautifulProperties
@@ -650,23 +664,32 @@
     writable : false
   });
   (function (Events) {
+    /**
+     * @name BeautifulProperties.Events.Event.options
+     * @typedef {{type:string,target:object,bubbles:boolean=}}
+     * @description Options for BeautifulProperties.Events.Event constructor.
+     */
     var readonlyKeys = 'type target'.split(' ');
     var necessaryKeys = 'type target'.split(' ');
     var optionalKeys = 'bubbles'.split(' ');
     /**
      *
-     * @param {{type:string,target:object,bubbles:boolean=}} options
+     * @param {BeautifulProperties.Events.Event.options} options
      * @constructor
+     * @name Event
      * @memberOf BeautifulProperties.Events
      * @property {string} type
      * @property {object} target
-     * @property {boolean} bubbles Default value is true;
+     * @property {boolean} bubbles Default value is false;
      */
     function Event(options) {
       var event = this;
       necessaryKeys.forEach(function(key){
         if (!(key in options)) {
-          throw new Error(key + "is necessary in Event's options.");
+          if (hasConsoleError) {
+            console.error(key + " is necessary in Event's options.",options);
+          }
+          throw new Error(key + " is necessary in Event's options.");
         }
         event[key] = options[key];
       });
@@ -689,7 +712,7 @@
        * @name bubbles
        * @memberOf BeautifulProperties.Events.Event
        */
-      proto.bubbles = true;
+      proto.bubbles = false;
       /**
        * @type {boolean}
        * @name isPropagationStopped
@@ -792,6 +815,7 @@
   })(BeautifulProperties.Events);
   // event triggering
   (function (Events,Event) {
+    var toString = Object.prototype.toString;
     var retrieveCallbacks = retrieveInternalObject.bind(null,'callbacks',false);
     // Trigger one or many events, firing all bound callbacks. Callbacks are
     // passed the same arguments as `trigger` is, apart from the event name.
@@ -802,31 +826,45 @@
      * @function
      *
      * @param {object} object
-     * @param {string} eventType
+     * @param {string|BeautifulProperties.Events.Event.options} eventType
      */
     Events.trigger = function trigger(object, eventType) {
-      var calls = retrieveCallbacks(object);
-      // no callbacks
-      if (!calls || Object.keys(calls).length == 0) {
-        return;
+      var rest = Array_from(arguments).slice(2);
+      var target = object;
+      var currentTarget = object;
+      var event;
+      if (toString.call(eventType) == '[object String]') {
+        event = new Event({type:eventType,target:target});
+      } else {
+        // eventType is a BeautifulProperties.Events.Event.options.
+        event = new Event((function () {
+          var options = cloneDict(eventType);
+          options.target = target;
+          return options;
+        })());
       }
-      var event = new Event({type: eventType, target: object});
-      event.currentTarget = object;
-      triggerInternal(event, calls, object, Array_from(arguments).slice(2));
-    };
-    function triggerInternal(event, calls, object, rest) {
-      var list, i, length;
-      // Copy callback lists to prevent modification.
-      if (list = calls[event.type]) {
-        list = list.slice()
-      }
-      // Execute event callbacks.
-      if (list) {
-        for (i = 0, length = list.length; i < length; i++) {
-          list[i].apply(object, [event].concat(rest));
+
+      do {
+        if (target !== currentTarget && !event.bubbles) {
+          // no bubbling
+          break;
         }
-      }
-    }
+        var callbackDict = retrieveCallbacks(currentTarget);
+        // no callbacks
+        if (!callbackDict || !callbackDict[event.type] || callbackDict[event.type].length === 0) {
+          continue;
+        }
+        event.currentTarget = currentTarget;
+        // Copy callback lists to prevent modification.
+        callbackDict[event.type].slice().forEach(function(callback){
+          callback.apply(target, [event].concat(rest));
+        });
+        if (!event.bubbles || event.isPropagationStopped) {
+          break;
+        }
+      } while (currentTarget = Object.getPrototypeOf(currentTarget)) ;
+      event.currentTarget = null;
+    };
 
     /**
      *
@@ -836,25 +874,14 @@
      *
      * @param {object} object
      * @param {string} eventType
+     *
+     * @deprecated since version 0.1.5
      */
     Events.triggerWithBubbling = function triggerWithBubbling(object, eventType) {
-      var rest = Array_from(arguments).slice(2);
-      var target = object;
-      var event = new Event({type:eventType,target:target});
-      do {
-        var calls = retrieveCallbacks(object);
-        // no callbacks
-        if (!calls || Object.keys(calls).length == 0) {
-          continue;
-        }
-        event.currentTarget = object;
-        triggerInternal(event, calls, target, rest);
-        // TODO check event.bubbles
-        if (event.isPropagationStopped) {
-          break;
-        }
-      } while (object = Object.getPrototypeOf(object)) ;
-      event.currentTarget = null;
+      var args = Array_from(arguments);
+      // eventType argument
+      args[1] = {type:eventType,bubbles:true};
+      Events.trigger.apply(Events,args);
     };
   })(BeautifulProperties.Events,BeautifulProperties.Events.Event);
 
@@ -951,6 +978,7 @@
     // internal functions
     var retrieveHooks = Internal.Hookable.retrieveHooks;
     var retrieveDescriptor = Internal.Hookable.retrieveDescriptor;
+    var trigger = Events.trigger.bind(Events);
 
     /**
      * @function
@@ -965,17 +993,19 @@
      *  descriptor.writable's default value is false in ES5,but it's true in BeautifulProperties.Hookable.
      */
     Observable.define = function defineObservableProperty(object,key,hooks,descriptor) {
-      var options = descriptor || Object.create(null);
+      var options = Object.create(null);
+      if (descriptor && descriptor.bubble) {
+        options.bubbles = true;
+      }
       BeautifulProperties.Hookable.define(object,key,hooks,descriptor);
 
       descriptor = retrieveDescriptor(object,key);
-      var trigger = options.bubble
-      ? Events.triggerWithBubbling.bind(Events)
-      : Events.trigger.bind(Events);
       var hooks = retrieveHooks(object,key);
       function checkChangeAndTrigger(val,previousVal) {
         if (!Equals.equals(this,key,val,previousVal)){
-          trigger(this,('change:' + key),val,previousVal);
+          var eventOptions = cloneDict(options);
+          eventOptions.type = 'change:' + key;
+          trigger(this, eventOptions,val,previousVal);
         }
       }
       if (descriptor.get) {

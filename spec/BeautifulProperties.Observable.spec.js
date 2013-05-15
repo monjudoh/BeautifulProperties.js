@@ -1,8 +1,9 @@
 describe("BeautifulProperties.Observable", function() {
   describe(".define", function() {
-    var object,changeKey;
+    var proto,object,changeKey;
     beforeEach(function(){
-      object = Object.create(null);
+      proto = Object.create(null);
+      object = Object.create(proto);
       changeKey = jasmine.createSpy('changeKey');
     });
     it("'change:key' event is triggered when it assign 'key' property and the value is changed.",function(){
@@ -29,6 +30,16 @@ describe("BeautifulProperties.Observable", function() {
           object.on('change:key',changeKey);
           val = 1;
           object.refreshProperty('key');
+          expect(changeKey).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event),1,0);
+        });
+      });
+      describe('bubble',function(){
+        it("'change:key' event should bubbles.",function(){
+          BeautifulProperties.Observable.define(object,'key',{},{bubble:true});
+          BeautifulProperties.Events.provideMethods(proto);
+          object.key = 0;
+          proto.on('change:key',changeKey);
+          object.key = 1;
           expect(changeKey).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event),1,0);
         });
       });

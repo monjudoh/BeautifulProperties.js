@@ -1,4 +1,10 @@
 describe("BeautifulProperties.Events", function() {
+  var Array_from = (function () {
+    return function(arrayLike) {
+      var slice = Array.prototype.slice;
+      return slice.call(arrayLike);
+    };
+  })();
   describe("on",function () {
     var targetPrototype,targetObject;
     beforeEach(function(){
@@ -59,10 +65,13 @@ describe("BeautifulProperties.Events", function() {
     });
   });
   describe("trigger",function () {
-    var targetObject;
+    var targetPrototype1,targetPrototype2,targetObject;
     beforeEach(function(){
-      targetObject = Object.create(null);
+      targetPrototype1 = Object.create(null);
+      targetPrototype2 = Object.create(targetPrototype1)
+      targetObject = Object.create(targetPrototype2);
     });
+
     describe("call",function () {
       var callbackSpy;
       beforeEach(function(){
@@ -78,53 +87,149 @@ describe("BeautifulProperties.Events", function() {
         expect(callbackSpy).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event),1,'2');
       });
     });
-  });
-  describe("triggerWithBubbling",function () {
-    var targetPrototype1,targetPrototype2,targetObject;
-    beforeEach(function(){
-      targetPrototype1 = Object.create(null);
-      targetPrototype2 = Object.create(targetPrototype1)
-      targetObject = Object.create(targetPrototype2);
-    });
-    describe("call",function () {
+    describe("bubbles",function () {
       var callbackSpy1,callbackSpy2,callbackSpy3;
       beforeEach(function(){
         callbackSpy1 = jasmine.createSpy('callbackSpy1');
         callbackSpy2 = jasmine.createSpy('callbackSpy2');
         callbackSpy3 = jasmine.createSpy('callbackSpy3');
-        BeautifulProperties.Events.on(targetPrototype1,'test',callbackSpy1);
-        BeautifulProperties.Events.on(targetPrototype2,'test',callbackSpy2);
-        BeautifulProperties.Events.on(targetObject,'test',callbackSpy3);
       });
-      it("with no arguments",function(){
-        BeautifulProperties.Events.triggerWithBubbling(targetObject,'test');
-        expect(callbackSpy1).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event));
-        expect(callbackSpy2).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event));
-        expect(callbackSpy3).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event));
-      });
-      it("with arguments",function(){
-        BeautifulProperties.Events.triggerWithBubbling(targetObject,'test',1,'2');
-        expect(callbackSpy1).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event),1,'2');
-        expect(callbackSpy2).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event),1,'2');
-        expect(callbackSpy3).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event),1,'2');
+      [{
+        desc:"event handler is bound to all objects in the prototype chain.",
+        beforeEach:function(){
+          BeautifulProperties.Events.on(targetPrototype1,'test',callbackSpy1);
+          BeautifulProperties.Events.on(targetPrototype2,'test',callbackSpy2);
+          BeautifulProperties.Events.on(targetObject,'test',callbackSpy3);
+        }
+      },{
+        desc:"event handler is bound to only prototype objects.",
+        beforeEach:function(){
+          BeautifulProperties.Events.on(targetPrototype1,'test',callbackSpy1);
+          BeautifulProperties.Events.on(targetPrototype2,'test',callbackSpy2);
+        }
+      }].forEach(function(options){
+        describe(options.desc,function(){
+          beforeEach(options.beforeEach);
+          it("with no arguments",function(){
+            BeautifulProperties.Events.trigger(targetObject,'test');
+            expect(callbackSpy1).not.toHaveBeenCalled();
+            expect(callbackSpy2).not.toHaveBeenCalled();
+          });
+          it("with arguments",function(){
+            BeautifulProperties.Events.trigger(targetObject,'test',1,'2');
+            expect(callbackSpy1).not.toHaveBeenCalled();
+            expect(callbackSpy2).not.toHaveBeenCalled();
+          });
+        });
       });
     });
-    describe("Event#stopPropagation()",function(){
-      var callbackSpy1,callbackSpy3;
-      beforeEach(function(){
-        callbackSpy1 = jasmine.createSpy('callbackSpy1');
-        callbackSpy3 = jasmine.createSpy('callbackSpy3');
-        BeautifulProperties.Events.on(targetPrototype1,'test',callbackSpy1);
-        BeautifulProperties.Events.on(targetPrototype2,'test',function(ev){
-          ev.stopPropagation();
-        });
-        BeautifulProperties.Events.on(targetObject,'test',callbackSpy3);
-      });
-      it("should stop event propagation.",function(){
-        BeautifulProperties.Events.triggerWithBubbling(targetObject,'test');
-        expect(callbackSpy1).not.toHaveBeenCalled();
-        expect(callbackSpy3).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event));
-      })
-    })
   });
+  [{
+    desc:"triggerWithBubbling",
+    exercise:function(targetObject,eventType){
+      var args = Array_from(arguments);
+      BeautifulProperties.Events.triggerWithBubbling.apply(BeautifulProperties.Events,args);
+    }
+  },{
+    desc:"trigger bubbles:true",
+    exercise:function(targetObject,eventType){
+      var args = Array_from(arguments);
+      args[1] = {
+        bubbles:true,
+        type:eventType
+      };
+      BeautifulProperties.Events.trigger.apply(BeautifulProperties.Events,args);
+    }
+  }].forEach(function(options){
+    describe(options.desc,function () {
+      var targetPrototype1,targetPrototype2,targetObject;
+      beforeEach(function(){
+        targetPrototype1 = Object.create(null);
+        targetPrototype2 = Object.create(targetPrototype1)
+        targetObject = Object.create(targetPrototype2);
+      });
+      describe("call",function () {
+        var callbackSpy1,callbackSpy2,callbackSpy3;
+        beforeEach(function(){
+          callbackSpy1 = jasmine.createSpy('callbackSpy1');
+          callbackSpy2 = jasmine.createSpy('callbackSpy2');
+          callbackSpy3 = jasmine.createSpy('callbackSpy3');
+        });
+        describe("event handler is bound to all object in the prototype chain.",function(){
+          beforeEach(function(){
+            BeautifulProperties.Events.on(targetPrototype1,'test',callbackSpy1);
+            BeautifulProperties.Events.on(targetPrototype2,'test',callbackSpy2);
+            BeautifulProperties.Events.on(targetObject,'test',callbackSpy3);
+          });
+          it("with no arguments",function(){
+            options.exercise(targetObject,'test');
+            expect(callbackSpy1).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event));
+            expect(callbackSpy2).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event));
+            expect(callbackSpy3).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event));
+          });
+          it("with arguments",function(){
+            options.exercise(targetObject,'test',1,'2');
+            expect(callbackSpy1).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event),1,'2');
+            expect(callbackSpy2).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event),1,'2');
+            expect(callbackSpy3).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event),1,'2');
+          });
+        });
+
+      });
+      describe("Event",function(){
+        describe("#stopPropagation()",function(){
+          var callbackSpy1,callbackSpy3;
+          beforeEach(function(){
+            callbackSpy1 = jasmine.createSpy('callbackSpy1');
+            callbackSpy3 = jasmine.createSpy('callbackSpy3');
+            BeautifulProperties.Events.on(targetPrototype1,'test',callbackSpy1);
+            BeautifulProperties.Events.on(targetPrototype2,'test',function(ev){
+              ev.stopPropagation();
+            });
+            BeautifulProperties.Events.on(targetObject,'test',callbackSpy3);
+          });
+          it("should stop event propagation.",function(){
+            options.exercise(targetObject,'test');
+            expect(callbackSpy1).not.toHaveBeenCalled();
+            expect(callbackSpy3).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event));
+          })
+        });
+        describe("#target",function(){
+          var event;
+          it("ev.target is always targetObject.",function(){
+            BeautifulProperties.Events.on(targetPrototype1,'test',function(ev){
+              expect(ev.target).toBe(targetObject);
+              event = ev;
+            });
+            BeautifulProperties.Events.on(targetPrototype2,'test',function(ev){
+              expect(ev.target).toBe(targetObject);
+            });
+            BeautifulProperties.Events.on(targetObject,'test',function(ev){
+              expect(ev.target).toBe(targetObject);
+            });
+            options.exercise(targetObject,'test');
+            expect(event.target).toBe(targetObject);
+          })
+        });
+        describe("#currentTarget",function(){
+          var event;
+          it("ev.currentTarget is the object that is bound to event handler.",function(){
+            BeautifulProperties.Events.on(targetPrototype1,'test',function(ev){
+              expect(ev.currentTarget).toBe(targetPrototype1);
+              event = ev;
+            });
+            BeautifulProperties.Events.on(targetPrototype2,'test',function(ev){
+              expect(ev.currentTarget).toBe(targetPrototype2);
+            });
+            BeautifulProperties.Events.on(targetObject,'test',function(ev){
+              expect(ev.currentTarget).toBe(targetObject);
+            });
+            options.exercise(targetObject,'test');
+            expect(event.currentTarget).toBeNull();
+          })
+        });
+      });
+
+    });
+  })
 });
