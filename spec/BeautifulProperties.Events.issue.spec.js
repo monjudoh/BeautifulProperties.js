@@ -16,7 +16,7 @@ describe("BeautifulProperties.Events issue", function() {
         object.on('test', function(){
           objectSpy();
         });
-        BeautifulProperties.Events.trigger(object,'test');
+        BeautifulProperties.Events.trigger(object,{type:'test',bubbles:false});
       });
       it("expect(protoSpy).not.toHaveBeenCalled()",function(){
         expect(protoSpy).not.toHaveBeenCalled();
@@ -34,7 +34,7 @@ describe("BeautifulProperties.Events issue", function() {
         proto.on('test', function(){
           protoSpy();
         });
-        BeautifulProperties.Events.trigger(object,'test');
+        BeautifulProperties.Events.trigger(object,{type:'test',bubbles:false});
       });
       it("expect(protoSpy).not.toHaveBeenCalled()",function(){
         expect(protoSpy).not.toHaveBeenCalled();

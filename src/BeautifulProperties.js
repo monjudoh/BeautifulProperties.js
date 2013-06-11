@@ -678,9 +678,6 @@
      * @constructor
      * @name Event
      * @memberOf BeautifulProperties.Events
-     * @property {string} type
-     * @property {object} target
-     * @property {boolean} bubbles Default value is false;
      */
     function Event(options) {
       var event = this;
@@ -710,26 +707,27 @@
       /**
        * @type {boolean}
        * @name bubbles
-       * @memberOf BeautifulProperties.Events.Event
+       * @memberOf BeautifulProperties.Events.Event#
+       * @description Default value is true.
        */
-      proto.bubbles = false;
+      proto.bubbles = true;
       /**
        * @type {boolean}
        * @name isPropagationStopped
-       * @memberOf BeautifulProperties.Events.Event
+       * @memberOf BeautifulProperties.Events.Event#
        * @description stop propagation flag
        */
       proto.isPropagationStopped = false;
       /**
        * @type {object}
        * @name currentTarget
-       * @memberOf BeautifulProperties.Events.Event
+       * @memberOf BeautifulProperties.Events.Event#
        */
       this.currentTarget = null;
       /**
        * @function
        * @name stopPropagation
-       * @memberOf BeautifulProperties.Events.Event
+       * @memberOf BeautifulProperties.Events.Event#
        */
       proto.stopPropagation = function stopPropagation () {
         this.isPropagationStopped = true;
