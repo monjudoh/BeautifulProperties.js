@@ -983,18 +983,17 @@
      * @name define
      * @memberOf BeautifulProperties.Observable
      * @see BeautifulProperties.Equals.equals
+     * @see BeautifulProperties.Events.Event.options
      *
      * @param {object} object
      * @param {string} key
      * @param {{beforeGet:function=,afterGet:function=,beforeSet:function=,afterSet:function=,refresh:function=}=} hooks
      * @param {(BeautifulProperties.DataDescriptor|BeautifulProperties.AccessorDescriptor|BeautifulProperties.GenericDescriptor)=} descriptor
      *  descriptor.writable's default value is false in ES5,but it's true in BeautifulProperties.Hookable.
+     * @param {{bubbles:boolean=}=} options part of BeautifulProperties.Events.Event.options.
      */
-    Observable.define = function defineObservableProperty(object,key,hooks,descriptor) {
-      var options = Object.create(null);
-      if (descriptor && descriptor.bubble) {
-        options.bubbles = true;
-      }
+    Observable.define = function defineObservableProperty(object,key,hooks,descriptor,options) {
+      options = options || Object.create(null);
       BeautifulProperties.Hookable.define(object,key,hooks,descriptor);
 
       descriptor = retrieveDescriptor(object,key);
