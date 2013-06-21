@@ -16,9 +16,11 @@
  * @module BeautifulProperties
  * @version 0.1.5
  * @author monjudoh
- * @copyright (c) 2012 monjudoh
- * Dual licensed under the MIT (MIT-LICENSE.txt)
+ * @copyright (c) 2012 monjudoh<br/>
+ * Dual licensed under the MIT (MIT-LICENSE.txt)<br/>
  * and GPL (GPL-LICENSE.txt) licenses.
+ * @see https://github.com/monjudoh/BeautifulProperties.js
+ * @see BeautifulProperties
  */
 ;(function(module,moduleName,global){
   // in AMD
@@ -34,7 +36,6 @@
   /**
    * @name BeautifulProperties
    * @namespace
-   * @alias module:BeautifulProperties
    */
   var BeautifulProperties = Object.create(null);
   var Array_from = (function () {
