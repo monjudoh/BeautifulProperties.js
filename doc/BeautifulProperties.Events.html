@@ -64,7 +64,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="BeautifulProperties.js.html">BeautifulProperties.js</a>, line 644
+        <a href="BeautifulProperties.js.html">BeautifulProperties.js</a>, line 659
     </li></ul></dd>
     
     
@@ -105,12 +105,18 @@
         <dl>
             
 <dt>
-    <h4 class="name" id="off"><span class="type-signature">&lt;static> </span>off<span class="signature">(object, events, callback)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="off"><span class="type-signature">&lt;static> </span>off<span class="signature">(object, event, callback)</span><span class="type-signature"></span></h4>
     
     
 </dt>
 <dd>
     
+    
+    <div class="description">
+        Remove callbacks.<br/>
+If `callback` is null, removes all callbacks for the event.<br/>
+If `event` is null, removes all bound callbacks for all events.
+    </div>
     
 
     
@@ -166,7 +172,7 @@
 	
         <tr>
             
-                <td class="name"><code>events</code></td>
+                <td class="name"><code>event</code></td>
             
             
             <td class="type">
@@ -236,7 +242,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="BeautifulProperties.js.html">BeautifulProperties.js</a>, line 729
+        <a href="BeautifulProperties.js.html">BeautifulProperties.js</a>, line 771
     </li></ul></dd>
     
     
@@ -260,16 +266,12 @@
         
             
 <dt>
-    <h4 class="name" id="on"><span class="type-signature">&lt;static> </span>on<span class="signature">(object, events, callback, <span class="optional">options</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="on"><span class="type-signature">&lt;static> </span>on<span class="signature">(object, event, callback, <span class="optional">options</span>)</span><span class="type-signature"></span></h4>
     
     
 </dt>
 <dd>
     
-    
-    <div class="description">
-        Bind one or more space separated events, `events`, to a `callback`
-    </div>
     
 
     
@@ -333,7 +335,7 @@
 	
         <tr>
             
-                <td class="name"><code>events</code></td>
+                <td class="name"><code>event</code></td>
             
             
             <td class="type">
@@ -446,7 +448,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="BeautifulProperties.js.html">BeautifulProperties.js</a>, line 690
+        <a href="BeautifulProperties.js.html">BeautifulProperties.js</a>, line 742
     </li></ul></dd>
     
     
@@ -555,7 +557,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="BeautifulProperties.js.html">BeautifulProperties.js</a>, line 831
+        <a href="BeautifulProperties.js.html">BeautifulProperties.js</a>, line 888
     </li></ul></dd>
     
     
@@ -579,7 +581,7 @@
         
             
 <dt>
-    <h4 class="name" id="trigger"><span class="type-signature">&lt;static> </span>trigger<span class="signature">(object, events)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="trigger"><span class="type-signature">&lt;static> </span>trigger<span class="signature">(object, eventType)</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -640,13 +642,16 @@
 	
         <tr>
             
-                <td class="name"><code>events</code></td>
+                <td class="name"><code>eventType</code></td>
             
             
             <td class="type">
             
                 
 <span class="param-type">string</span>
+|
+
+<span class="param-type"><a href="BeautifulProperties.Events.Event.html#options">BeautifulProperties.Events.Event.options</a></span>
 
 
             
@@ -687,7 +692,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="BeautifulProperties.js.html">BeautifulProperties.js</a>, line 770
+        <a href="BeautifulProperties.js.html">BeautifulProperties.js</a>, line 821
     </li></ul></dd>
     
     
@@ -711,7 +716,7 @@
         
             
 <dt>
-    <h4 class="name" id="triggerWithBubbling"><span class="type-signature">&lt;static> </span>triggerWithBubbling<span class="signature">(object, events)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="triggerWithBubbling"><span class="type-signature">&lt;static> </span>triggerWithBubbling<span class="signature">(object, eventType)</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -772,7 +777,7 @@
 	
         <tr>
             
-                <td class="name"><code>events</code></td>
+                <td class="name"><code>eventType</code></td>
             
             
             <td class="type">
@@ -807,6 +812,8 @@
     
     
     
+        <dt class="important tag-deprecated">Deprecated:</dt><dd><ul class="dummy"><li>since version 0.1.5</li><ul></dd>
+    
     
     
     
@@ -819,7 +826,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="BeautifulProperties.js.html">BeautifulProperties.js</a>, line 807
+        <a href="BeautifulProperties.js.html">BeautifulProperties.js</a>, line 868
     </li></ul></dd>
     
     
@@ -862,7 +869,7 @@
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Tue Apr 02 2013 15:05:28 GMT+0900 (JST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Fri Jun 21 2013 16:36:16 GMT+0900 (JST)
 </footer>
 
 <script> prettyPrint(); </script>
