@@ -345,6 +345,21 @@
       }
     };
   })(InternalObject.PrototypeWalker,InternalObject.PropertySpecific);
+  (function (InternalObject) {
+    InternalObject.register = function register(object,namespace,value){
+      var internalObjectKey = BeautifulProperties.Internal.Key;
+      var hasInternal = hasOwn(object,internalObjectKey);
+      if (!hasInternal) {
+        Object.defineProperty(object,internalObjectKey,{
+          writable : true,
+          configurable : true,
+          enumerable : false,
+          value : new InternalObject()
+        });
+      }
+      object[internalObjectKey][namespace] = value;
+    };
+  })(InternalObject);
   BeautifulProperties.Internal.retrieve = retrieveInternalObject;
   function retrieveInternalObject(key, create, object) {
     var internalObjectKey = BeautifulProperties.Internal.Key;
@@ -963,6 +978,53 @@
     })(Event.prototype);
     Events.Event = Event;
   })(BeautifulProperties.Events);
+
+  (function (Events) {
+    /**
+     * @name BeautifulProperties.Events.Ancestor
+     * @namespace
+     */
+    var Ancestor = Object.create(null);
+    Events.Ancestor = Ancestor;
+  })(BeautifulProperties.Events);
+  (function (Ancestor,InternalObject) {
+    var namespace = 'Events.Ancestor';
+    /**
+     * @callback BeautifulProperties.Events.Ancestor~ancestorRetriever
+     * @param {object} object target object
+     * @returns {object|null}
+     * @description The function to retrieve the ancestor of given object.
+     */
+    /**
+     *
+     * @name setRetriever
+     * @memberOf BeautifulProperties.Events.Ancestor
+     * @param {object} object target object
+     * @param {BeautifulProperties.Events.Ancestor~ancestorRetriever} ancestorRetriever
+     * @function
+     */
+    Ancestor.setRetriever = function set(object,ancestorRetriever){
+      InternalObject.register(object,namespace,ancestorRetriever);
+    };
+    /**
+     *
+     * @name retrieve
+     * @memberOf BeautifulProperties.Events.Ancestor
+     * @param {object} object target object
+     * @returns {object|null} the ancestor of the target object
+     * @function
+     * @description Retrieve the ancestor of the target object by the ancestorRetriever that set on the target object.
+     * If the target object don't have ancestorRetriever,the method returns the prototype of the target object.
+     */
+    Ancestor.retrieve = function retrieve(object) {
+      var retriever = retrieveInternalObject(namespace,false,object);
+      if (retriever) {
+        return retriever(object);
+      } else {
+        return Object.getPrototypeOf(object);
+      }
+    };
+  })(BeautifulProperties.Events.Ancestor,InternalObject);
   // event binding
   (function (Events) {
     var retrieveCallbacks = retrieveInternalObject.bind(null,'callbacks',true);
@@ -1040,7 +1102,7 @@
     };
   })(BeautifulProperties.Events);
   // event triggering
-  (function (Events,Event) {
+  (function (Events,Event,Ancestor) {
     var toString = Object.prototype.toString;
     var retrieveCallbacks = retrieveInternalObject.bind(null,'callbacks',false);
     // Trigger one or many events, firing all bound callbacks. Callbacks are
@@ -1088,7 +1150,7 @@
         if (!event.bubbles || event.isPropagationStopped) {
           break;
         }
-      } while (currentTarget = Object.getPrototypeOf(currentTarget)) ;
+      } while (currentTarget = Ancestor.retrieve(currentTarget)) ;
       event.currentTarget = null;
     };
 
@@ -1109,7 +1171,7 @@
       args[1] = {type:eventType,bubbles:true};
       Events.trigger.apply(Events,args);
     };
-  })(BeautifulProperties.Events,BeautifulProperties.Events.Event);
+  })(BeautifulProperties.Events,BeautifulProperties.Events.Event,BeautifulProperties.Events.Ancestor);
 
   (function (Events) {
     /**
