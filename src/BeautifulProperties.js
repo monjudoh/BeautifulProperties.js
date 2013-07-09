@@ -400,24 +400,118 @@
     function Meta(){
       this.isInited = false;
     }
+
     /**
+     * @function
+     * @param {Array.<number>} array
+     * @returns {number}
+     * @private
+     */
+    function max(array) {
+      return array.length === 1 ? array[0] : Math.max.apply(null,array);
+    }
+    /**
+     * @function
+     * @param {Array.<number>} array
+     * @returns {number}
+     * @private
+     */
+    function min(array) {
+      return array.length === 1 ? array[0] : Math.min.apply(null,array);
+    }
+
+    var collectionProto = Object.create(null);
+    /**
+     * @name add
+     * @memberOf HookCollection
+     * @function
+     * @param {function} hook
+     * @param {number} priority 1..10000
+     */
+    collectionProto.add = function add(hook,priority) {
+      // empty
+      if (this.length === 0) {
+        this.push(hook);
+        this.priorities.push(priority);
+        return;
+      }
+      // The given priority is highest.
+      if (max(this.priorities) < priority) {
+        this.unshift(hook);
+        this.priorities.unshift(priority);
+        return;
+      }
+      // The given priority is lowest.
+      if (min(this.priorities) > priority) {
+        this.push(hook);
+        this.priorities.push(priority);
+        return;
+      }
+      // The given hook is already exists.
+      if (this.indexOf(hook) !== -1) {
+        this.remove(hook);
+      }
+      // Insert the given hook and priority to the next index of the last priority
+      // that greater equal than the given priority in the priorities.
+      var threshold = min(this.priorities.filter(function (aPriority) {
+        return aPriority >= priority;
+      }));
+      var index = this.priorities.lastIndexOf(threshold);
+      this.priorities.splice(index + 1,0,priority);
+      this.splice(index + 1,0,hook);
+    };
+    /**
+     * @name remove
+     * @memberOf HookCollection
+     * @function
+     * @param {function} hook
+     */
+    collectionProto.remove = function remove(hook) {
+      var index = this.indexOf(hook);
+      if (index === -1) {
+        return;
+      }
+      this.splice(index,1);
+      this.priorities.splice(index,1);
+    };
+    /**
+     *
+     * @name HookCollection
+     * @constructor
+     * @extends Array.<function>
+     * @private
+     */
+    function HookCollection(){
+      var collection = [];
+      collection.priorities = [];
+      Object.keys(collectionProto).forEach(function(key){
+        collection[key] = collectionProto[key];
+      });
+      return collection;
+    }
+    /**
+     * @name Hooks
      * @property {boolean} isDefined
-     * @property {Array.<function>} beforeGet
-     * @property {Array.<function>} afterGet
-     * @property {Array.<function>} beforeSet
-     * @property {Array.<function>} afterSet
-     * @property {Array.<function>} refresh
+     * @property {HookCollection} beforeGet
+     * @property {HookCollection} afterGet
+     * @property {HookCollection} beforeSet
+     * @property {HookCollection} afterSet
+     * @property {HookCollection} refresh
      * @constructor
      * @private
      */
-    function Hooks(){
-      this.isDefined = false;
-      this.beforeGet = [];
-      this.afterGet = [];
-      this.beforeSet = [];
-      this.afterSet = [];
-      this.refresh = [];
-    }
+    function Hooks(){}
+
+    (function (proto) {
+      proto.isDefined = false;
+      'beforeGet afterGet beforeSet afterSet refresh'.split(' ').forEach(function(key){
+        LazyInitializable.define(proto,key,{
+          init:function(){
+            return new HookCollection;
+          }
+        })
+      });
+    })(Hooks.prototype);
     PropertySpecific.mixinRetriever('Hookable::Meta',Meta);
     PropertySpecific.mixinRetriever('Hookable::Hooks',Hooks);
     PropertySpecific.mixinRetriever('Hookable::Descriptor');
@@ -442,6 +536,8 @@
      *
      * @param {object} object
      * @param {string} key
+     *
+     * @see BeautifulProperties.Hookable~refresh
      */
     Get.refreshProperty = function refreshProperty(object,key){
       var previousVal = BeautifulProperties.getRaw(object,key);
@@ -478,7 +574,7 @@
      */
     Get.provideMethods = provideMethodsFactory(Get,['refreshProperty','getSilently']);
   })(BeautifulProperties.Hookable.Get);
-  (function (Hookable,Get,Descriptor) {
+  (function (Hookable,Get,Descriptor,PropertySpecific) {
     // internal functions
     var retrieveMeta = Internal.Hookable.retrieveMeta;
     var retrieveHooks = Internal.Hookable.retrieveHooks;
@@ -490,25 +586,104 @@
      */
     Hookable.Undefined = Object.create(null);
     /**
+     * @name hasHooks
+     * @memberOf BeautifulProperties.Hookable
+     * @function
+     *
+     * @param {object} object
+     * @param {string} key
+     * @return {boolean}
+     * @description Return true if the property has hooks.
+     */
+    Hookable.hasHooks = (function (retrieve) {
+      function hasHooks(object,key) {
+        return !!retrieve(object,key);
+      }
+      return hasHooks;
+    })(PropertySpecific.retrieverFactory('Hookable::Hooks',false));
+    /**
+     * @callback BeautifulProperties.Hookable~beforeGet
+     */
+    /**
+     * @callback BeautifulProperties.Hookable~afterGet
+     * @param {*} val
+     * @param {*} previousVal
+     * @return {*} replacedVal
+     */
+    /**
+     * @callback BeautifulProperties.Hookable~beforeSet
+     * @param {*} val
+     * @param {*} previousVal
+     * @return {*} replacedVal
+     */
+    /**
+     * @callback BeautifulProperties.Hookable~afterSet
+     * @param {*} val
+     * @param {*} previousVal
+     */
+    /**
+     * @callback BeautifulProperties.Hookable~refresh
+     * @param {*} val
+     * @param {*} previousVal
+     */
+    /**
+     * @name addHook
+     * @memberOf BeautifulProperties.Hookable
+     * @function
+     *
+     * @param {object} object
+     * @param {string} key
+     * @param {string} hookType beforeGet afterGet beforeSet afterSet refresh
+     * @param {BeautifulProperties.Hookable~beforeGet|BeautifulProperties.Hookable~afterGet|BeautifulProperties.Hookable~beforeSet|BeautifulProperties.Hookable~afterSet|BeautifulProperties.Hookable~refresh} hook
+     * @param {number=} priority 1..10000.<br/>Default value is 100.
+     * @description Add the given hook to the property.<br/>
+     * The order of executing hooks:Higher priority -> Lower priprity,Added earlier -> Added later.<br/>
+     * afterGet hook could replace get value.<br/>
+     * beforeSet hook could replace set value.<br/>
+     */
+    Hookable.addHook = function addHook(object,key,hookType,hook,priority){
+      if (!Hookable.hasHooks(object,key)) {
+        throw new TypeError('The property (key:'+key+') is not a Hookable property. Hookable.addHook is the method for a Hookable property.');
+      }
+      var hooks = retrieveHooks(object,key);
+      priority = priority || 100;
+      hooks[hookType].add(hook,priority);
+    };
+    /**
+     *
+     * @function
+     * @name addHooks
+     * @memberOf BeautifulProperties.Hookable
+     *
+     * @param {object} object
+     * @param {string} key
+     * @param {{beforeGet:function=,afterGet:function=,beforeSet:function=,afterSet:function=,refresh:function=}} hooks
+     * @see BeautifulProperties.Hookable.addHook
+     */
+    Hookable.addHooks = function addHooks(object,key,hooks) {
+      if (!Hookable.hasHooks(object,key)) {
+        throw new TypeError('The property (key:'+key+') is not a Hookable property. Hookable.addHooks is the method for a Hookable property.');
+      }
+      'beforeGet afterGet beforeSet afterSet refresh'.split(' ').forEach(function(hookType){
+        if (hooks[hookType]) {
+          Hookable.addHook(object,key,hookType,hooks[hookType]);
+        }
+      });
+    };
+    /**
      * @function
      * @name define
      * @memberOf BeautifulProperties.Hookable
      *
      * @param {object} object
      * @param {string} key
-     * @param {{beforeGet:function=,afterGet:function=,beforeSet:function=,afterSet:function=,refresh:function=}=} hooks
+     * @param {{beforeGet:function=,afterGet:function=,beforeSet:function=,afterSet:function=,refresh:function=}=} hooks Deprecated.<br/>Reccomend to use Hookable.addHook or Hookable.addHooks method.
      * @param {(BeautifulProperties.DataDescriptor|BeautifulProperties.AccessorDescriptor|BeautifulProperties.GenericDescriptor)=} descriptor
      *  descriptor.writable's default value is false in ES5,but it's true in BeautifulProperties.Hookable.
      */
     Hookable.define = function defineHookableProperty(object,key,hooks,descriptor) {
       var Undefined = Hookable.Undefined;
-      var storedHooks = retrieveHooks(object,key);
-      hooks = hooks || Object.create(null);
-      'beforeGet afterGet beforeSet afterSet refresh'.split(' ').forEach(function(key){
-        if (hooks[key]) {
-          storedHooks[key].push(hooks[key]);
-        }
-      });
+
       descriptor = descriptor || Object.create(null);
       // TODO store
       var type = Descriptor.getTypeOf(descriptor);
@@ -523,6 +698,10 @@
       }
       // The hookable property is already defined.
       // TODO modify descriptor
+      var storedHooks = retrieveHooks(object,key);
+      if (hooks) {
+        Hookable.addHooks(object,key,hooks);
+      }
       if (storedHooks.isDefined) {
         return;
       }
@@ -652,7 +831,7 @@
         }
       });
     };
-  })(BeautifulProperties.Hookable,BeautifulProperties.Hookable.Get,Internal.Descriptor);
+  })(BeautifulProperties.Hookable,BeautifulProperties.Hookable.Get,Internal.Descriptor,InternalObject.PropertySpecific);
 
   // BeautifulProperties.Events 's implementation is cloned from backbone.js and modified.
   // https://github.com/documentcloud/backbone
@@ -973,9 +1152,8 @@
    * @memberOf BeautifulProperties
    */
   BeautifulProperties.Observable = Object.create(null);
-  (function (Observable,Events,Equals) {
+  (function (Observable,Events,Equals,Hookable) {
     // internal functions
-    var retrieveHooks = Internal.Hookable.retrieveHooks;
     var retrieveDescriptor = Internal.Hookable.retrieveDescriptor;
     var trigger = Events.trigger.bind(Events);
 
@@ -988,7 +1166,7 @@
      *
      * @param {object} object
      * @param {string} key
-     * @param {{beforeGet:function=,afterGet:function=,beforeSet:function=,afterSet:function=,refresh:function=}=} hooks
+     * @param {{beforeGet:function=,afterGet:function=,beforeSet:function=,afterSet:function=,refresh:function=}=} hooks Deprecated.<br/>Reccomend to use Hookable.addHook or Hookable.addHooks method.
      * @param {(BeautifulProperties.DataDescriptor|BeautifulProperties.AccessorDescriptor|BeautifulProperties.GenericDescriptor)=} descriptor
      *  descriptor.writable's default value is false in ES5,but it's true in BeautifulProperties.Hookable.
      * @param {{bubbles:boolean=}=} options part of BeautifulProperties.Events.Event.options.
@@ -998,7 +1176,6 @@
       BeautifulProperties.Hookable.define(object,key,hooks,descriptor);
 
       descriptor = retrieveDescriptor(object,key);
-      var hooks = retrieveHooks(object,key);
       function checkChangeAndTrigger(val,previousVal) {
         if (!Equals.equals(this,key,val,previousVal)){
           var eventOptions = cloneDict(options);
@@ -1006,13 +1183,10 @@
           trigger(this, eventOptions,val,previousVal);
         }
       }
-      if (descriptor.get) {
-        hooks.refresh.push(checkChangeAndTrigger);
-      } else {
-        hooks.afterSet.push(checkChangeAndTrigger);
-      }
+      var hookType = descriptor.get ? 'refresh' : 'afterSet';
+      Hookable.addHook(object,key,hookType,checkChangeAndTrigger,1);
     };
-  })(BeautifulProperties.Observable,BeautifulProperties.Events,BeautifulProperties.Equals);
+  })(BeautifulProperties.Observable,BeautifulProperties.Events,BeautifulProperties.Equals,BeautifulProperties.Hookable);
 
   /**
    * @name Versionizable
@@ -1047,14 +1221,7 @@
      */
     var retrieveHistory = retrieveInternalObject.bind(null,'Versionizable::History',true);
     // internal functions
-    var retrieveHooks = Internal.Hookable.retrieveHooks;
     var retrieveDescriptor = Internal.Hookable.retrieveDescriptor;
-    var hasHooks = (function (retrieve) {
-      function hasHooks(object,key) {
-        return !!retrieve(object,key);
-      }
-      return hasHooks;
-    })(PropertySpecific.retrieverFactory('Hookable::Hooks',false));
 
     /**
      * @function
@@ -1137,11 +1304,10 @@
         options.length = 2;
       }
       // Versionizable property depends on Hookable.
-      if (!hasHooks(object,key)) {
+      if (!Hookable.hasHooks(object,key)) {
         Hookable.define(object,key);
       }
       var descriptor = retrieveDescriptor(object,key);
-      var hooks = retrieveHooks(object,key);
       function checkChangeAndEnqueue(val,previousVal) {
         if (!Equals.equals(this,key,val,previousVal)) {
           var history = retrieveHistory(this)(key);
@@ -1155,11 +1321,8 @@
           }
         }
       }
-      if (descriptor.get) {
-        hooks.refresh.unshift(checkChangeAndEnqueue);
-      } else {
-        hooks.afterSet.unshift(checkChangeAndEnqueue);
-      }
+      var hookType = descriptor.get ? 'refresh' : 'afterSet';
+      Hookable.addHook(object,key,hookType,checkChangeAndEnqueue,10000);
     };
   })(BeautifulProperties.Versionizable,BeautifulProperties.Hookable,BeautifulProperties.Equals,InternalObject.PropertySpecific);
 

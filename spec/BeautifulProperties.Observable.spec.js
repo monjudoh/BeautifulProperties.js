@@ -7,7 +7,7 @@ describe("BeautifulProperties.Observable", function() {
       changeKey = jasmine.createSpy('changeKey');
     });
     it("'change:key' event is triggered when it assign 'key' property and the value is changed.",function(){
-      BeautifulProperties.Observable.define(object,'key',{});
+      BeautifulProperties.Observable.define(object,'key');
       BeautifulProperties.Events.provideMethods(object);
       object.key = 0;
       object.on('change:key',changeKey);
@@ -18,7 +18,7 @@ describe("BeautifulProperties.Observable", function() {
       describe('get',function(){
         it("'change:key' event is triggered when it call refreshProperty('key') and the value is changed.",function(){
           var val;
-          BeautifulProperties.Observable.define(object,'key',{},{
+          BeautifulProperties.Observable.define(object,'key',null,{
             get:function(){
               return val;
             }
@@ -35,7 +35,7 @@ describe("BeautifulProperties.Observable", function() {
       });
       describe('bubble',function(){
         it("'change:key' event should bubbles.",function(){
-          BeautifulProperties.Observable.define(object,'key',{},{bubble:true});
+          BeautifulProperties.Observable.define(object,'key',null,{bubble:true});
           BeautifulProperties.Events.provideMethods(proto);
           object.key = 0;
           proto.on('change:key',changeKey);
