@@ -32,7 +32,7 @@
     // in a browser or Rhino
     global[moduleName] = module;
   }
-})((function(global, undefined) {
+})((function(global) {
   /**
    * @name BeautifulProperties
    * @namespace
