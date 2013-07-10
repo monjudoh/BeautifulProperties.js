@@ -18,11 +18,12 @@ describe("BeautifulProperties.Observable", function() {
       describe('get',function(){
         it("'change:key' event is triggered when it call refreshProperty('key') and the value is changed.",function(){
           var val;
-          BeautifulProperties.Observable.define(object,'key',null,{
+          BeautifulProperties.Hookable.define(object,'key',null,{
             get:function(){
               return val;
             }
           });
+          BeautifulProperties.Observable.define(object,'key');
           BeautifulProperties.Events.provideMethods(object);
           BeautifulProperties.Hookable.Get.provideMethods(object);
           val = 0;
@@ -33,14 +34,36 @@ describe("BeautifulProperties.Observable", function() {
           expect(changeKey).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event),1,0);
         });
       });
-      describe('bubble',function(){
+    });
+    describe("options",function(){
+      describe('bubbles:true',function(){
         it("'change:key' event should bubbles.",function(){
-          BeautifulProperties.Observable.define(object,'key',null,{bubble:true});
+          BeautifulProperties.Observable.define(object,'key',null,null,{bubbles:true});
           BeautifulProperties.Events.provideMethods(proto);
           object.key = 0;
           proto.on('change:key',changeKey);
           object.key = 1;
           expect(changeKey).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event),1,0);
+        });
+      });
+      describe('bubbles:undefined',function(){
+        it("'change:key' event should bubbles.",function(){
+          BeautifulProperties.Observable.define(object,'key');
+          BeautifulProperties.Events.provideMethods(proto);
+          object.key = 0;
+          proto.on('change:key',changeKey);
+          object.key = 1;
+          expect(changeKey).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event),1,0);
+        });
+      });
+      describe('bubbles:false',function(){
+        it("'change:key' event should not bubbles.",function(){
+          BeautifulProperties.Observable.define(object,'key',null,null,{bubbles:false});
+          BeautifulProperties.Events.provideMethods(proto);
+          object.key = 0;
+          proto.on('change:key',changeKey);
+          object.key = 1;
+          expect(changeKey).not.toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event),1,0);
         });
       });
     });
