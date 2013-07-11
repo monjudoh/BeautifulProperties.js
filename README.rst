@@ -2,6 +2,12 @@
 BeautifulProperties.js - Extension of ECMAScript5 property.
 ===========================================================
 
+Links
+=====
+
+- `Repository <https://github.com/monjudoh/BeautifulProperties.js>`_
+- `Reference <http://monjudoh.github.io/BeautifulProperties.js/doc/index.html>`_
+
 Features
 ========
 
