@@ -365,23 +365,32 @@
 
   var retrieveRaw = retrieveInternalObject.bind(null,'raw');
   /**
+   * @name getRaw
+   * @memberOf BeautifulProperties
+   * @function
+   * @deprecated since version 0.1.6
+   * @see BeautifulProperties.Hookable.getRaw
    *
    * @param {Object} object
    * @param {String} key
    * @return {*}
    */
   BeautifulProperties.getRaw = function getRaw(object,key) {
-    return (retrieveRaw(false,object) || {})[key];
+    return Internal.Hookable.getRaw(object,key);
   };
   /**
+   * @name setRaw
+   * @memberOf BeautifulProperties
+   * @function
+   * @deprecated since version 0.1.6
+   * @see BeautifulProperties.Hookable.setRaw
    *
    * @param {Object} object
    * @param {String} key
    * @param {*} val
    */
   BeautifulProperties.setRaw = function setRaw(object,key,val) {
-    var raw = retrieveRaw(true,object);
-    raw[key] = val;
+    Internal.Hookable.setRaw(object,key,val);
   };
 
   /**
@@ -391,6 +400,7 @@
    */
   BeautifulProperties.Hookable = Object.create(null);
   Internal.Hookable = Object.create(null);
+  // Internal.Hookable
   (function (LazyInitializable,PropertySpecific) {
     /**
      * @property {boolean} isInited
@@ -518,6 +528,20 @@
     Internal.Hookable.retrieveMeta = PropertySpecific.retrieverFactory('Hookable::Meta',true);
     Internal.Hookable.retrieveHooks = PropertySpecific.retrieverFactory('Hookable::Hooks',true);
     Internal.Hookable.retrieveDescriptor = PropertySpecific.retrieverFactory('Hookable::Descriptor',false);
+    Internal.Hookable.getRaw = (function () {
+      var retrieveRaw = retrieveInternalObject.bind(null,'raw',false);
+      var empty = Object.create(null);
+      return function getRaw(object,key){
+        return (retrieveRaw(object) || empty)[key];
+      }
+    })();
+    Internal.Hookable.setRaw = (function () {
+      var retrieveRaw = retrieveInternalObject.bind(null,'raw',true);
+      return function setRaw(object,key,val) {
+        var raw = retrieveRaw(object);
+        raw[key] = val;
+      }
+    })();
   })(BeautifulProperties.LazyInitializable,InternalObject.PropertySpecific);
   /**
    * @name Get
@@ -540,11 +564,11 @@
      * @see BeautifulProperties.Hookable~refresh
      */
     Get.refreshProperty = function refreshProperty(object,key){
-      var previousVal = BeautifulProperties.getRaw(object,key);
+      var previousVal = Internal.Hookable.getRaw(object,key);
       var descriptor = retrieveDescriptor(object,key);
       var retriever = descriptor.get;
       var val = retriever.call(object);
-      BeautifulProperties.setRaw(object,key,val);
+      Internal.Hookable.setRaw(object,key,val);
       var storedHooks = retrieveHooks(object,key);
       storedHooks.refresh.forEach(function(refresh){
         refresh.call(object,val,previousVal);
@@ -585,6 +609,30 @@
      * @memberOf BeautifulProperties.Hookable
      */
     Hookable.Undefined = Object.create(null);
+
+    /**
+     * @name getRaw
+     * @memberOf BeautifulProperties.Hookable
+     * @function
+     *
+     * @param {Object} object
+     * @param {String} key
+     * @return {*}
+     * @description Get the property value away from hook executing.
+     */
+    Hookable.getRaw = Internal.Hookable.getRaw;
+
+    /**
+     * @name setRaw
+     * @memberOf BeautifulProperties.Hookable
+     * @function
+     *
+     * @param {Object} object
+     * @param {String} key
+     * @param {*} val
+     * @description Set the property value away from hook executing.
+     */
+    Hookable.setRaw = Internal.Hookable.setRaw;
     /**
      * @name hasHooks
      * @memberOf BeautifulProperties.Hookable
@@ -723,7 +771,7 @@
         if (descriptor.writable) {
           this[key] = initialValue;
         } else {
-          BeautifulProperties.setRaw(this,key,initialValue);
+          Internal.Hookable.setRaw(this,key,initialValue);
         }
       }
       function get_beforeGet(){
@@ -781,7 +829,7 @@
                 return this[key];
               } else {
                 get_beforeGet.call(this);
-                return get_afterGet.call(this,BeautifulProperties.getRaw(this,key));
+                return get_afterGet.call(this,Internal.Hookable.getRaw(this,key));
               }
             case Descriptor.AccessorDescriptor:
               // write only
@@ -790,7 +838,7 @@
               }
               get_beforeGet.call(this);
               Get.refreshProperty(this,key);
-              return get_afterGet.call(this,BeautifulProperties.getRaw(this,key));
+              return get_afterGet.call(this,Internal.Hookable.getRaw(this,key));
             default :
               throw new Error('InvalidState');
           }
@@ -807,9 +855,9 @@
               if (!meta.isInited) {
                 meta.isInited = true;
               }
-              var previousVal = BeautifulProperties.getRaw(this,key);
+              var previousVal = Internal.Hookable.getRaw(this,key);
               val = set_beforeSet.call(this,val,previousVal);
-              BeautifulProperties.setRaw(this,key,val);
+              Internal.Hookable.setRaw(this,key,val);
               set_afterSet.call(this,val,previousVal);
               break;
             case Descriptor.AccessorDescriptor:
@@ -817,7 +865,7 @@
               if (!descriptor.set) {
                 return;
               }
-              var previousVal = BeautifulProperties.getRaw(this,key);
+              var previousVal = Internal.Hookable.getRaw(this,key);
               val = set_beforeSet.call(this,val,previousVal);
               descriptor.set.call(this,val);
               if (descriptor.get) {
