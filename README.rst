@@ -43,7 +43,8 @@ hooks
 .. code-block:: javascript
 
   var object = {};
-  BeautifulProperties.Hookable.define(object,'key',{
+  BeautifulProperties.Hookable.define(object,'key');
+  BeautifulProperties.Hookable.addHooks(object,'key',{
     beforeGet : function(val){
       console.log('beforeGet');
     },
@@ -68,11 +69,11 @@ modify getting value
 .. code-block:: javascript
 
   var object = {};
-  BeautifulProperties.Hookable.define(object,'key',{
-    afterGet : function(val){
-      return val * 2;
-    }
+  BeautifulProperties.Hookable.define(object,'key');
+  BeautifulProperties.Hookable.addHook(object,'key','afterGet',function(val){
+    return val * 2;
   });
+
   object.key = 1;
   object.key;//2
 
@@ -81,16 +82,50 @@ modify setting value
 .. code-block:: javascript
 
   var object = {};
-  BeautifulProperties.Hookable.define(object,'key',{
-    beforeSet : function(val,previousVal){
-      return val * 2;
-    }
+  BeautifulProperties.Hookable.define(object,'key');
+  BeautifulProperties.Hookable.addHook(object,'key','beforeSet',function(val,previousVal){
+    return val * 2;
   });
   object.key = 1;
   object.key;//2
 
 Events
 ------
+
+.. code-block:: javascript
+
+  var object = {};
+  BeautifulProperties.Events.on(object,'eventType',function(ev){
+    console.log('event handler is called.');
+  });
+  BeautifulProperties.Events.trigger(object,'eventType');
+
+event bubbling.
+
+A event bubble up to the prototype of the object.
+
+.. code-block:: javascript
+
+  var proto = {};
+  var object = Object.create(proto);
+  BeautifulProperties.Events.on(proto,'eventType',function(ev){
+    console.log('event handler is called.');
+  });
+  BeautifulProperties.Events.trigger(object,'eventType');
+
+controlling event bubbling.
+
+.. code-block:: javascript
+
+  var ancestor = {};
+  var object = {};
+  BeautifulProperties.Events.Ancestor.setRetriever(object,function(){
+    return ancestor;
+  });
+  BeautifulProperties.Events.on(ancestor,'eventType',function(ev){
+    console.log('event handler is called.');
+  });
+  BeautifulProperties.Events.trigger(object,'eventType');
 
 Observable
 ------------------------
@@ -129,10 +164,12 @@ In an AMD loader like RequireJS:
 Author
 ======
 
-monjudoh
+monjudoh https://github.com/monjudoh
 
 Contributors
 ============
 
-* aodag (Atsushi Odagiri) aodagx@gmail.com https://github.com/aodag
-    * He named this library.
+- aodag (Atsushi Odagiri) aodagx@gmail.com https://github.com/aodag
+    - He named this library.
+- jbking (Yusuke Muraoka) yusuke@jbking.org https://github.com/jbking
+    - He provides ideas for this library.
