@@ -58,7 +58,7 @@ describe("BeautifulProperties.Observable", function() {
       });
       describe('bubbles:false',function(){
         it("'change:key' event should not bubbles.",function(){
-          BeautifulProperties.Observable.define(object,'key',null,null,{bubbles:false});
+          BeautifulProperties.Observable.define(object,'key',{bubbles:false});
           BeautifulProperties.Events.provideMethods(proto);
           object.key = 0;
           proto.on('change:key',changeKey);

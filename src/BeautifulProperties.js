@@ -1262,21 +1262,17 @@
      *
      * @param {object} object
      * @param {string} key
-     * @param {{beforeGet:function=,afterGet:function=,beforeSet:function=,afterSet:function=,refresh:function=}=} hooks Deprecated.<br/>Reccomend to use Hookable.addHook or Hookable.addHooks method.
-     * @param {(BeautifulProperties.DataDescriptor|BeautifulProperties.AccessorDescriptor|BeautifulProperties.GenericDescriptor)=} descriptor Deprecated.<br/>Reccomend to use Hookable.define method.
-     *  descriptor.writable's default value is false in ES5,but it's true in BeautifulProperties.Hookable.
      * @param {{bubbles:boolean=}=} options part of BeautifulProperties.Events.Event.options.
      * @description This method can be use after Hookable.define.
      */
-    Observable.define = function defineObservableProperty(object,key,hooks,descriptor,options) {
+    Observable.define = function defineObservableProperty(object,key,options) {
       options = options || Object.create(null);
       // Observable property depends on Hookable.
       if (!Hookable.hasHooks(object,key)) {
-        Hookable.define(object,key,hooks,descriptor);
-//        Hookable.define(object,key);
+        Hookable.define(object,key);
       }
 
-      descriptor = retrieveDescriptor(object,key);
+      var descriptor = retrieveDescriptor(object,key);
       function checkChangeAndTrigger(val,previousVal) {
         if (!Equals.equals(this,key,val,previousVal)){
           var eventOptions = cloneDict(options);
