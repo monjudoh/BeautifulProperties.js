@@ -1157,24 +1157,6 @@
       } while (currentTarget = Ancestor.retrieve(currentTarget)) ;
       event.currentTarget = null;
     };
-
-    /**
-     *
-     * @name triggerWithBubbling
-     * @memberOf BeautifulProperties.Events
-     * @function
-     *
-     * @param {object} object
-     * @param {string} eventType
-     *
-     * @deprecated since version 0.1.5
-     */
-    Events.triggerWithBubbling = function triggerWithBubbling(object, eventType) {
-      var args = Array_from(arguments);
-      // eventType argument
-      args[1] = {type:eventType,bubbles:true};
-      Events.trigger.apply(Events,args);
-    };
   })(BeautifulProperties.Events,BeautifulProperties.Events.Event,BeautifulProperties.Events.Ancestor);
 
   (function (Events) {
@@ -1185,7 +1167,7 @@
      *
      * @param {object} object
      */
-    Events.provideMethods = provideMethodsFactory(Events,['on','off','trigger','triggerWithBubbling']);
+    Events.provideMethods = provideMethodsFactory(Events,['on','off','trigger']);
   })(BeautifulProperties.Events);
 
   /**

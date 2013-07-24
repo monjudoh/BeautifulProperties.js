@@ -23,17 +23,6 @@ describe("BeautifulProperties.Events", function() {
           expect(spy).toHaveBeenCalled();
         });
       });
-      describe("triggerWithBubbling",function () {
-        it("callback's context is trrigger target object",function () {
-          var spy = jasmine.createSpy();
-          BeautifulProperties.Events.on(targetPrototype, 'test', function () {
-            expect(this).toBe(targetObject);
-            spy();
-          });
-          BeautifulProperties.Events.triggerWithBubbling(targetObject,'test');
-          expect(spy).toHaveBeenCalled();
-        });
-      });
     });
     describe("with context argument",function () {
       var contextObject;
@@ -48,17 +37,6 @@ describe("BeautifulProperties.Events", function() {
             spy();
           }, {context : contextObject});
           BeautifulProperties.Events.trigger(targetObject,'test');
-          expect(spy).toHaveBeenCalled();
-        });
-      });
-      describe("triggerWithBubbling",function () {
-        it("callback's context is bound context object",function () {
-          var spy = jasmine.createSpy();
-          BeautifulProperties.Events.on(targetPrototype, 'test', function () {
-            expect(this).toBe(contextObject);
-            spy();
-          }, {context : contextObject});
-          BeautifulProperties.Events.triggerWithBubbling(targetObject,'test');
           expect(spy).toHaveBeenCalled();
         });
       });
@@ -137,12 +115,6 @@ describe("BeautifulProperties.Events", function() {
     });
   });
   [{
-    desc:"triggerWithBubbling",
-    exercise:function(targetObject,eventType){
-      var args = Array_from(arguments);
-      BeautifulProperties.Events.triggerWithBubbling.apply(BeautifulProperties.Events,args);
-    }
-  },{
     desc:"trigger",
     exercise:function(targetObject,eventType){
       var args = Array_from(arguments);
