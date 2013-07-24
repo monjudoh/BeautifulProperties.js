@@ -29,7 +29,7 @@
  * BeautifulProperties.js - Extension of ECMAScript5 property.
  *
  * https://github.com/monjudoh/BeautifulProperties.js
- * version: 0.1.6
+ * version: 0.1.7
  *
  * Copyright (c) 2012 monjudoh
  * Dual licensed under the MIT (MIT-LICENSE.txt)
@@ -41,7 +41,7 @@
  */
 /**
  * @module BeautifulProperties
- * @version 0.1.6
+ * @version 0.1.7
  * @author monjudoh
  * @copyright (c) 2012 monjudoh&lt;br/>
  * Dual licensed under the MIT (MIT-LICENSE.txt)&lt;br/>
@@ -91,7 +91,7 @@
    * @memberOf BeautifulProperties
    */
   Object.defineProperty(BeautifulProperties,'VERSION',{
-    value : '0.1.6',
+    value : '0.1.7',
     writable : false
   });
 
@@ -204,11 +204,15 @@
           return;
         }
         var methodImpl = namespaceObject[methodName];
-        object[methodName] = function () {
-          var args = Array_from(arguments);
-          args.unshift(this);
-          return methodImpl.apply(namespaceObject,args);
-        };
+        Object.defineProperty(object,methodName,{
+          value:function () {
+            var args = Array_from(arguments);
+            args.unshift(this);
+            return methodImpl.apply(namespaceObject,args);
+          },
+          enumerable:false,
+          configurable:true
+        });
       });
     }
     return provideMethods;
@@ -767,11 +771,10 @@
      *
      * @param {object} object
      * @param {string} key
-     * @param {{beforeGet:function=,afterGet:function=,beforeSet:function=,afterSet:function=,refresh:function=}=} hooks Deprecated.&lt;br/>Reccomend to use Hookable.addHook or Hookable.addHooks method.
      * @param {(BeautifulProperties.DataDescriptor|BeautifulProperties.AccessorDescriptor|BeautifulProperties.GenericDescriptor)=} descriptor
      *  descriptor.writable's default value is false in ES5,but it's true in BeautifulProperties.Hookable.
      */
-    Hookable.define = function defineHookableProperty(object,key,hooks,descriptor) {
+    Hookable.define = function defineHookableProperty(object,key,descriptor) {
       var Undefined = Hookable.Undefined;
 
       descriptor = descriptor || Object.create(null);
@@ -789,9 +792,6 @@
       // The hookable property is already defined.
       // TODO modify descriptor
       var storedHooks = retrieveHooks(object,key);
-      if (hooks) {
-        Hookable.addHooks(object,key,hooks);
-      }
       if (storedHooks.isDefined) {
         return;
       }
@@ -1180,24 +1180,6 @@
       } while (currentTarget = Ancestor.retrieve(currentTarget)) ;
       event.currentTarget = null;
     };
-
-    /**
-     *
-     * @name triggerWithBubbling
-     * @memberOf BeautifulProperties.Events
-     * @function
-     *
-     * @param {object} object
-     * @param {string} eventType
-     *
-     * @deprecated since version 0.1.5
-     */
-    Events.triggerWithBubbling = function triggerWithBubbling(object, eventType) {
-      var args = Array_from(arguments);
-      // eventType argument
-      args[1] = {type:eventType,bubbles:true};
-      Events.trigger.apply(Events,args);
-    };
   })(BeautifulProperties.Events,BeautifulProperties.Events.Event,BeautifulProperties.Events.Ancestor);
 
   (function (Events) {
@@ -1208,7 +1190,7 @@
      *
      * @param {object} object
      */
-    Events.provideMethods = provideMethodsFactory(Events,['on','off','trigger','triggerWithBubbling']);
+    Events.provideMethods = provideMethodsFactory(Events,['on','off','trigger']);
   })(BeautifulProperties.Events);
 
   /**
@@ -1303,21 +1285,17 @@
      *
      * @param {object} object
      * @param {string} key
-     * @param {{beforeGet:function=,afterGet:function=,beforeSet:function=,afterSet:function=,refresh:function=}=} hooks Deprecated.&lt;br/>Reccomend to use Hookable.addHook or Hookable.addHooks method.
-     * @param {(BeautifulProperties.DataDescriptor|BeautifulProperties.AccessorDescriptor|BeautifulProperties.GenericDescriptor)=} descriptor Deprecated.&lt;br/>Reccomend to use Hookable.define method.
-     *  descriptor.writable's default value is false in ES5,but it's true in BeautifulProperties.Hookable.
      * @param {{bubbles:boolean=}=} options part of BeautifulProperties.Events.Event.options.
      * @description This method can be use after Hookable.define.
      */
-    Observable.define = function defineObservableProperty(object,key,hooks,descriptor,options) {
+    Observable.define = function defineObservableProperty(object,key,options) {
       options = options || Object.create(null);
       // Observable property depends on Hookable.
       if (!Hookable.hasHooks(object,key)) {
-        Hookable.define(object,key,hooks,descriptor);
-//        Hookable.define(object,key);
+        Hookable.define(object,key);
       }
 
-      descriptor = retrieveDescriptor(object,key);
+      var descriptor = retrieveDescriptor(object,key);
       function checkChangeAndTrigger(val,previousVal) {
         if (!Equals.equals(this,key,val,previousVal)){
           var eventOptions = cloneDict(options);
@@ -1343,7 +1321,7 @@
      *
      * @property {boolean} isNull
      * @property {*} value
-     * @property {number}　timestamp
+     * @property {number} timestamp
      */
     function Version(){
     }
@@ -1485,7 +1463,7 @@
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Thu Jul 18 2013 17:46:54 GMT+0900 (JST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Wed Jul 24 2013 16:01:56 GMT+0900 (JST)
 </footer>
 
 <script> prettyPrint(); </script>
