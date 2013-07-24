@@ -169,7 +169,7 @@ monjudoh https://github.com/monjudoh
 Contributors
 ============
 
-- aodag (Atsushi Odagiri) aodagx@gmail.com https://github.com/aodag
+- aodag (Atsushi Odagiri) https://github.com/aodag
     - He named this library.
-- jbking (Yusuke Muraoka) yusuke@jbking.org https://github.com/jbking
+- jbking (Yusuke Muraoka) https://github.com/jbking
     - He provides ideas for this library.
