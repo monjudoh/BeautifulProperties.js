@@ -18,7 +18,7 @@ describe("BeautifulProperties.Observable", function() {
       describe('get',function(){
         it("'change:key' event is triggered when it call refreshProperty('key') and the value is changed.",function(){
           var val;
-          BeautifulProperties.Hookable.define(object,'key',null,{
+          BeautifulProperties.Hookable.define(object,'key',{
             get:function(){
               return val;
             }

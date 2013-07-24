@@ -744,11 +744,10 @@
      *
      * @param {object} object
      * @param {string} key
-     * @param {{beforeGet:function=,afterGet:function=,beforeSet:function=,afterSet:function=,refresh:function=}=} hooks Deprecated.<br/>Reccomend to use Hookable.addHook or Hookable.addHooks method.
      * @param {(BeautifulProperties.DataDescriptor|BeautifulProperties.AccessorDescriptor|BeautifulProperties.GenericDescriptor)=} descriptor
      *  descriptor.writable's default value is false in ES5,but it's true in BeautifulProperties.Hookable.
      */
-    Hookable.define = function defineHookableProperty(object,key,hooks,descriptor) {
+    Hookable.define = function defineHookableProperty(object,key,descriptor) {
       var Undefined = Hookable.Undefined;
 
       descriptor = descriptor || Object.create(null);
@@ -766,9 +765,6 @@
       // The hookable property is already defined.
       // TODO modify descriptor
       var storedHooks = retrieveHooks(object,key);
-      if (hooks) {
-        Hookable.addHooks(object,key,hooks);
-      }
       if (storedHooks.isDefined) {
         return;
       }

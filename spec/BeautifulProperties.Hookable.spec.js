@@ -243,13 +243,13 @@ describe("BeautifulProperties.Hookable", function() {
           object = Object.create(null);
         });
         it("could set initial value.",function(){
-          BeautifulProperties.Hookable.define(object,'key',null,{
+          BeautifulProperties.Hookable.define(object,'key',{
             value:1
           });
           expect(object['key']).toBe(1);
         });
         it("could set initial value.",function(){
-          BeautifulProperties.Hookable.define(object,'key',null,{
+          BeautifulProperties.Hookable.define(object,'key',{
             value:0
           });
           expect(object['key']).toBe(0);
@@ -263,7 +263,7 @@ describe("BeautifulProperties.Hookable", function() {
 
         describe("value",function(){
           beforeEach(function(){
-            BeautifulProperties.Hookable.define(object,'key',null,{
+            BeautifulProperties.Hookable.define(object,'key',{
               value:1,
               writable:false
             });
@@ -279,7 +279,7 @@ describe("BeautifulProperties.Hookable", function() {
         describe("init",function(){
           var descriptor;
           beforeEach(function(){
-            BeautifulProperties.Hookable.define(object,'key',null,{
+            BeautifulProperties.Hookable.define(object,'key',{
               init:function(){
                 return 1;
               },
@@ -304,7 +304,7 @@ describe("BeautifulProperties.Hookable", function() {
         });
         describe("",function(){
           beforeEach(function(){
-            BeautifulProperties.Hookable.define(object,'key',null,{
+            BeautifulProperties.Hookable.define(object,'key',{
               get:function(){
                 return 1;
               }
@@ -322,7 +322,7 @@ describe("BeautifulProperties.Hookable", function() {
         describe("refresh hook should be called",function(){
           beforeEach(function(){
             hooks.refresh = refresh;
-            BeautifulProperties.Hookable.define(object,'key',null,{
+            BeautifulProperties.Hookable.define(object,'key',{
               get:function(){
                 return 1;
               }
@@ -340,7 +340,7 @@ describe("BeautifulProperties.Hookable", function() {
         });
         it("Get.getSilently skip refresh hook.",function(){
           hooks.refresh = refresh;
-          BeautifulProperties.Hookable.define(object,'key',null,{
+          BeautifulProperties.Hookable.define(object,'key',{
             get:function(){
               return 1;
             }
@@ -361,7 +361,7 @@ describe("BeautifulProperties.Hookable", function() {
         describe("write only",function(){
           beforeEach(function(){
             hooks.refresh = refresh;
-            BeautifulProperties.Hookable.define(object,'key',null,{
+            BeautifulProperties.Hookable.define(object,'key',{
               set:set
             });
 
@@ -380,7 +380,7 @@ describe("BeautifulProperties.Hookable", function() {
           beforeEach(function(){
             hooks.refresh = refresh;
             var value;
-            BeautifulProperties.Hookable.define(object,'key',null,{
+            BeautifulProperties.Hookable.define(object,'key',{
               set:function(val){
                 value = val;
               },get:function(){
