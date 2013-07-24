@@ -1298,7 +1298,7 @@
      *
      * @property {boolean} isNull
      * @property {*} value
-     * @property {number}　timestamp
+     * @property {number} timestamp
      */
     function Version(){
     }
