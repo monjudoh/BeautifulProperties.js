@@ -177,11 +177,15 @@
           return;
         }
         var methodImpl = namespaceObject[methodName];
-        object[methodName] = function () {
-          var args = Array_from(arguments);
-          args.unshift(this);
-          return methodImpl.apply(namespaceObject,args);
-        };
+        Object.defineProperty(object,methodName,{
+          value:function () {
+            var args = Array_from(arguments);
+            args.unshift(this);
+            return methodImpl.apply(namespaceObject,args);
+          },
+          enumerable:false,
+          configurable:true
+        });
       });
     }
     return provideMethods;
