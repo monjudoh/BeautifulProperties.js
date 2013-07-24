@@ -2,7 +2,7 @@
  * BeautifulProperties.js - Extension of ECMAScript5 property.
  *
  * https://github.com/monjudoh/BeautifulProperties.js
- * version: 0.1.6
+ * version: 0.1.7
  *
  * Copyright (c) 2012 monjudoh
  * Dual licensed under the MIT (MIT-LICENSE.txt)
@@ -14,7 +14,7 @@
  */
 /**
  * @module BeautifulProperties
- * @version 0.1.6
+ * @version 0.1.7
  * @author monjudoh
  * @copyright (c) 2012 monjudoh<br/>
  * Dual licensed under the MIT (MIT-LICENSE.txt)<br/>
@@ -64,7 +64,7 @@
    * @memberOf BeautifulProperties
    */
   Object.defineProperty(BeautifulProperties,'VERSION',{
-    value : '0.1.6',
+    value : '0.1.7',
     writable : false
   });
 
