@@ -176,6 +176,16 @@
       return Object.getOwnPropertyDescriptor(obj,'key');
     })();
     var DataDescriptorKeys = 'configurable enumerable writable value init'.split(' ');
+    var globalDefaultAccessorDescriptor = (function () {
+      var obj = Object.create(null);
+      Object.defineProperty(obj,'key',{
+        get:function(){}
+      });
+      var descriptor = Object.getOwnPropertyDescriptor(obj, 'key');
+      delete descriptor.get;
+      return descriptor;
+    })();
+    var AccessorDescriptorKeys = 'configurable enumerable get set'.split(' ');
     /**
      * @name applyDefault
      * @memberOf Internal.Descriptor
@@ -183,12 +193,24 @@
      *
      * @param {Internal.Descriptor.Types} type
      * @param {object} descriptor
-     * @param {BeautifulProperties.GenericDescriptor,BeautifulProperties.DataDescriptor} defaultDescriptor
+     * @param {BeautifulProperties.GenericDescriptor,BeautifulProperties.DataDescriptor,BeautifulProperties.AccessorDescriptor=} defaultDescriptor
      * @returns {BeautifulProperties.DataDescriptor}
      */
     Descriptor.applyDefault = function applyDefault(type,descriptor,defaultDescriptor){
-      var DescriptorKeys = DataDescriptorKeys;
-      var globalDefaultDescriptor = globalDefaultDataDescriptor;
+      var DescriptorKeys;
+      var globalDefaultDescriptor;
+      switch (type) {
+        case Descriptor.Types.DataDescriptor:
+          DescriptorKeys = DataDescriptorKeys;
+          globalDefaultDescriptor = globalDefaultDataDescriptor;
+          break;
+        case Descriptor.Types.AccessorDescriptor:
+          DescriptorKeys = AccessorDescriptorKeys;
+          globalDefaultDescriptor = globalDefaultAccessorDescriptor;
+          break;
+        default :
+          throw new Error('The type argument is invalid in Internal.Descriptor.applyDefault.');
+      }
       var origDescriptor = descriptor || Object.create(null);
       descriptor = Object.create(null);
       var i,key;
@@ -805,11 +827,17 @@
       if (type === Descriptor.Types.InvalidDescriptor) {
         throw Descriptor.createTypeError(descriptor);
       }
-      if (type !== Descriptor.Types.AccessorDescriptor) {
-        descriptor = Descriptor.applyDefault(Descriptor.Types.DataDescriptor,descriptor,{writable:true});
-        type = Descriptor.Types.DataDescriptor;
-      } else {
-        // TODO clone
+      switch (type) {
+        case Descriptor.Types.DataDescriptor:
+        case Descriptor.Types.GenericDescriptor:
+          descriptor = Descriptor.applyDefault(Descriptor.Types.DataDescriptor,descriptor,{writable:true});
+          type = Descriptor.Types.DataDescriptor;
+          break;
+        case Descriptor.Types.AccessorDescriptor:
+          descriptor = Descriptor.applyDefault(Descriptor.Types.AccessorDescriptor,descriptor);
+          break;
+        default :
+          break;
       }
       // The hookable property is already defined.
       // TODO modify descriptor
@@ -940,7 +968,9 @@
             default :
               throw new Error('InvalidState');
           }
-        }
+        },
+        enumerable:descriptor.enumerable,
+        configurable:descriptor.configurable
       });
     };
   })(BeautifulProperties.Hookable,BeautifulProperties.Hookable.Get,Internal.Descriptor,InternalObject.PropertySpecific);
