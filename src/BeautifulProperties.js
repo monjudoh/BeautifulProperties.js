@@ -69,7 +69,9 @@
   });
 
   /**
-   * The Namespace for internal functions.
+   * @name Internal
+   * @namespace
+   * @private
    */
   var Internal = Object.create(null);
 
@@ -93,31 +95,74 @@
    * http://www.ecma-international.org/ecma-262/5.1/#sec-8.10.1
    */
 
+  /**
+   * @name Descriptor
+   * @namespace
+   * @memberOf Internal
+   * @private
+   */
   Internal.Descriptor = Object.create(null);
   (function (Descriptor) {
-    Descriptor.GenericDescriptor = Object.create(null);
-    Descriptor.DataDescriptor = Object.create(null);
-    Descriptor.AccessorDescriptor = Object.create(null);
-    Descriptor.InvalidDescriptor = Object.create(null);
+    /**
+     * @name Types
+     * @memberOf Internal.Descriptor
+     * @enum {object}
+     */
+    Descriptor.Types = {
+      /**
+       * http://www.ecma-international.org/ecma-262/5.1/#sec-8.10.3
+       */
+      GenericDescriptor:Object.create(null),
+      /**
+       * http://www.ecma-international.org/ecma-262/5.1/#sec-8.10.2
+       */
+      DataDescriptor:Object.create(null),
+      /**
+       * http://www.ecma-international.org/ecma-262/5.1/#sec-8.10.1
+       */
+      AccessorDescriptor:Object.create(null),
+      /**
+       * invalid
+       */
+      InvalidDescriptor:Object.create(null)
+    };
+  })(Internal.Descriptor);
+  (function (Descriptor) {
+    /**
+     * @name getTypeOf
+     * @memberOf Internal.Descriptor
+     * @function
+     *
+     * @param descriptor
+     * @returns {Internal.Descriptor.Types}
+     */
     Descriptor.getTypeOf = function getTypeOf(descriptor){
       if (descriptor === undefined) {
-        return Descriptor.InvalidDescriptor;
+        return Descriptor.Types.InvalidDescriptor;
       }
       var isDataDescriptor = descriptor.writable !== undefined || descriptor.value !== undefined || descriptor.init!== undefined;
       var isAccessorDescriptor = descriptor.get !== undefined || descriptor.set !== undefined;
       if (!isDataDescriptor && !isAccessorDescriptor) {
-        return Descriptor.GenericDescriptor;
+        return Descriptor.Types.GenericDescriptor;
       }
       if (isDataDescriptor && isAccessorDescriptor) {
-        return Descriptor.InvalidDescriptor;
+        return Descriptor.Types.InvalidDescriptor;
       }
       if (isDataDescriptor) {
-        return Descriptor.DataDescriptor;
+        return Descriptor.Types.DataDescriptor;
       }
       if (isAccessorDescriptor) {
-        return Descriptor.AccessorDescriptor;
+        return Descriptor.Types.AccessorDescriptor;
       }
     };
+    /**
+     * @name createTypeError
+     * @memberOf Internal.Descriptor
+     * @function
+     *
+     * @param {object} invalidDescriptor
+     * @returns {TypeError}
+     */
     Descriptor.createTypeError = function createTypeError(invalidDescriptor){
       try{
         Object.defineProperty(Object.create(null),'prop', invalidDescriptor);
@@ -125,20 +170,25 @@
         return new TypeError(e.message);
       }
     };
-  })(Internal.Descriptor);
-
-  /**
-   * @function
-   * @param {{configurable:?boolean,enumerable:?boolean,writable:?boolean}} descriptor
-   * @param {{configurable:?boolean,enumerable:?boolean,writable:?boolean}} defaultDescriptor
-   * @return {{configurable:?boolean,enumerable:?boolean,writable:?boolean}} descriptor
-   */
-  var applyDefaultDescriptor = (function () {
-    var obj = Object.create(null);
-    Object.defineProperty(obj,'key',{});
-    var globalDefaultDescriptor = Object.getOwnPropertyDescriptor(obj,'key');
-    var DescriptorKeys = 'configurable enumerable writable value init'.split(' ');
-    function applyDefaultDescriptor(descriptor,defaultDescriptor){
+    var globalDefaultDataDescriptor = (function () {
+      var obj = Object.create(null);
+      Object.defineProperty(obj,'key',{});
+      return Object.getOwnPropertyDescriptor(obj,'key');
+    })();
+    var DataDescriptorKeys = 'configurable enumerable writable value init'.split(' ');
+    /**
+     * @name applyDefault
+     * @memberOf Internal.Descriptor
+     * @function
+     *
+     * @param {Internal.Descriptor.Types} type
+     * @param {object} descriptor
+     * @param {BeautifulProperties.GenericDescriptor,BeautifulProperties.DataDescriptor} defaultDescriptor
+     * @returns {BeautifulProperties.DataDescriptor}
+     */
+    Descriptor.applyDefault = function applyDefault(type,descriptor,defaultDescriptor){
+      var DescriptorKeys = DataDescriptorKeys;
+      var globalDefaultDescriptor = globalDefaultDataDescriptor;
       var origDescriptor = descriptor || Object.create(null);
       descriptor = Object.create(null);
       var i,key;
@@ -158,9 +208,8 @@
         descriptor[key] = globalDefaultDescriptor[key];
       }
       return descriptor;
-    }
-    return applyDefaultDescriptor;
-  })();
+    };
+  })(Internal.Descriptor);
 
   /**
    * @function
@@ -214,7 +263,7 @@
     value : Object.create(null),
     writable : false
   });
-  (function (LazyInitializable) {
+  (function (LazyInitializable,Descriptor) {
     /**
      * @name define
      * @memberOf BeautifulProperties.LazyInitializable
@@ -226,7 +275,7 @@
      */
     LazyInitializable.define = function defineLazyInitializableProperty(object,key,descriptor) {
       var init = descriptor.init;
-      descriptor = applyDefaultDescriptor(descriptor);
+      descriptor = Descriptor.applyDefault(Descriptor.Types.DataDescriptor,descriptor);
       Object.defineProperty(object,key,{
         get : function () {
           var self = this;
@@ -262,7 +311,7 @@
         configurable : true
       });
     };
-  })(BeautifulProperties.LazyInitializable);
+  })(BeautifulProperties.LazyInitializable,Internal.Descriptor);
 
   BeautifulProperties.Internal = Object.create(null);
   BeautifulProperties.Internal.Key = 'BeautifulProperties::internalObjectKey';
@@ -753,12 +802,12 @@
       descriptor = descriptor || Object.create(null);
       // TODO store
       var type = Descriptor.getTypeOf(descriptor);
-      if (type === Descriptor.InvalidDescriptor) {
+      if (type === Descriptor.Types.InvalidDescriptor) {
         throw Descriptor.createTypeError(descriptor);
       }
-      if (type !== Descriptor.AccessorDescriptor) {
-        descriptor = applyDefaultDescriptor(descriptor,{writable:true});
-        type = Descriptor.DataDescriptor;
+      if (type !== Descriptor.Types.AccessorDescriptor) {
+        descriptor = Descriptor.applyDefault(Descriptor.Types.DataDescriptor,descriptor,{writable:true});
+        type = Descriptor.Types.DataDescriptor;
       } else {
         // TODO clone
       }
@@ -837,7 +886,7 @@
           var descriptor = retrieveDescriptor(object,key);
           var meta = retrieveMeta(this,key);
           switch (type) {
-            case Descriptor.DataDescriptor:
+            case Descriptor.Types.DataDescriptor:
               var isValueExist = descriptor.value !== undefined;
               if (!meta.isInited && (descriptor.init || isValueExist)) {
                 init_DataDescriptor.call(this);
@@ -846,7 +895,7 @@
                 get_beforeGet.call(this);
                 return get_afterGet.call(this,Internal.Hookable.getRaw(this,key));
               }
-            case Descriptor.AccessorDescriptor:
+            case Descriptor.Types.AccessorDescriptor:
               // write only
               if (!descriptor.get) {
                 return undefined;
@@ -861,7 +910,7 @@
         set : function __BeautifulProperties_Hookable_set(val) {
           var descriptor = retrieveDescriptor(object,key);
           switch (type) {
-            case Descriptor.DataDescriptor:
+            case Descriptor.Types.DataDescriptor:
               // read only
               if (!descriptor.writable) {
                 return;
@@ -875,7 +924,7 @@
               Internal.Hookable.setRaw(this,key,val);
               set_afterSet.call(this,val,previousVal);
               break;
-            case Descriptor.AccessorDescriptor:
+            case Descriptor.Types.AccessorDescriptor:
               // read only
               if (!descriptor.set) {
                 return;
