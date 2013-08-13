@@ -189,6 +189,25 @@ describe("BeautifulProperties.Versionizable", function() {
       });
     });
   });
+  describe("undo",function(){
+    var object;
+    beforeEach(function(){
+      object = Object.create(null);
+      BeautifulProperties.Versionizable.define(object,'key',{length:1000});
+      object.key = 1;
+      object.key = 2;
+      object.key = 3;
+      object.key = 4;
+      object.key = 5;
+    });
+    it("to the previous version",function(){
+      expect(BeautifulProperties.Versionizable.getHistoryLength(object,'key')).toBe(5)
+      var targetVersion = BeautifulProperties.Versionizable.getVersion(object,'key',1);
+      BeautifulProperties.Versionizable.undo(object,'key',targetVersion);
+      expect(object.key).toBe(targetVersion.value);
+      expect(BeautifulProperties.Versionizable.getHistoryLength(object,'key')).toBe(4);
+    });
+  });
   describe("Equals",function(){
     var object;
     beforeEach(function(){

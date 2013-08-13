@@ -1417,8 +1417,37 @@
       return history[index] || aNullVersion;
     };
     /**
+     * @name undo
+     * @memberOf BeautifulProperties.Versionizable
+     * @function
+     *
+     * @param {object} object
+     * @param {string} key
+     * @param {BeautifulProperties.Versionizable.Version} version
+     */
+    Versionizable.undo = function undo(object,key,version) {
+      // Only for data property.
+      this.transaction(object,key,function (versions){
+        var t = this;
+        var targetIndex = versions.indexOf(version);
+        if (versions.length <= 1 || targetIndex === -1) {
+          return;
+        }
+        versions.filter(function(version,index){
+          return index < targetIndex;
+        }).forEach(function(version){
+          t.remove(version);
+        });
+      },function done(currentVersion,versions,currentVersionBeforeTransaction,versionsBeforeTransaction){
+        if (currentVersion !== currentVersionBeforeTransaction) {
+          Events.trigger(object,'undo:'+key,currentVersion.value,currentVersionBeforeTransaction.value);
+        }
+      });
+    };
+    /**
      * @callback BeautifulProperties.Versionizable~transactionCallback
      * @this BeautifulProperties.Versionizable.Transaction
+     * @param {Array.<BeautifulProperties.Versionizable.Version>} versions
      */
     /**
      * @callback BeautifulProperties.Versionizable~doneCallback
@@ -1442,7 +1471,7 @@
     Versionizable.transaction = function transaction(object,key,callback,doneCallback){
       var currentVersionBeforeTransaction = this.getVersion(object,key,0);
       var versionsBeforeTransaction = this.getVersions(object,key);
-      callback.call(new (Versionizable.Transaction)(object,key));
+      callback.call(new (Versionizable.Transaction)(object,key),versionsBeforeTransaction);
       var currentVersion = this.getVersion(object,key,0);
       var versions = this.getVersions(object,key);
       if ((currentVersion.isNull && !currentVersionBeforeTransaction.isNull)
