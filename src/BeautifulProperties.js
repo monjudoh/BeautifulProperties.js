@@ -1353,7 +1353,7 @@
     });
     Versionizable.Version = Version;
   })(BeautifulProperties.Versionizable);
-  (function (Versionizable,Hookable,Equals,PropertySpecific) {
+  (function (Versionizable,Hookable,Equals,Events,PropertySpecific) {
     PropertySpecific.mixinRetriever('Versionizable::History',Array);
     /**
      * @function
@@ -1417,6 +1417,100 @@
       return history[index] || aNullVersion;
     };
     /**
+     * @callback BeautifulProperties.Versionizable~transactionCallback
+     * @this BeautifulProperties.Versionizable.Transaction
+     */
+    /**
+     * @callback BeautifulProperties.Versionizable~doneCallback
+     * @param {BeautifulProperties.Versionizable.Version} currentVersion
+     * @param {Array.<BeautifulProperties.Versionizable.Version>} versions
+     * @param {BeautifulProperties.Versionizable.Version} currentVersionBeforeTransaction
+     * @param {Array.<BeautifulProperties.Versionizable.Version>} versionsBeforeTransaction
+     */
+    /**
+     * @name transaction
+     * @memberOf BeautifulProperties.Versionizable
+     * @function
+     *
+     * @param {object} object
+     * @param {string} key
+     * @param {BeautifulProperties.Versionizable~transactionCallback} callback
+     * @param {BeautifulProperties.Versionizable~doneCallback=} doneCallback
+     * @description The method modify property's history.<br/>
+     * It's experimental API.
+     */
+    Versionizable.transaction = function transaction(object,key,callback,doneCallback){
+      var currentVersionBeforeTransaction = this.getVersion(object,key,0);
+      var versionsBeforeTransaction = this.getVersions(object,key);
+      callback.call(new (Versionizable.Transaction)(object,key));
+      var currentVersion = this.getVersion(object,key,0);
+      var versions = this.getVersions(object,key);
+      if ((currentVersion.isNull && !currentVersionBeforeTransaction.isNull)
+      || (!currentVersion.isNull && currentVersionBeforeTransaction.isNull)
+      || !Equals.equals(this,key,currentVersion.value,currentVersionBeforeTransaction.value)) {
+        Hookable.setRaw(object,key,currentVersion.value);
+      }
+      if (doneCallback) {
+        doneCallback(currentVersion,versions,currentVersionBeforeTransaction,versionsBeforeTransaction);
+      }
+    };
+    /**
+     * @name Transaction
+     * @memberOf BeautifulProperties.Versionizable
+     * @constructor
+     *
+     * @param {object} object
+     * @param {string} key
+     *
+     * @property {object} object
+     * @property {string} key
+     */
+    Versionizable.Transaction = function Transaction(object,key){
+      Object.defineProperties(this,{
+        object:{
+          value:object,
+          writable:false,
+          configurable:false
+        },
+        key:{
+          value:key,
+          writable:false,
+          configurable:false
+        }
+      })
+    };
+    /**
+     * @name insert
+     * @memberOf BeautifulProperties.Versionizable.Transaction#
+     * @function
+     *
+     * @param {number} index
+     * @param {*} value
+     * @param {{timestamp:number=}=} options
+     */
+    Versionizable.Transaction.prototype.insert = function insert(index,value,options) {
+      var history = retrieveHistory(this.object)(this.key);
+      var version = new (Versionizable.Version);
+      version.value = value;
+      version.timestamp = (options && options.timestamp) || Date.now();
+      history.splice(index,0,version);
+    };
+    /**
+     * @name remove
+     * @memberOf BeautifulProperties.Versionizable.Transaction#
+     * @function
+     *
+     * @param {BeautifulProperties.Versionizable.Version} version
+     */
+    Versionizable.Transaction.prototype.remove = function remove(version) {
+      var history = retrieveHistory(this.object)(this.key);
+      var index = history.indexOf(version);
+      if (index === -1) {
+        return;
+      }
+      history.splice(index,1);
+    };
+    /**
      * @function
      * @name getPreviousValue
      * @memberOf BeautifulProperties.Versionizable
@@ -1466,7 +1560,7 @@
       var hookType = descriptor.get ? 'refresh' : 'afterSet';
       Hookable.addHook(object,key,hookType,checkChangeAndEnqueue,10000);
     };
-  })(BeautifulProperties.Versionizable,BeautifulProperties.Hookable,BeautifulProperties.Equals,InternalObject.PropertySpecific);
+  })(BeautifulProperties.Versionizable,BeautifulProperties.Hookable,BeautifulProperties.Equals,BeautifulProperties.Events,InternalObject.PropertySpecific);
 
   return BeautifulProperties;
 })(this),'BeautifulProperties',this);

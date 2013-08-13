@@ -93,6 +93,102 @@ describe("BeautifulProperties.Versionizable", function() {
       expect(BeautifulProperties.Versionizable.getHistoryLength(object,'key')).toBe(3);
     });
   });
+  describe("transaction",function(){
+    var object;
+    beforeEach(function(){
+      object = Object.create(null);
+      BeautifulProperties.Versionizable.define(object,'key',{length:1000});
+    });
+    describe("insert",function(){
+      beforeEach(function(){
+        object.key = 1;
+        object.key = 2;
+        object.key = 3;
+        object.key = 4;
+        object.key = 5;
+      });
+      it("to the head position",function(){
+        expect(object).toHavePropertiesWithValues({
+          key:5
+        });
+        BeautifulProperties.Versionizable.transaction(object,'key',function(){
+          this.insert(0,6);
+        },function done(currentVersion,versions,currentVersionBeforeTransaction,versionsBeforeTransaction){
+          expect(currentVersion).not.toBe(currentVersionBeforeTransaction);
+          expect(currentVersion).toBe(versions[0]);
+          expect(currentVersion).toHavePropertiesWithValues({
+            value:6
+          });
+        });
+        expect(object).toHavePropertiesWithValues({
+          key:6
+        });
+      });
+      it("to the tail position",function(){
+        expect(object).toHavePropertiesWithValues({
+          key:5
+        });
+        BeautifulProperties.Versionizable.transaction(object,'key',function(){
+          this.insert(5,6);
+        },function done(currentVersion,versions,currentVersionBeforeTransaction,versionsBeforeTransaction){
+          expect(currentVersion).toBe(currentVersionBeforeTransaction);
+          expect(versions[versions.length - 1]).toHavePropertiesWithValues({
+            value:6
+          });
+        });
+        expect(object).toHavePropertiesWithValues({
+          key:5
+        });
+      });
+    });
+    describe("remove",function(){
+      beforeEach(function(){
+        object.key = 1;
+        object.key = 2;
+        object.key = 3;
+        object.key = 4;
+        object.key = 5;
+      });
+      it("the head version",function(){
+        expect(object).toHavePropertiesWithValues({
+          key:5
+        });
+        var targetVersion = BeautifulProperties.Versionizable.getVersion(object,'key',0);
+        BeautifulProperties.Versionizable.transaction(object,'key',function(){
+          this.remove(targetVersion);
+        },function done(currentVersion,versions,currentVersionBeforeTransaction,versionsBeforeTransaction){
+          expect(currentVersion).not.toBe(currentVersionBeforeTransaction);
+          expect(currentVersion).toBe(versions[0]);
+          expect(currentVersion).toHavePropertiesWithValues({
+            value:4
+          });
+          expect(versions).not.toContain(targetVersion);
+        });
+        expect(object).toHavePropertiesWithValues({
+          key:4
+        });
+      });
+      it("the tail version",function(){
+        expect(object).toHavePropertiesWithValues({
+          key:5
+        });
+        var targetVersion = BeautifulProperties.Versionizable.getVersion(object,'key',4);
+        BeautifulProperties.Versionizable.transaction(object,'key',function(){
+          this.remove(targetVersion);
+        },function done(currentVersion,versions,currentVersionBeforeTransaction,versionsBeforeTransaction){
+          expect(currentVersion).toBe(currentVersionBeforeTransaction);
+          expect(currentVersion).toBe(versions[0]);
+          expect(currentVersion).toHavePropertiesWithValues({
+            value:5
+          });
+          expect(versions).not.toContain(targetVersion);
+        });
+        expect(object).toHavePropertiesWithValues({
+          key:5
+        });
+      });
+    });
+  });
   describe("Equals",function(){
     var object;
     beforeEach(function(){
