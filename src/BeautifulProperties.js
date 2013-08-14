@@ -128,6 +128,26 @@
     };
   })(Internal.Descriptor);
   (function (Descriptor) {
+    var AllDescriptorKeys = 'configurable enumerable writable value init get set'.split(' ');
+    /**
+     * @name equals
+     * @memberOf Internal.Descriptor
+     * @function
+     *
+     * @param descriptor
+     * @param otherDescriptor
+     * @returns {Internal.Descriptor.Types}
+     */
+    Descriptor.equals = function equals(descriptor,otherDescriptor){
+      var length = AllDescriptorKeys.length;
+      for (var i = 0; i < length; i++) {
+        var key = AllDescriptorKeys[i];
+        if (descriptor[key] !== otherDescriptor[key]) {
+          return false;
+        }
+      }
+      return true;
+    };
     /**
      * @name getTypeOf
      * @memberOf Internal.Descriptor
@@ -591,7 +611,6 @@
     }
     /**
      * @name Hooks
-     * @property {boolean} isDefined
      * @property {HookCollection} beforeGet
      * @property {HookCollection} afterGet
      * @property {HookCollection} beforeSet
@@ -603,7 +622,6 @@
     function Hooks(){}
 
     (function (proto) {
-      proto.isDefined = false;
       'beforeGet afterGet beforeSet afterSet refresh'.split(' ').forEach(function(key){
         LazyInitializable.define(proto,key,{
           init:function(){
@@ -822,32 +840,115 @@
       var Undefined = Hookable.Undefined;
 
       descriptor = descriptor || Object.create(null);
-      // TODO store
       var type = Descriptor.getTypeOf(descriptor);
       if (type === Descriptor.Types.InvalidDescriptor) {
         throw Descriptor.createTypeError(descriptor);
       }
-      switch (type) {
-        case Descriptor.Types.DataDescriptor:
-        case Descriptor.Types.GenericDescriptor:
-          descriptor = Descriptor.applyDefault(Descriptor.Types.DataDescriptor,descriptor,{writable:true});
-          type = Descriptor.Types.DataDescriptor;
-          break;
-        case Descriptor.Types.AccessorDescriptor:
-          descriptor = Descriptor.applyDefault(Descriptor.Types.AccessorDescriptor,descriptor);
-          break;
-        default :
-          break;
+      function storeDescriptor(descriptor){
+        retrieveInternalObject.bind(null,'Hookable::Descriptor',true)(object).store(key,descriptor);
       }
-      // The hookable property is already defined.
-      // TODO modify descriptor
-      var storedHooks = retrieveHooks(object,key);
-      if (storedHooks.isDefined) {
-        return;
-      }
-      storedHooks.isDefined = true;
-      retrieveInternalObject.bind(null,'Hookable::Descriptor',true)(object).store(key,descriptor);
+      var storedDescriptor = retrieveDescriptor(object,key);
+      if (storedDescriptor) {
+        // no change
+        if (Descriptor.equals(descriptor,storedDescriptor)) {
+          return;
+        }
+        var storedDescriptorType = Descriptor.getTypeOf(storedDescriptor);
+        if (!storedDescriptor.configurable) {
+          var isModified = (function (descriptor) {
+            // only for data property.
+            if (storedDescriptorType === Descriptor.Types.AccessorDescriptor) {
+              return false;
+            }
+            if (!storedDescriptor.writable) {
+              return false;
+            }
+            if (type !== Descriptor.Types.GenericDescriptor && type !== storedDescriptorType) {
+              return false;
+            }
+            descriptor = Descriptor.applyDefault(storedDescriptorType,descriptor,storedDescriptor);
+            // except writable&value
+            var keys = 'configurable enumerable init'.split(' ');
+            for (var i = 0; i < keys.length; i++) {
+              if (descriptor[keys[i]] !== storedDescriptor[keys[i]]) {
+                return false;
+              }
+            }
+            // store the overrided descriptor
+            storeDescriptor(descriptor);
+            return true;
+          })(descriptor);
+          if (isModified) {
+            return;
+          } else {
+            throw new TypeError('Cannot redefine property: ' + key);
+          }
+        }
+        // configurable:true
+        if (type === Descriptor.Types.GenericDescriptor || type === storedDescriptorType) {
+          // generic or same type
+          (function (descriptor) {
+            var genericDescriptor;
+            if (type === Descriptor.Types.GenericDescriptor) {
+              genericDescriptor = descriptor;
+            } else {
+              genericDescriptor = Object.create(null);
+              "configurable enumerable".split(' ').forEach(function (key) {
+                if (descriptor[key] !== undefined) {
+                  genericDescriptor[key] = descriptor[key];
+                }
+              });
+            }
+            Object.defineProperty(object,key,genericDescriptor);
+          })(descriptor);
+          (function (descriptor) {
+            descriptor = Descriptor.applyDefault(storedDescriptorType,descriptor,storedDescriptor);
+            // store the overrided descriptor
+            storeDescriptor(descriptor);
+          })(descriptor);
+          return;
+        } else {
+          // different type
+          (function (descriptor) {
+            var genericDescriptor = Object.create(null);
+            "configurable enumerable".split(' ').forEach(function (key) {
+              if (descriptor[key] !== undefined) {
+                genericDescriptor[key] = descriptor[key];
+              }
+            });
+            Object.defineProperty(object,key,genericDescriptor);
+          })(descriptor);
+          (function (descriptor) {
+            var genericDescriptor = Object.create(null);
+            "configurable enumerable".split(' ').forEach(function (key) {
+              if (descriptor[key] !== undefined) {
+                genericDescriptor[key] = storedDescriptorType[key];
+              }
+              descriptor = Descriptor.applyDefault(type,descriptor,genericDescriptor);
+              // store the overrided descriptor
+              storeDescriptor(descriptor);
+            });
+          })(descriptor);
+        }
 
+        return;
+      } else {
+        switch (type) {
+          case Descriptor.Types.DataDescriptor:
+          case Descriptor.Types.GenericDescriptor:
+            descriptor = Descriptor.applyDefault(Descriptor.Types.DataDescriptor,descriptor,{writable:true});
+            type = Descriptor.Types.DataDescriptor;
+            break;
+          case Descriptor.Types.AccessorDescriptor:
+            descriptor = Descriptor.applyDefault(Descriptor.Types.AccessorDescriptor,descriptor);
+            break;
+          default :
+            break;
+        }
+        // create hooks
+        retrieveHooks(object,key);
+        storeDescriptor(descriptor);
+      }
       // internal functions
       function init_DataDescriptor(){
         var descriptor = retrieveDescriptor(object,key);
@@ -912,6 +1013,7 @@
       Object.defineProperty(object,key,{
         get : function __BeautifulProperties_Hookable_get() {
           var descriptor = retrieveDescriptor(object,key);
+          var type = Descriptor.getTypeOf(descriptor);
           var meta = retrieveMeta(this,key);
           switch (type) {
             case Descriptor.Types.DataDescriptor:
@@ -937,6 +1039,7 @@
         },
         set : function __BeautifulProperties_Hookable_set(val) {
           var descriptor = retrieveDescriptor(object,key);
+          var type = Descriptor.getTypeOf(descriptor);
           switch (type) {
             case Descriptor.Types.DataDescriptor:
               // read only

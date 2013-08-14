@@ -223,122 +223,132 @@ describe("BeautifulProperties.Hookable", function() {
     });
   });
   describe(".define", function() {
-    var beforeGet,afterGet,beforeSet,afterSet;
+    var object;
     beforeEach(function(){
-      beforeGet = jasmine.createSpy('beforeGet');
-      afterGet = jasmine.createSpy('afterGet');
-      beforeSet = jasmine.createSpy('beforeSet');
-      afterSet = jasmine.createSpy('afterSet');
+      object = Object.create(null);
     });
     it("define property",function(){
-      var object = Object.create(null);
       expect(object).not.toHaveProperties('key');
       BeautifulProperties.Hookable.define(object,'key');
       expect(object).toHaveProperties('key');
     });
-    describe("descriptor",function(){
+    // generic
+    describe("enumerable",function(){
+      it("false",function(){
+        BeautifulProperties.Hookable.define(object,'key',{
+          value:1,
+          enumerable:false
+        });
+        expect(Object.getOwnPropertyDescriptor(object,'key')).toHaveOwnPropertiesWithValues({
+          enumerable:false
+        });
+      });
+      it("true",function(){
+        BeautifulProperties.Hookable.define(object,'key',{
+          value:1,
+          enumerable:true
+        });
+        expect(Object.getOwnPropertyDescriptor(object,'key')).toHaveOwnPropertiesWithValues({
+          enumerable:true
+        });
+      });
+    });
+    describe("configurable",function(){
+      it("false",function(){
+        BeautifulProperties.Hookable.define(object,'key',{
+          value:1,
+          configurable:false
+        });
+        expect(Object.getOwnPropertyDescriptor(object,'key')).toHaveOwnPropertiesWithValues({
+          configurable:false
+        });
+      });
+      it("true",function(){
+        BeautifulProperties.Hookable.define(object,'key',{
+          value:1,
+          configurable:true
+        });
+        expect(Object.getOwnPropertyDescriptor(object,'key')).toHaveOwnPropertiesWithValues({
+          configurable:true
+        });
+      });
+    });
+    // data
+    describe("value",function(){
+      it("could set initial value.",function(){
+        BeautifulProperties.Hookable.define(object,'key',{
+          value:1
+        });
+        expect(object['key']).toBe(1);
+      });
+      it("could set initial value.",function(){
+        BeautifulProperties.Hookable.define(object,'key',{
+          value:0
+        });
+        expect(object['key']).toBe(0);
+      });
+    });
+    describe("writable=false (readonly)",function(){
       describe("value",function(){
-        var object;
         beforeEach(function(){
-          object = Object.create(null);
+          BeautifulProperties.Hookable.define(object,'key',{
+            value:1,
+            writable:false
+          });
         });
         it("could set initial value.",function(){
-          BeautifulProperties.Hookable.define(object,'key',{
-            value:1
-          });
           expect(object['key']).toBe(1);
         });
-        it("could set initial value.",function(){
+        it("could not overwrite value.",function(){
+          object['key'] = 2;
+          expect(object['key']).toBe(1);
+        });
+      });
+      describe("init",function(){
+        var descriptor;
+        beforeEach(function(){
           BeautifulProperties.Hookable.define(object,'key',{
-            value:0
+            init:function(){
+              return 1;
+            },
+            writable:false
           });
-          expect(object['key']).toBe(0);
+        });
+        it("could set initial value.",function(){
+          expect(object['key']).toBe(1);
+        });
+        it("could not overwrite value.",function(){
+          object['key'] = 2;
+          expect(object['key']).toBe(1);
         });
       });
-      describe("writable=false (readonly)",function(){
-        var object;
+    });
+    // accessor
+    describe("get",function(){
+      var hooks,refresh;
+      beforeEach(function(){
+        hooks = Object.create(null);
+        refresh = jasmine.createSpy('refresh');
+      });
+      describe("",function(){
         beforeEach(function(){
-          object = Object.create(null);
+          BeautifulProperties.Hookable.define(object,'key',{
+            get:function(){
+              return 1;
+            }
+          });
+          BeautifulProperties.Hookable.addHooks(object,'key',hooks);
         });
-
-        describe("value",function(){
-          beforeEach(function(){
-            BeautifulProperties.Hookable.define(object,'key',{
-              value:1,
-              writable:false
-            });
-          });
-          it("could set initial value.",function(){
-            expect(object['key']).toBe(1);
-          });
-          it("could not overwrite value.",function(){
-            object['key'] = 2;
-            expect(object['key']).toBe(1);
-          });
+        it("object could get value.",function(){
+          expect(object['key']).toBe(1);
         });
-        describe("init",function(){
-          var descriptor;
-          beforeEach(function(){
-            BeautifulProperties.Hookable.define(object,'key',{
-              init:function(){
-                return 1;
-              },
-              writable:false
-            });
-          });
-          it("could set initial value.",function(){
-            expect(object['key']).toBe(1);
-          });
-          it("could not overwrite value.",function(){
-            object['key'] = 2;
-            expect(object['key']).toBe(1);
-          });
+        it("sub object could get value.",function(){
+          var subObject = Object.create(object);
+          expect(subObject['key']).toBe(1);
         });
       });
-      describe("get",function(){
-        var object,hooks,refresh;
+      describe("refresh hook should be called",function(){
         beforeEach(function(){
-          object = Object.create(null);
-          hooks = Object.create(null);
-          refresh = jasmine.createSpy('refresh');
-        });
-        describe("",function(){
-          beforeEach(function(){
-            BeautifulProperties.Hookable.define(object,'key',{
-              get:function(){
-                return 1;
-              }
-            });
-            BeautifulProperties.Hookable.addHooks(object,'key',hooks);
-          });
-          it("object could get value.",function(){
-            expect(object['key']).toBe(1);
-          });
-          it("sub object could get value.",function(){
-            var subObject = Object.create(object);
-            expect(subObject['key']).toBe(1);
-          });
-        });
-        describe("refresh hook should be called",function(){
-          beforeEach(function(){
-            hooks.refresh = refresh;
-            BeautifulProperties.Hookable.define(object,'key',{
-              get:function(){
-                return 1;
-              }
-            });
-            BeautifulProperties.Hookable.addHooks(object,'key',hooks);
-          });
-          it(" when refreshProperty is called.",function(){
-            BeautifulProperties.Hookable.Get.refreshProperty(object,'key');
-            expect(refresh).toHaveBeenCalledWith(1,undefined);
-          });
-          it(" when property is accessed.",function(){
-            object['key'];
-            expect(refresh).toHaveBeenCalledWith(1,undefined);
-          });
-        });
-        it("Get.getSilently skip refresh hook.",function(){
           hooks.refresh = refresh;
           BeautifulProperties.Hookable.define(object,'key',{
             get:function(){
@@ -346,53 +356,443 @@ describe("BeautifulProperties.Hookable", function() {
             }
           });
           BeautifulProperties.Hookable.addHooks(object,'key',hooks);
-          expect(BeautifulProperties.Hookable.Get.getSilently(object,'key')).toBe(1);
-          expect(refresh).not.toHaveBeenCalledWith(1,undefined);
+        });
+        it(" when refreshProperty is called.",function(){
+          BeautifulProperties.Hookable.Get.refreshProperty(object,'key');
+          expect(refresh).toHaveBeenCalledWith(1,undefined);
+        });
+        it(" when property is accessed.",function(){
+          object['key'];
+          expect(refresh).toHaveBeenCalledWith(1,undefined);
         });
       });
-      describe("set",function(){
-        var object,hooks,set,refresh;
-        beforeEach(function(){
-          object = Object.create(null);
-          hooks = Object.create(null);
-          set = jasmine.createSpy('set');
-          refresh = jasmine.createSpy('refresh');
+      it("Get.getSilently skip refresh hook.",function(){
+        hooks.refresh = refresh;
+        BeautifulProperties.Hookable.define(object,'key',{
+          get:function(){
+            return 1;
+          }
         });
-        describe("write only",function(){
+        BeautifulProperties.Hookable.addHooks(object,'key',hooks);
+        expect(BeautifulProperties.Hookable.Get.getSilently(object,'key')).toBe(1);
+        expect(refresh).not.toHaveBeenCalledWith(1,undefined);
+      });
+    });
+    describe("set",function(){
+      var hooks,set,refresh;
+      beforeEach(function(){
+        hooks = Object.create(null);
+        set = jasmine.createSpy('set');
+        refresh = jasmine.createSpy('refresh');
+      });
+      describe("write only",function(){
+        beforeEach(function(){
+          hooks.refresh = refresh;
+          BeautifulProperties.Hookable.define(object,'key',{
+            set:set
+          });
+
+          BeautifulProperties.Hookable.addHooks(object,'key',hooks);
+        });
+        it(" when property is accessed.",function(){
+          object['key'] = 1;
+          expect(set).toHaveBeenCalledWith(1);
+        });
+        it("refresh hook shouldn't be called when property is accessed.",function(){
+          object['key'] = 1;
+          expect(refresh).not.toHaveBeenCalledWith(1);
+        });
+      });
+      describe("rw",function(){
+        beforeEach(function(){
+          hooks.refresh = refresh;
+          var value;
+          BeautifulProperties.Hookable.define(object,'key',{
+            set:function(val){
+              value = val;
+            },get:function(){
+              return value;
+            }
+          });
+          BeautifulProperties.Hookable.addHooks(object,'key',hooks);
+        });
+        it("refresh hook should be called when property is accessed.",function(){
+          object['key'] = 1;
+          expect(refresh).toHaveBeenCalledWith(1,undefined);
+        });
+      });
+    });
+  });
+  describe(("redefine"),function(){
+    var objectData,objectAccessor;
+    beforeEach(function(){
+      objectData = Object.create(null);
+      objectAccessor = Object.create(null);
+    });
+    describe("configurable:true",function(){
+      describe("generic descriptor",function(){
+        beforeEach(function(){
+          BeautifulProperties.Hookable.define(objectData,'key',{
+            configurable:true,
+            enumerable:false,
+            value:1
+          });
+          BeautifulProperties.Hookable.define(objectAccessor,'key',{
+            configurable:true,
+            enumerable:false,
+            get:function(){
+              return 1;
+            }
+          });
+        });
+        describe("can modify",function(){
           beforeEach(function(){
-            hooks.refresh = refresh;
-            BeautifulProperties.Hookable.define(object,'key',{
+            BeautifulProperties.Hookable.define(objectData,'key',{
+              enumerable:true,
+              configurable:false
+            });
+            BeautifulProperties.Hookable.define(objectAccessor,'key',{
+              enumerable:true,
+              configurable:false
+            });
+          });
+          it("enumerable",function(){
+            expect(Object.getOwnPropertyDescriptor(objectData,'key')).toHaveOwnPropertiesWithValues({
+              enumerable:true
+            });
+            expect(Object.getOwnPropertyDescriptor(objectAccessor,'key')).toHaveOwnPropertiesWithValues({
+              enumerable:true
+            });
+          });
+          it("configurable",function(){
+            expect(Object.getOwnPropertyDescriptor(objectData,'key')).toHaveOwnPropertiesWithValues({
+              configurable:false
+            });
+            expect(Object.getOwnPropertyDescriptor(objectAccessor,'key')).toHaveOwnPropertiesWithValues({
+              configurable:false
+            });
+            // configurable:false
+            expect(function(){
+              // redefine
+              BeautifulProperties.Hookable.define(objectData,'key',{
+                enumerable:false
+              });
+            }).toThrow();
+            expect(function(){
+              // redefine
+              BeautifulProperties.Hookable.define(objectAccessor,'key',{
+                set:function(){
+                  1 + 2;
+                }
+              });
+            }).toThrow();
+          });
+        })
+      });
+      describe("same descriptor",function(){
+        var set;
+        beforeEach(function(){
+          BeautifulProperties.Hookable.define(objectData,'key',{
+            configurable:true,
+            enumerable:false,
+            writable:false,
+            value:1
+          });
+          BeautifulProperties.Hookable.define(objectAccessor,'key',{
+            configurable:true,
+            enumerable:false,
+            get:function(){
+              return 1;
+            }
+          });
+          set = jasmine.createSpy('set');
+        });
+        describe("can modify",function(){
+          beforeEach(function(){
+            BeautifulProperties.Hookable.define(objectData,'key',{
+              enumerable:true,
+              configurable:false,
+              writable:true,
+              value:2
+            });
+            BeautifulProperties.Hookable.define(objectAccessor,'key',{
+              enumerable:true,
+              configurable:false,
+              get:function(){
+                return 4;
+              },
               set:set
             });
-
-            BeautifulProperties.Hookable.addHooks(object,'key',hooks);
           });
-          it(" when property is accessed.",function(){
-            object['key'] = 1;
-            expect(set).toHaveBeenCalledWith(1);
+          // generic
+          it("enumerable",function(){
+            expect(Object.getOwnPropertyDescriptor(objectData,'key')).toHaveOwnPropertiesWithValues({
+              enumerable:true
+            });
+            expect(Object.getOwnPropertyDescriptor(objectAccessor,'key')).toHaveOwnPropertiesWithValues({
+              enumerable:true
+            });
           });
-          it("refresh hook shouldn't be called when property is accessed.",function(){
-            object['key'] = 1;
-            expect(refresh).not.toHaveBeenCalledWith(1);
+          it("configurable",function(){
+            expect(Object.getOwnPropertyDescriptor(objectData,'key')).toHaveOwnPropertiesWithValues({
+              configurable:false
+            });
+            expect(Object.getOwnPropertyDescriptor(objectAccessor,'key')).toHaveOwnPropertiesWithValues({
+              configurable:false
+            });
+            // configurable:false
+            expect(function(){
+              // redefine
+              BeautifulProperties.Hookable.define(objectData,'key',{
+                enumerable:false
+              });
+            }).toThrow();
+            expect(function(){
+              // redefine
+              BeautifulProperties.Hookable.define(objectAccessor,'key',{
+                set:function(){
+                  1 + 2;
+                }
+              });
+            }).toThrow();
+          });
+          // data
+          it("value",function(){
+            expect(objectData).toHaveOwnPropertiesWithValues({
+              key:2
+            });
+          });
+          it("writable",function(){
+            objectData.key = 3;
+            expect(objectData).toHaveOwnPropertiesWithValues({
+              key:3
+            });
+          });
+          // accessor
+          it("get",function(){
+            expect(objectAccessor).toHaveOwnPropertiesWithValues({
+              key:4
+            });
+          });
+          it("set",function(){
+            objectAccessor.key = 3;
+            expect(set).toHaveBeenCalledWith(3);
+          });
+        })
+      });
+      describe("different descriptor",function(){
+        var set;
+        beforeEach(function(){
+          BeautifulProperties.Hookable.define(objectData,'key',{
+            configurable:true,
+            enumerable:false,
+            writable:false,
+            value:1
+          });
+          BeautifulProperties.Hookable.define(objectAccessor,'key',{
+            configurable:true,
+            enumerable:false,
+            get:function(){
+              return 1;
+            }
+          });
+          set = jasmine.createSpy('set');
+        });
+        describe("can modify",function(){
+          beforeEach(function(){
+            BeautifulProperties.Hookable.define(objectAccessor,'key',{
+              enumerable:true,
+              configurable:false,
+              writable:true,
+              value:2
+            });
+            BeautifulProperties.Hookable.define(objectData,'key',{
+              enumerable:true,
+              configurable:false,
+              get:function(){
+                return 4;
+              },
+              set:set
+            });
+          });
+          // generic
+          it("enumerable",function(){
+            expect(Object.getOwnPropertyDescriptor(objectData,'key')).toHaveOwnPropertiesWithValues({
+              enumerable:true
+            });
+            expect(Object.getOwnPropertyDescriptor(objectAccessor,'key')).toHaveOwnPropertiesWithValues({
+              enumerable:true
+            });
+          });
+          it("configurable",function(){
+            expect(Object.getOwnPropertyDescriptor(objectAccessor,'key')).toHaveOwnPropertiesWithValues({
+              configurable:false
+            });
+            expect(Object.getOwnPropertyDescriptor(objectData,'key')).toHaveOwnPropertiesWithValues({
+              configurable:false
+            });
+            // configurable:false
+            expect(function(){
+              // redefine
+              BeautifulProperties.Hookable.define(objectAccessor,'key',{
+                enumerable:false
+              });
+            }).toThrow();
+            expect(function(){
+              // redefine
+              BeautifulProperties.Hookable.define(objectData,'key',{
+                set:function(){
+                  1 + 2;
+                }
+              });
+            }).toThrow();
+          });
+          // data
+          it("value",function(){
+            expect(objectAccessor).toHaveOwnPropertiesWithValues({
+              key:2
+            });
+          });
+          it("writable",function(){
+            objectAccessor.key = 3;
+            expect(objectAccessor).toHaveOwnPropertiesWithValues({
+              key:3
+            });
+          });
+          // accessor
+          it("get",function(){
+            expect(objectData).toHaveOwnPropertiesWithValues({
+              key:4
+            });
+          });
+          it("set",function(){
+            objectData.key = 3;
+            expect(set).toHaveBeenCalledWith(3);
+          });
+        })
+      });
+    });
+    describe("configurable:false",function(){
+      describe("writable:true",function(){
+        beforeEach(function(){
+          BeautifulProperties.Hookable.define(objectData,'key',{
+            configurable:false,
+            writable:true,
+            value:1
           });
         });
-        describe("rw",function(){
-          beforeEach(function(){
-            hooks.refresh = refresh;
-            var value;
-            BeautifulProperties.Hookable.define(object,'key',{
-              set:function(val){
-                value = val;
-              },get:function(){
-                return value;
+        it("can modify writable true to false",function(){
+          objectData.key = 2;
+          expect(objectData).toHavePropertiesWithValues({
+            key:2
+          });
+          // redefine
+          BeautifulProperties.Hookable.define(objectData,'key',{
+            writable:false
+          });
+          objectData.key = 3;
+          expect(objectData).toHavePropertiesWithValues({
+            key:2
+          });
+        });
+        it("can modify value",function(){
+          // redefine
+          BeautifulProperties.Hookable.define(objectData,'key',{
+            value:2
+          });
+          expect(objectData).toHavePropertiesWithValues({
+            key:2
+          });
+        });
+
+      });
+      describe("can't modify",function(){
+        beforeEach(function(){
+          BeautifulProperties.Hookable.define(objectData,'key',{
+            configurable:false,
+            writable:false,
+            enumerable:false,
+            value:1
+          });
+          BeautifulProperties.Hookable.define(objectAccessor,'key',{
+            configurable:false,
+            get:function(){
+              return 1;
+            },
+            set:function(){
+              1+1;
+            }
+          });
+        });
+        it("configurable",function(){
+          expect(function(){
+            // redefine
+            BeautifulProperties.Hookable.define(objectData,'key',{
+              configurable:true
+            });
+          }).toThrow();
+          expect(function(){
+            // redefine
+            BeautifulProperties.Hookable.define(objectAccessor,'key',{
+              configurable:true
+            });
+          }).toThrow();
+        });
+        it("writable",function(){
+          expect(function(){
+            // redefine
+            BeautifulProperties.Hookable.define(objectData,'key',{
+              writable:true
+            });
+          }).toThrow();
+          expect(function(){
+            // redefine
+            BeautifulProperties.Hookable.define(objectAccessor,'key',{
+              writable:true
+            });
+          }).toThrow();
+        });
+        it("enumerable",function(){
+          expect(function(){
+            // redefine
+            BeautifulProperties.Hookable.define(objectData,'key',{
+              enumerable:true
+            });
+          }).toThrow();
+          expect(function(){
+            // redefine
+            BeautifulProperties.Hookable.define(objectAccessor,'key',{
+              enumerable:true
+            });
+          }).toThrow();
+        });
+        it("value",function(){
+          expect(function(){
+            // redefine
+            BeautifulProperties.Hookable.define(objectData,'key',{
+              value:2
+            });
+          }).toThrow();
+        });
+        it("get",function(){
+          expect(function(){
+            // redefine
+            BeautifulProperties.Hookable.define(objectAccessor,'key',{
+              get:function(){
+                return 2;
               }
             });
-            BeautifulProperties.Hookable.addHooks(object,'key',hooks);
-          });
-          it("refresh hook should be called when property is accessed.",function(){
-            object['key'] = 1;
-            expect(refresh).toHaveBeenCalledWith(1,undefined);
-          });
+          }).toThrow();
+        });
+        it("set",function(){
+          expect(function(){
+            // redefine
+            BeautifulProperties.Hookable.define(objectAccessor,'key',{
+              set:function(){
+                1 + 2;
+              }
+            });
+          }).toThrow();
         });
       });
     });
