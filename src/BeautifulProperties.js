@@ -1,27 +1,3 @@
-/*
- * BeautifulProperties.js - Extension of ECMAScript5 property.
- *
- * https://github.com/monjudoh/BeautifulProperties.js
- * version: 0.1.8
- *
- * Copyright (c) 2012 monjudoh
- * Dual licensed under the MIT (MIT-LICENSE.txt)
- * and GPL (GPL-LICENSE.txt) licenses.
- *
- * Contributor(s):
- *  aodag (Atsushi Odagiri) aodagx@gmail.com https://github.com/aodag
- *    He named this library.
- */
-/**
- * @module BeautifulProperties
- * @version 0.1.8
- * @author monjudoh
- * @copyright (c) 2012 monjudoh<br/>
- * Dual licensed under the MIT (MIT-LICENSE.txt)<br/>
- * and GPL (GPL-LICENSE.txt) licenses.
- * @see https://github.com/monjudoh/BeautifulProperties.js
- * @see BeautifulProperties
- */
 ;(function(module,moduleName,global){
   // in AMD
   if (typeof define == 'function' && typeof define.amd == 'object' && define.amd) {
@@ -36,6 +12,13 @@
   /**
    * @name BeautifulProperties
    * @namespace
+   * @version 0.1.8
+   * @author monjudoh
+   * @copyright <pre>(c) 2012 monjudoh
+   * Dual licensed under the MIT (MIT-LICENSE.txt)
+   * and GPL (GPL-LICENSE.txt) licenses.</pre>
+   * @see https://github.com/monjudoh/BeautifulProperties.js
+   * @description <pre>BeautifulProperties.js - Extension of ECMAScript5 property.</pre>
    */
   var BeautifulProperties = Object.create(null);
   var Array_from = (function () {
@@ -213,7 +196,7 @@
      *
      * @param {Internal.Descriptor.Types} type
      * @param {object} descriptor
-     * @param {BeautifulProperties.GenericDescriptor,BeautifulProperties.DataDescriptor,BeautifulProperties.AccessorDescriptor=} defaultDescriptor
+     * @param {BeautifulProperties.GenericDescriptor=|BeautifulProperties.DataDescriptor=|BeautifulProperties.AccessorDescriptor=} defaultDescriptor
      * @returns {BeautifulProperties.DataDescriptor}
      */
     Descriptor.applyDefault = function applyDefault(type,descriptor,defaultDescriptor){
