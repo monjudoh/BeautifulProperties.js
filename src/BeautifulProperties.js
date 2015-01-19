@@ -1,14 +1,4 @@
-;(function(module,moduleName,global){
-  // in AMD
-  if (typeof define == 'function' && typeof define.amd == 'object' && define.amd) {
-    define(function() {
-      return module;
-    });
-  } else {
-    // in a browser or Rhino
-    global[moduleName] = module;
-  }
-})((function(global) {
+define('BeautifulProperties',[],function() {
   /**
    * @name BeautifulProperties
    * @namespace
@@ -38,8 +28,8 @@
    * @return {Boolean}
    */
   var hasOwn = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty);
-  var hasConsoleWarn = global.console && global.console.warn;
-  var hasConsoleError = global.console && global.console.warn;
+  var hasConsoleWarn = typeof console !== 'undefined' && !!console.warn;
+  var hasConsoleError = typeof console !== 'undefined' && !!console.error;
 
   /**
    * @constant
@@ -1708,4 +1698,4 @@
   })(BeautifulProperties.Versionizable,BeautifulProperties.Hookable,BeautifulProperties.Equals,BeautifulProperties.Events,InternalObject.PropertySpecific);
 
   return BeautifulProperties;
-})(this),'BeautifulProperties',this);
+});
