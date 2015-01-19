@@ -7,19 +7,23 @@
   },
   "private": true,
   "devDependencies": {
+    "amdbuilder": "=0.0.7",
+    "jasmine-matchers": "^0.2.3",
+    "jasmine-node": "^1.14.5",
     "jsdoc": "~3.3.0-alpha13",
-    "underscore": "~1.6",
-    "amdbuilder": "=0.0.7"
+    "underscore": "~1.6"
   },
   "engine": {
     "node": ">= 0.10",
     "npm": ">= 2.1"
   },
   "scripts": {
-    "build" : "node build.js",
-    "docs" : "jsdoc -r src/ -d docs/",
-    "docs:clean" : "rm -rf docs",
-    "docs-inner" : "jsdoc -r -p src/ -d docs-inner/",
-    "docs-inner:clean" : "rm -rf docs-inner/"
+    "build": "node build.js",
+    "docs": "jsdoc -r src/ -d docs/",
+    "docs:clean": "rm -rf docs",
+    "docs-inner": "jsdoc -r -p src/ -d docs-inner/",
+    "docs-inner:clean": "rm -rf docs-inner/",
+    "spec": "jasmine-node spec/",
+    "prespec": "npm run build"
   }
 }
