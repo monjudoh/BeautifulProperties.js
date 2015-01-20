@@ -1,6 +1,6 @@
 define('Hookable/HookCollection',function () {
   /**
-   * @function Hookable~HookCollection~max
+   * @function BeautifulProperties.Hookable~HookCollection~max
    * @param {Array.<number>} array
    * @returns {number}
    * @private
@@ -9,7 +9,7 @@ define('Hookable/HookCollection',function () {
     return array.length === 1 ? array[0] : Math.max.apply(null,array);
   }
   /**
-   * @function Hookable~HookCollection~min
+   * @function BeautifulProperties.Hookable~HookCollection~min
    * @param {Array.<number>} array
    * @returns {number}
    * @private
@@ -21,7 +21,7 @@ define('Hookable/HookCollection',function () {
   var proto = Object.create(null);
   /**
    * @function add
-   * @memberOf Hookable~HookCollection#
+   * @memberOf BeautifulProperties.Hookable~HookCollection#
    * @param {function} hook
    * @param {number} priority 1..10000
    */
@@ -59,7 +59,7 @@ define('Hookable/HookCollection',function () {
   };
   /**
    * @function remove
-   * @memberOf Hookable~HookCollection#
+   * @memberOf BeautifulProperties.Hookable~HookCollection#
    * @param {function} hook
    */
   proto.remove = function remove(hook) {
@@ -72,7 +72,7 @@ define('Hookable/HookCollection',function () {
   };
   /**
    *
-   * @constructor Hookable~HookCollection
+   * @constructor BeautifulProperties.Hookable~HookCollection
    * @extends Array.<function>
    * @private
    */

@@ -4,12 +4,12 @@ define('Hookable/Hooks',[
 ],function (LazyInitializable,
             HookCollection) {
   /**
-   * @constructor Hookable~Hooks
-   * @property {Hookable~HookCollection} beforeGet
-   * @property {Hookable~HookCollection} afterGet
-   * @property {Hookable~HookCollection} beforeSet
-   * @property {Hookable~HookCollection} afterSet
-   * @property {Hookable~HookCollection} refresh
+   * @constructor BeautifulProperties.Hookable~Hooks
+   * @property {BeautifulProperties.Hookable~HookCollection} beforeGet
+   * @property {BeautifulProperties.Hookable~HookCollection} afterGet
+   * @property {BeautifulProperties.Hookable~HookCollection} beforeSet
+   * @property {BeautifulProperties.Hookable~HookCollection} afterSet
+   * @property {BeautifulProperties.Hookable~HookCollection} refresh
    * @private
    */
   function Hooks(){}
