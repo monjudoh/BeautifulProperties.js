@@ -1,13 +1,12 @@
 define('Hookable/impl',[
-  './namespace','./Get','./Internal',
+  './namespace','./Get','./Internal','./retrieveDescriptor',
   'internal/Descriptor',
   'InternalObject/PropertySpecific','InternalObject/retrieve'
-],function (Hookable,Get,Internal,
+],function (Hookable,Get,Internal,retrieveDescriptor,
             Descriptor,
             PropertySpecific,retrieveInternalObject) {
   var retrieveMeta = Internal.retrieveMeta;
   var retrieveHooks = Internal.retrieveHooks;
-  var retrieveDescriptor = Internal.retrieveDescriptor;
 
   /**
    * @name Undefined

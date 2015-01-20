@@ -1,14 +1,13 @@
 define('Observable/impl',[
   './namespace',
   'Events','Equals',
-  'Hookable','Hookable/Internal',
+  'Hookable','Hookable/retrieveDescriptor',
   'utils/cloneDict'
 ],function (Observable,
             Events,Equals,
-            Hookable,HookableInternal,
+            Hookable,retrieveDescriptor,
             cloneDict) {
   // internal functions
-  var retrieveDescriptor = HookableInternal.retrieveDescriptor;
   var trigger = Events.trigger.bind(Events);
 
   /**

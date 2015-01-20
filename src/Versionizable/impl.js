@@ -1,15 +1,14 @@
 define('Versionizable/impl',[
   './namespace','./Version','./Transaction','./retrieveHistory',
-  'Hookable','Hookable/Internal',
+  'Hookable','Hookable/retrieveDescriptor',
   'Equals','Events',
   'InternalObject/PropertySpecific'
 ],function (Versionizable,Version,Transaction,retrieveHistory,
-            Hookable,HookableInternal,
+            Hookable,retrieveDescriptor,
             Equals,Events,
             PropertySpecific) {
   PropertySpecific.mixinRetriever('Versionizable::History',Array);
   // internal functions
-  var retrieveDescriptor = HookableInternal.retrieveDescriptor;
 
   /**
    * @function
