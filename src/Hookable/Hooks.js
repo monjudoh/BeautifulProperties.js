@@ -1,9 +1,9 @@
 define('Hookable/Hooks',[
   'LazyInitializable',
-  'InternalObject/PropertySpecific',
+  'InternalObject/PropertySpecific','InternalObject/PrototypeWalker',
   './HookCollection'
 ],function (LazyInitializable,
-            PropertySpecific,
+            PropertySpecific,PrototypeWalker,
             HookCollection) {
   /**
    * @constructor BeautifulProperties.Hookable~Hooks
@@ -34,6 +34,14 @@ define('Hookable/Hooks',[
    * @returns BeautifulProperties.Hookable~Hooks
    */
   Hooks.retrieve = PropertySpecific.retrieverFactory('Hookable::Hooks',true);
+  /**
+   * @function walkAndRetrieve
+   * @memberOf BeautifulProperties.Hookable~Hooks
+   * @param {object} object
+   * @param {string} key
+   * @returns BeautifulProperties.Hookable~Hooks
+   */
+  Hooks.walkAndRetrieve = PrototypeWalker.retrieve.bind(null,'Hookable::Hooks');
   /**
    * @function has
    * @memberOf BeautifulProperties.Hookable~Hooks

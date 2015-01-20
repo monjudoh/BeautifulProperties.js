@@ -1,8 +1,8 @@
 define('Hookable/Descriptor',[
   'internal/Descriptor',
-  'InternalObject/PropertySpecific','InternalObject/retrieve'
+  'InternalObject/PropertySpecific','InternalObject/PrototypeWalker'
 ],function (base,
-            PropertySpecific,retrieveInternalObject) {
+            PropertySpecific,PrototypeWalker) {
   /**
    * @namespace BeautifulProperties.Hookable~Descriptor
    * @extends BeautifulProperties~Descriptor
@@ -18,6 +18,14 @@ define('Hookable/Descriptor',[
    * @returns {(BeautifulProperties~DataDescriptor|BeautifulProperties~AccessorDescriptor|BeautifulProperties~GenericDescriptor)=}
    */
   Descriptor.retrieve = PropertySpecific.retrieverFactory('Hookable::Descriptor',false);
+  /**
+   * @function walkAndRetrieve
+   * @memberOf BeautifulProperties.Hookable~Descriptor
+   * @param {object} object
+   * @param {string} key
+   * @returns {(BeautifulProperties~DataDescriptor|BeautifulProperties~AccessorDescriptor|BeautifulProperties~GenericDescriptor)=}
+   */
+  Descriptor.walkAndRetrieve = PrototypeWalker.retrieve.bind(null,'Hookable::Descriptor');
   /**
    * @function store
    * @memberOf BeautifulProperties.Hookable~Descriptor

@@ -1,18 +1,13 @@
 define('Hookable/Get',[
-  './namespace','./Internal',
-  'InternalObject/PrototypeWalker',
+  './namespace','./Internal','./Hooks','./Descriptor',
   'utils/provideMethodsFactory','utils/createChildNamespace'
-],function (Hookable,Internal,
-            PrototypeWalker,
+],function (Hookable,Internal,Hooks,Descriptor,
             provideMethodsFactory,createChildNamespace) {
   /**
    * @namespace Get
    * @memberOf BeautifulProperties.Hookable
    */
   var Get = createChildNamespace(Hookable,'Get');
-  // internal functions
-  var retrieveHooks = PrototypeWalker.retrieve.bind(null,'Hookable::Hooks');
-  var retrieveDescriptor = PrototypeWalker.retrieve.bind(null,'Hookable::Descriptor');
   /**
    * @function refreshProperty
    * @memberOf BeautifulProperties.Hookable.Get
@@ -24,11 +19,11 @@ define('Hookable/Get',[
    */
   Get.refreshProperty = function refreshProperty(object,key){
     var previousVal = Internal.getRaw(object,key);
-    var descriptor = retrieveDescriptor(object,key);
+    var descriptor = Descriptor.walkAndRetrieve(object,key);
     var retriever = descriptor.get;
     var val = retriever.call(object);
     Internal.setRaw(object,key,val);
-    var storedHooks = retrieveHooks(object,key);
+    var storedHooks = Hooks.walkAndRetrieve(object,key);
     storedHooks.refresh.forEach(function(refresh){
       refresh.call(object,val,previousVal);
     });
@@ -42,7 +37,7 @@ define('Hookable/Get',[
    * @return {*}
    */
   Get.getSilently = function getSilently(object,key){
-    var descriptor = retrieveDescriptor(object,key);
+    var descriptor = Descriptor.walkAndRetrieve(object,key);
     var retriever = descriptor.get;
     return retriever.call(object);
   };
