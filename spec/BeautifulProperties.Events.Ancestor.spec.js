@@ -6,7 +6,7 @@
     });
   } else if (typeof require === 'function') {
     // in node
-    fn(require('../dist/cjs/BeautifulProperties'));
+    fn(require('../'));
   } else {
     fn(BeautifulProperties);
   }
