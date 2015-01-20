@@ -1,7 +1,9 @@
 define('Hookable/Hooks',[
   'LazyInitializable',
+  'InternalObject/PropertySpecific',
   './HookCollection'
 ],function (LazyInitializable,
+            PropertySpecific,
             HookCollection) {
   /**
    * @constructor BeautifulProperties.Hookable~Hooks
@@ -22,5 +24,28 @@ define('Hookable/Hooks',[
       }
     });
   });
+
+  PropertySpecific.mixinRetriever('Hookable::Hooks',Hooks);
+  /**
+   * @function retrieve
+   * @memberOf BeautifulProperties.Hookable~Hooks
+   * @param {object} object
+   * @param {string} key
+   * @returns BeautifulProperties.Hookable~Hooks
+   */
+  Hooks.retrieve = PropertySpecific.retrieverFactory('Hookable::Hooks',true);
+  /**
+   * @function has
+   * @memberOf BeautifulProperties.Hookable~Hooks
+   * @param {object} object
+   * @param {string} key
+   * @returns boolean
+   */
+  Hooks.has = (function (retrieve) {
+    function hasHooks(object,key) {
+      return !!retrieve(object,key);
+    }
+    return hasHooks;
+  })(PropertySpecific.retrieverFactory('Hookable::Hooks',false));
   return Hooks;
 });

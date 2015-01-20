@@ -1,11 +1,12 @@
 define('Hookable/impl',[
-  './namespace','./Get','./Internal','./retrieveDescriptor','./Status',
+  './namespace','./Get',
+  './Internal','./retrieveDescriptor','./Status','./Hooks',
   'internal/Descriptor',
   'InternalObject/PropertySpecific','InternalObject/retrieve'
-],function (Hookable,Get,Internal,retrieveDescriptor,Status,
+],function (Hookable,Get,
+            Internal,retrieveDescriptor,Status,Hooks,
             Descriptor,
             PropertySpecific,retrieveInternalObject) {
-  var retrieveHooks = Internal.retrieveHooks;
 
   /**
    * @name Undefined
@@ -37,21 +38,16 @@ define('Hookable/impl',[
    */
   Hookable.setRaw = Internal.setRaw;
   /**
-   * @name hasHooks
+   * @function hasHooks
    * @memberOf BeautifulProperties.Hookable
-   * @function
    *
    * @param {object} object
    * @param {string} key
    * @return {boolean}
    * @description Return true if the property has hooks.
+   * @see BeautifulProperties.Hookable~Hooks.has
    */
-  Hookable.hasHooks = (function (retrieve) {
-    function hasHooks(object,key) {
-      return !!retrieve(object,key);
-    }
-    return hasHooks;
-  })(PropertySpecific.retrieverFactory('Hookable::Hooks',false));
+  Hookable.hasHooks = Hooks.has;
   /**
    * @callback BeautifulProperties.Hookable~beforeGet
    */
@@ -93,10 +89,10 @@ define('Hookable/impl',[
    * beforeSet hook could replace set value.<br/>
    */
   Hookable.addHook = function addHook(object,key,hookType,hook,priority){
-    if (!Hookable.hasHooks(object,key)) {
+    if (!Hooks.has(object,key)) {
       throw new TypeError('The property (key:'+key+') is not a Hookable property. Hookable.addHook is the method for a Hookable property.');
     }
-    var hooks = retrieveHooks(object,key);
+    var hooks = Hooks.retrieve(object,key);
     priority = priority || 100;
     hooks[hookType].add(hook,priority);
   };
@@ -220,7 +216,7 @@ define('Hookable/impl',[
           break;
       }
       // create hooks
-      retrieveHooks(object,key);
+      Hooks.retrieve(object,key);
       storeDescriptor(descriptor);
     }
     // internal functions
@@ -243,7 +239,7 @@ define('Hookable/impl',[
     }
     function get_beforeGet(){
       var self = this;
-      var storedHooks = retrieveHooks(object,key);
+      var storedHooks = Hooks.retrieve(object,key);
       storedHooks.beforeGet.forEach(function(beforeGet){
         beforeGet.call(self);
       });
@@ -251,7 +247,7 @@ define('Hookable/impl',[
 
     function get_afterGet(val){
       var self = this;
-      var storedHooks = retrieveHooks(object,key);
+      var storedHooks = Hooks.retrieve(object,key);
       storedHooks.afterGet.forEach(function(afterGet){
         var replacedVal = afterGet.call(self,val);
         if (replacedVal === undefined && replacedVal !== Undefined) {
@@ -265,7 +261,7 @@ define('Hookable/impl',[
     }
     function set_beforeSet(val,previousVal){
       var self = this;
-      var storedHooks = retrieveHooks(object,key);
+      var storedHooks = Hooks.retrieve(object,key);
       storedHooks.beforeSet.forEach(function(beforeSet){
         var replacedVal = beforeSet.call(self,val,previousVal);
         if (replacedVal === undefined && replacedVal !== Undefined) {
@@ -279,7 +275,7 @@ define('Hookable/impl',[
     }
     function set_afterSet(val,previousVal){
       var self = this;
-      var storedHooks = retrieveHooks(object,key);
+      var storedHooks = Hooks.retrieve(object,key);
       storedHooks.afterSet.forEach(function(afterSet){
         afterSet.call(self,val,previousVal);
       });
