@@ -1,5 +1,5 @@
 define('Versionizable/Transaction',[
-  'namespace','./Version','./retrieveHistory'
+  './namespace','./Version','./retrieveHistory'
 ],function (Versionizable,Version,retrieveHistory) {
   /**
    * @constructor Transaction
