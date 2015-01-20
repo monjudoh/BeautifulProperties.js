@@ -20,7 +20,7 @@ define('BeautifulProperties',[
    * @memberOf BeautifulProperties
    */
   Object.defineProperty(BeautifulProperties,'VERSION',{
-    value : '0.1.8',
+    value : '0.1.9',
     writable : false
   });
   return BeautifulProperties;
