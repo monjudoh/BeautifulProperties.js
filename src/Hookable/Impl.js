@@ -1,12 +1,8 @@
 define('Hookable/impl',[
   './namespace','./Get',
-  './Internal','./retrieveDescriptor','./Status','./Hooks',
-  'internal/Descriptor',
-  'InternalObject/PropertySpecific','InternalObject/retrieve'
+  './Internal','./Status','./Hooks', './Descriptor'
 ],function (Hookable,Get,
-            Internal,retrieveDescriptor,Status,Hooks,
-            Descriptor,
-            PropertySpecific,retrieveInternalObject) {
+            Internal,Status,Hooks, Descriptor) {
 
   /**
    * @name Undefined
@@ -114,10 +110,9 @@ define('Hookable/impl',[
     if (type === Descriptor.Types.InvalidDescriptor) {
       throw Descriptor.createTypeError(descriptor);
     }
-    function storeDescriptor(descriptor){
-      retrieveInternalObject.bind(null,'Hookable::Descriptor',true)(object).store(key,descriptor);
-    }
-    var storedDescriptor = retrieveDescriptor(object,key);
+
+    var storeDescriptor = Descriptor.store.bind(null,object,key);
+    var storedDescriptor = Descriptor.retrieve(object,key);
     if (storedDescriptor) {
       // no change
       if (Descriptor.equals(descriptor,storedDescriptor)) {
@@ -221,7 +216,7 @@ define('Hookable/impl',[
     }
     // internal functions
     function init_DataDescriptor(){
-      var descriptor = retrieveDescriptor(object,key);
+      var descriptor = Descriptor.retrieve(object,key);
       var status = Status.retrieve(this,key);
       var isValueExist = descriptor.value !== undefined;
       status.isInitialized = true;
@@ -282,7 +277,7 @@ define('Hookable/impl',[
     }
     Object.defineProperty(object,key,{
       get : function __BeautifulProperties_Hookable_get() {
-        var descriptor = retrieveDescriptor(object,key);
+        var descriptor = Descriptor.retrieve(object,key);
         var type = Descriptor.getTypeOf(descriptor);
         var status = Status.retrieve(this,key);
         switch (type) {
@@ -308,7 +303,7 @@ define('Hookable/impl',[
         }
       },
       set : function __BeautifulProperties_Hookable_set(val) {
-        var descriptor = retrieveDescriptor(object,key);
+        var descriptor = Descriptor.retrieve(object,key);
         var type = Descriptor.getTypeOf(descriptor);
         switch (type) {
           case Descriptor.Types.DataDescriptor:

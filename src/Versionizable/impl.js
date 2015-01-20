@@ -1,10 +1,10 @@
 define('Versionizable/impl',[
   './namespace','./Version','./Transaction','./retrieveHistory',
-  'Hookable','Hookable/retrieveDescriptor',
+  'Hookable','Hookable/Descriptor',
   'Equals','Events',
   'InternalObject/PropertySpecific'
 ],function (Versionizable,Version,Transaction,retrieveHistory,
-            Hookable,retrieveDescriptor,
+            Hookable,Descriptor,
             Equals,Events,
             PropertySpecific) {
   PropertySpecific.mixinRetriever('Versionizable::History',Array);
@@ -161,7 +161,7 @@ define('Versionizable/impl',[
     if (!Hookable.hasHooks(object,key)) {
       Hookable.define(object,key);
     }
-    var descriptor = retrieveDescriptor(object,key);
+    var descriptor = Descriptor.retrieve(object,key);
     function checkChangeAndEnqueue(val,previousVal) {
       if (!Equals.equals(this,key,val,previousVal)) {
         var history = retrieveHistory(this)(key);
