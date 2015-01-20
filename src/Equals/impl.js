@@ -1,10 +1,10 @@
 define('Equals/impl',[
   './namespace','./Functions',
-  'InternalObject/retrieve','InternalObject/PropertySpecific','InternalObject/PrototypeWalker'
+  'InternalObject/PropertySpecific','InternalObject/PrototypeWalker'
 ],function (Equals,Functions,
-            retrieveInternalObject,PropertySpecific,PrototypeWalker) {
+            PropertySpecific,PrototypeWalker) {
   PropertySpecific.mixinRetriever('Equals');
-  var retrieve = retrieveInternalObject.bind(null,'Equals',true);
+  var store = PropertySpecific.storerFactory('Equals');
   /**
    * @name set
    * @memberOf BeautifulProperties.Equals
@@ -18,7 +18,7 @@ define('Equals/impl',[
    */
   Equals.set = function set(object,key,equalsFn){
     equalsFn = equalsFn || Functions.StrictEqual;
-    retrieve(object).store(key,equalsFn);
+    store(object,key,equalsFn);
   };
   var walkAndRetrieve = PrototypeWalker.retrieve.bind(null,'Equals');
   /**

@@ -25,10 +25,6 @@ define('Hookable/Descriptor',[
    * @param {string} key
    * @param {(BeautifulProperties~DataDescriptor|BeautifulProperties~AccessorDescriptor|BeautifulProperties~GenericDescriptor)}
    */
-  Descriptor.store = function store(object,key,descriptor){
-    var retriever = retrieveInternalObject('Hookable::Descriptor',true,object);
-    var store = retriever.store;
-    store(key,descriptor);
-  };
+  Descriptor.store = PropertySpecific.storerFactory('Hookable::Descriptor');
   return Descriptor;
 });

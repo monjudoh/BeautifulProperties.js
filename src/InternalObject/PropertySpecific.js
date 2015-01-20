@@ -47,5 +47,13 @@ define('InternalObject/PropertySpecific',[
       : undefined;
     }
   };
+  PropertySpecific.storerFactory = function storerFactory(key) {
+    var getRetrieverFromObject = retrieveInternalObject.bind(null,key,true);
+    return function store(object,key,value) {
+      var retriever = getRetrieverFromObject(object);
+      var store = retriever.store;
+      store(key,value);
+    }
+  };
   return PropertySpecific;
 });
