@@ -1,11 +1,10 @@
 define('Hookable/impl',[
-  './namespace','./Get','./Internal','./retrieveDescriptor',
+  './namespace','./Get','./Internal','./retrieveDescriptor','./Status',
   'internal/Descriptor',
   'InternalObject/PropertySpecific','InternalObject/retrieve'
-],function (Hookable,Get,Internal,retrieveDescriptor,
+],function (Hookable,Get,Internal,retrieveDescriptor,Status,
             Descriptor,
             PropertySpecific,retrieveInternalObject) {
-  var retrieveMeta = Internal.retrieveMeta;
   var retrieveHooks = Internal.retrieveHooks;
 
   /**
@@ -227,9 +226,9 @@ define('Hookable/impl',[
     // internal functions
     function init_DataDescriptor(){
       var descriptor = retrieveDescriptor(object,key);
-      var meta = retrieveMeta(this,key);
+      var status = Status.retrieve(this,key);
       var isValueExist = descriptor.value !== undefined;
-      meta.isInited = true;
+      status.isInitialized = true;
       var initialValue;
       if (descriptor.init) {
         initialValue = descriptor.init.call(this);
@@ -289,11 +288,11 @@ define('Hookable/impl',[
       get : function __BeautifulProperties_Hookable_get() {
         var descriptor = retrieveDescriptor(object,key);
         var type = Descriptor.getTypeOf(descriptor);
-        var meta = retrieveMeta(this,key);
+        var status = Status.retrieve(this,key);
         switch (type) {
           case Descriptor.Types.DataDescriptor:
             var isValueExist = descriptor.value !== undefined;
-            if (!meta.isInited && (descriptor.init || isValueExist)) {
+            if (!status.isInitialized && (descriptor.init || isValueExist)) {
               init_DataDescriptor.call(this);
               return this[key];
             } else {
@@ -321,9 +320,9 @@ define('Hookable/impl',[
             if (!descriptor.writable) {
               return;
             }
-            var meta = retrieveMeta(this,key);
-            if (!meta.isInited) {
-              meta.isInited = true;
+            var status = Status.retrieve(this,key);
+            if (!status.isInitialized) {
+              status.isInitialized = true;
             }
             var previousVal = Internal.getRaw(this,key);
             val = set_beforeSet.call(this,val,previousVal);

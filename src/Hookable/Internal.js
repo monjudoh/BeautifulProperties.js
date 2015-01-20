@@ -1,12 +1,10 @@
 define('Hookable/Internal',[
-  './Meta','./Hooks',
+  './Hooks',
   'InternalObject/PropertySpecific','InternalObject/retrieve'
-],function (Meta,Hooks,
+],function (Hooks,
             PropertySpecific,retrieveInternalObject) {
   var HookableInternal = Object.create(null);
-  PropertySpecific.mixinRetriever('Hookable::Meta',Meta);
   PropertySpecific.mixinRetriever('Hookable::Hooks',Hooks);
-  HookableInternal.retrieveMeta = PropertySpecific.retrieverFactory('Hookable::Meta',true);
   HookableInternal.retrieveHooks = PropertySpecific.retrieverFactory('Hookable::Hooks',true);
   HookableInternal.getRaw = (function () {
     var retrieveRaw = retrieveInternalObject.bind(null,'raw',false);
