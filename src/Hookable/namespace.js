@@ -1,12 +1,11 @@
 define('Hookable/namespace',[
-  'namespace'
-],function (BeautifulProperties) {
-  var Hookable = Object.create(null);
+  'namespace',
+  'utils/createChildNamespace'
+],function (BeautifulProperties,
+            createChildNamespace) {
   /**
-   * @name Hookable
-   * @namespace
+   * @namespace Hookable
    * @memberOf BeautifulProperties
    */
-  BeautifulProperties.Hookable = Hookable;
-  return Hookable;
+  return createChildNamespace(BeautifulProperties,'Hookable');
 });

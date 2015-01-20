@@ -1,17 +1,15 @@
 define('Hookable/Get',[
   './namespace','./Internal',
   'InternalObject/PrototypeWalker',
-  'utils/provideMethodsFactory'
+  'utils/provideMethodsFactory','utils/createChildNamespace'
 ],function (Hookable,Internal,
             PrototypeWalker,
-            provideMethodsFactory) {
-  var Get = Object.create(null);
+            provideMethodsFactory,createChildNamespace) {
   /**
-   * @name Get
-   * @namespace
+   * @namespace Get
    * @memberOf BeautifulProperties.Hookable
    */
-  Hookable.Get = Get;
+  var Get = createChildNamespace(Hookable,'Get');
   // internal functions
   var retrieveHooks = PrototypeWalker.retrieve.bind(null,'Hookable::Hooks');
   var retrieveDescriptor = PrototypeWalker.retrieve.bind(null,'Hookable::Descriptor');

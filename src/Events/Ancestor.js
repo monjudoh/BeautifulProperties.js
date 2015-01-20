@@ -1,14 +1,15 @@
 define('Events/Ancestor',[
   './namespace',
-  'InternalObject','InternalObject/retrieve'
+  'InternalObject','InternalObject/retrieve',
+  'utils/createChildNamespace'
 ],function (Events,
-            InternalObject,retrieveInternalObject) {
+            InternalObject,retrieveInternalObject,
+            createChildNamespace) {
   /**
-   * @name BeautifulProperties.Events.Ancestor
-   * @namespace
+   * @namespace Ancestor
+   * @memberOf BeautifulProperties.Events
    */
-  var Ancestor = Object.create(null);
-  Events.Ancestor = Ancestor;
+  var Ancestor = createChildNamespace(Events,'Ancestor');
   var namespace = 'Events.Ancestor';
   /**
    * @callback BeautifulProperties.Events.Ancestor~ancestorRetriever

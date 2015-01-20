@@ -1,9 +1,8 @@
-/**
- * Created by monjudoh on 2015/01/19.
- */
 define('Events/Event',[
-  './namespace'
-],function (Events) {
+  './namespace',
+  'utils/hasConsoleError'
+],function (Events,
+            hasConsoleError) {
   /**
    * @name BeautifulProperties.Events.Event.options
    * @typedef {{type:string,target:object,bubbles:boolean=}}

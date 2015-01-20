@@ -1,11 +1,11 @@
-define('Events/namespace',[
+define('Equals/namespace',[
   'namespace',
   'utils/createChildNamespace'
 ],function (BeautifulProperties,
             createChildNamespace) {
   /**
-   * @namespace Events
+   * @namespace Equals
    * @memberOf BeautifulProperties
    */
-  return createChildNamespace(BeautifulProperties,'Events');
+  return createChildNamespace(BeautifulProperties,'Equals');
 });

@@ -1,20 +1,15 @@
 define('LazyInitializable',[
   'namespace',
   'internal/Descriptor',
-  'utils/hasOwn'
+  'utils/hasOwn','utils/hasConsoleError','utils/createChildNamespace'
 ],function (BeautifulProperties,
             Descriptor,
-            hasOwn) {
-  var LazyInitializable = Object.create(null);
+            hasOwn,hasConsoleError,createChildNamespace) {
   /**
-   * @name LazyInitializable
-   * @namespace
+   * @namespace LazyInitializable
    * @memberOf BeautifulProperties
    */
-  Object.defineProperty(BeautifulProperties,'LazyInitializable',{
-    value : LazyInitializable,
-    writable : false
-  });
+  var LazyInitializable = createChildNamespace(BeautifulProperties,'LazyInitializable');
   /**
    * @name define
    * @memberOf BeautifulProperties.LazyInitializable

@@ -1,11 +1,11 @@
-define('Events/namespace',[
+define('Observable/namespace',[
   'namespace',
   'utils/createChildNamespace'
 ],function (BeautifulProperties,
             createChildNamespace) {
   /**
-   * @namespace Events
+   * @namespace Observable
    * @memberOf BeautifulProperties
    */
-  return createChildNamespace(BeautifulProperties,'Events');
+  return createChildNamespace(BeautifulProperties,'Observable');
 });

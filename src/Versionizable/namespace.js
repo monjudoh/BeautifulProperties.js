@@ -1,11 +1,11 @@
-define('Events/namespace',[
+define('Versionizable/namespace',[
   'namespace',
   'utils/createChildNamespace'
 ],function (BeautifulProperties,
             createChildNamespace) {
   /**
-   * @namespace Events
+   * @namespace Versionizable
    * @memberOf BeautifulProperties
    */
-  return createChildNamespace(BeautifulProperties,'Events');
+  return createChildNamespace(BeautifulProperties,'Versionizable');
 });
