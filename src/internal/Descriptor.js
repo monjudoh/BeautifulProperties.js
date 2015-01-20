@@ -1,22 +1,32 @@
 define('internal/Descriptor',function () {
   /**
-   * @name BeautifulProperties.GenericDescriptor
-   * @typedef {{configurable:boolean=,enumerable:boolean=}}
-   * @description GenericDescriptor<br>
-   * http://www.ecma-international.org/ecma-262/5.1/#sec-8.10.3
+   * @name BeautifulProperties~GenericDescriptor
+   * @typedef
+   * @property {boolean=} configurable
+   * @property {boolean=} enumerable
+   * @description <pre>GenericDescriptor
+   * http://www.ecma-international.org/ecma-262/5.1/#sec-8.10.3</pre>
    */
   /**
-   * @name BeautifulProperties.DataDescriptor
-   * @typedef {{configurable:boolean=,enumerable:boolean=,writable:boolean=,value:*=,init:function=}}
-   * @description DataDescriptor<br>
-   * http://www.ecma-international.org/ecma-262/5.1/#sec-8.10.2
+   * @name BeautifulProperties~DataDescriptor
+   * @typedef
+   * @property {boolean=} configurable
+   * @property {boolean=} enumerable
+   * @property {boolean=} writable
+   * @property {*=} value
+   * @property {function=} init custom extension
+   * @description <pre>DataDescriptor
+   * http://www.ecma-international.org/ecma-262/5.1/#sec-8.10.2</pre>
    */
   /**
-   * @name BeautifulProperties.AccessorDescriptor
-   * @typedef {{configurable:boolean=,enumerable:boolean=,get:function=,set:function=}}
-   * @description AccessorDescriptor.<br>
-   * Either get or set is necessary.<br>
-   * http://www.ecma-international.org/ecma-262/5.1/#sec-8.10.1
+   * @name BeautifulProperties~AccessorDescriptor
+   * @typedef
+   * @property {boolean=} configurable
+   * @property {boolean=} enumerable
+   * @property {function=} get Either get or set is necessary.
+   * @property {function=} set Either get or set is necessary.
+   * @description <pre>AccessorDescriptor.
+   * http://www.ecma-international.org/ecma-262/5.1/#sec-8.10.1</pre>
    */
   /**
    * @name Descriptor
@@ -133,8 +143,8 @@ define('internal/Descriptor',function () {
    *
    * @param {Internal.Descriptor.Types} type
    * @param {object} descriptor
-   * @param {BeautifulProperties.GenericDescriptor=|BeautifulProperties.DataDescriptor=|BeautifulProperties.AccessorDescriptor=} defaultDescriptor
-   * @returns {BeautifulProperties.DataDescriptor}
+   * @param {BeautifulProperties~GenericDescriptor=|BeautifulProperties~DataDescriptor=|BeautifulProperties~AccessorDescriptor=} defaultDescriptor
+   * @returns {BeautifulProperties~DataDescriptor}
    */
   Descriptor.applyDefault = function applyDefault(type,descriptor,defaultDescriptor){
     var DescriptorKeys;

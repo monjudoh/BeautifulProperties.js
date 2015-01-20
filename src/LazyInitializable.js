@@ -17,7 +17,7 @@ define('LazyInitializable',[
    *
    * @param {object} object
    * @param {string} key
-   * @param {BeautifulProperties.DataDescriptor} descriptor
+   * @param {BeautifulProperties~DataDescriptor} descriptor
    */
   LazyInitializable.define = function defineLazyInitializableProperty(object,key,descriptor) {
     var init = descriptor.init;

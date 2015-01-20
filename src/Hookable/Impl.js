@@ -129,7 +129,7 @@ define('Hookable/impl',[
    *
    * @param {object} object
    * @param {string} key
-   * @param {(BeautifulProperties.DataDescriptor|BeautifulProperties.AccessorDescriptor|BeautifulProperties.GenericDescriptor)=} descriptor
+   * @param {(BeautifulProperties~DataDescriptor|BeautifulProperties~AccessorDescriptor|BeautifulProperties~GenericDescriptor)=} descriptor
    *  descriptor.writable's default value is false in ES5,but it's true in BeautifulProperties.Hookable.
    */
   Hookable.define = function defineHookableProperty(object,key,descriptor) {
