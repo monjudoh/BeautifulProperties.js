@@ -14,9 +14,8 @@ define('Hookable/Get',[
   var retrieveHooks = PrototypeWalker.retrieve.bind(null,'Hookable::Hooks');
   var retrieveDescriptor = PrototypeWalker.retrieve.bind(null,'Hookable::Descriptor');
   /**
-   * @name refreshProperty
+   * @function refreshProperty
    * @memberOf BeautifulProperties.Hookable.Get
-   * @function
    *
    * @param {object} object
    * @param {string} key
@@ -35,9 +34,8 @@ define('Hookable/Get',[
     });
   };
   /**
-   * @name getSilently
+   * @function getSilently
    * @memberOf BeautifulProperties.Hookable.Get
-   * @function
    *
    * @param {object} object
    * @param {string} key
@@ -49,12 +47,13 @@ define('Hookable/Get',[
     return retriever.call(object);
   };
   /**
-   * @name provideMethods
+   * @function provideMethods
    * @memberOf BeautifulProperties.Hookable.Get
-   * @function
    * @description Provide refreshProperty method and getSilently method to object.
    *
    * @param {object} object
+   * @see BeautifulProperties.Hookable.Get.refreshProperty
+   * @see BeautifulProperties.Hookable.Get.getSilently
    */
   Get.provideMethods = provideMethodsFactory(Get,['refreshProperty','getSilently']);
   return Get;
