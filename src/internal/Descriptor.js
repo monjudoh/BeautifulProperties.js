@@ -29,18 +29,20 @@ define('internal/Descriptor',function () {
    * http://www.ecma-international.org/ecma-262/5.1/#sec-8.10.1</pre>
    */
   /**
-   * @name Descriptor
-   * @namespace
-   * @memberOf Internal
+   * @namespace BeautifulProperties~Descriptor
    * @private
    */
   var Descriptor = Object.create(null);
   /**
-   * @name Types
-   * @memberOf Internal.Descriptor
-   * @enum {object}
+   * @typedef Type
+   * @memberOf BeautifulProperties~Descriptor
+   * @description marker object
    */
-  Descriptor.Types = {
+  /**
+   * @memberOf BeautifulProperties~Descriptor
+   * @enum {BeautifulProperties~Descriptor.Type}
+   */
+  var Types = {
     /**
      * http://www.ecma-international.org/ecma-262/5.1/#sec-8.10.3
      */
@@ -58,15 +60,15 @@ define('internal/Descriptor',function () {
      */
     InvalidDescriptor:Object.create(null)
   };
+  Descriptor.Types = Types;
   var AllDescriptorKeys = 'configurable enumerable writable value init get set'.split(' ');
   /**
-   * @name equals
-   * @memberOf Internal.Descriptor
-   * @function
+   * @function equals
+   * @memberOf BeautifulProperties~Descriptor
    *
-   * @param descriptor
-   * @param otherDescriptor
-   * @returns {Internal.Descriptor.Types}
+   * @param {object} descriptor
+   * @param {object} otherDescriptor
+   * @returns boolean
    */
   Descriptor.equals = function equals(descriptor,otherDescriptor){
     var length = AllDescriptorKeys.length;
@@ -79,36 +81,34 @@ define('internal/Descriptor',function () {
     return true;
   };
   /**
-   * @name getTypeOf
-   * @memberOf Internal.Descriptor
-   * @function
+   * @function getTypeOf
+   * @memberOf BeautifulProperties~Descriptor
    *
-   * @param descriptor
-   * @returns {Internal.Descriptor.Types}
+   * @param {object} descriptor
+   * @returns {BeautifulProperties~Descriptor.Type}
    */
   Descriptor.getTypeOf = function getTypeOf(descriptor){
     if (descriptor === undefined) {
-      return Descriptor.Types.InvalidDescriptor;
+      return Types.InvalidDescriptor;
     }
     var isDataDescriptor = descriptor.writable !== undefined || descriptor.value !== undefined || descriptor.init!== undefined;
     var isAccessorDescriptor = descriptor.get !== undefined || descriptor.set !== undefined;
     if (!isDataDescriptor && !isAccessorDescriptor) {
-      return Descriptor.Types.GenericDescriptor;
+      return Types.GenericDescriptor;
     }
     if (isDataDescriptor && isAccessorDescriptor) {
-      return Descriptor.Types.InvalidDescriptor;
+      return Types.InvalidDescriptor;
     }
     if (isDataDescriptor) {
-      return Descriptor.Types.DataDescriptor;
+      return Types.DataDescriptor;
     }
     if (isAccessorDescriptor) {
-      return Descriptor.Types.AccessorDescriptor;
+      return Types.AccessorDescriptor;
     }
   };
   /**
-   * @name createTypeError
-   * @memberOf Internal.Descriptor
-   * @function
+   * @function createTypeError
+   * @memberOf BeautifulProperties~Descriptor
    *
    * @param {object} invalidDescriptor
    * @returns {TypeError}
@@ -137,11 +137,10 @@ define('internal/Descriptor',function () {
   })();
   var AccessorDescriptorKeys = 'configurable enumerable get set'.split(' ');
   /**
-   * @name applyDefault
-   * @memberOf Internal.Descriptor
-   * @function
+   * @function applyDefault
+   * @memberOf BeautifulProperties~Descriptor
    *
-   * @param {Internal.Descriptor.Types} type
+   * @param {BeautifulProperties~Descriptor.Type} type
    * @param {object} descriptor
    * @param {BeautifulProperties~GenericDescriptor=|BeautifulProperties~DataDescriptor=|BeautifulProperties~AccessorDescriptor=} defaultDescriptor
    * @returns {BeautifulProperties~DataDescriptor}
@@ -150,11 +149,11 @@ define('internal/Descriptor',function () {
     var DescriptorKeys;
     var globalDefaultDescriptor;
     switch (type) {
-      case Descriptor.Types.DataDescriptor:
+      case Types.DataDescriptor:
         DescriptorKeys = DataDescriptorKeys;
         globalDefaultDescriptor = globalDefaultDataDescriptor;
         break;
-      case Descriptor.Types.AccessorDescriptor:
+      case Types.AccessorDescriptor:
         DescriptorKeys = AccessorDescriptorKeys;
         globalDefaultDescriptor = globalDefaultAccessorDescriptor;
         break;
