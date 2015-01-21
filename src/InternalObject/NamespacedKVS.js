@@ -1,13 +1,13 @@
-define('InternalObject/PropertySpecific',[
+define('InternalObject/NamespacedKVS',[
   'InternalObject',
   'LazyInitializable'
 ],function (InternalObject,
             LazyInitializable) {
   /**
-   * @namespace BeautifulProperties~InternalObject/PropertySpecific
+   * @namespace BeautifulProperties~InternalObject/NamespacedKVS
    */
-  var PropertySpecific = Object.create(null);
-  PropertySpecific.mixinNamespace = function mixinNamespace(namespase,constructor) {
+  var NamespacedKVS = Object.create(null);
+  NamespacedKVS.mixinNamespace = function mixinNamespace(namespase,constructor) {
     LazyInitializable.define(InternalObject.prototype,namespase,{
       init: function() {
         var container = Object.create(null);
@@ -18,7 +18,7 @@ define('InternalObject/PropertySpecific',[
       },writable:false
     });
   };
-  PropertySpecific.retrieverFactory = function retrieverFactory(namespase,create) {
+  NamespacedKVS.retrieverFactory = function retrieverFactory(namespase,create) {
     if (create === undefined) {
       create = true;
     }
@@ -33,11 +33,11 @@ define('InternalObject/PropertySpecific',[
       return container.dict[key];
     };
   };
-  PropertySpecific.storerFactory = function storerFactory(namespase) {
+  NamespacedKVS.storerFactory = function storerFactory(namespase) {
     return function store(object,key,value) {
       var container = InternalObject.retrieve(namespase,true,object);
       container.dict[key] = value;
     };
   };
-  return PropertySpecific;
+  return NamespacedKVS;
 });

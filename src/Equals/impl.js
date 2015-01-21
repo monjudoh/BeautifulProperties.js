@@ -1,10 +1,10 @@
 define('Equals/impl',[
   './namespace','./Functions',
-  'InternalObject/PropertySpecific','InternalObject/PrototypeWalker'
+  'InternalObject/NamespacedKVS','InternalObject/PrototypeWalker'
 ],function (Equals,Functions,
-            PropertySpecific,PrototypeWalker) {
-  PropertySpecific.mixinNamespace('Equals');
-  var store = PropertySpecific.storerFactory('Equals');
+            NamespacedKVS,PrototypeWalker) {
+  NamespacedKVS.mixinNamespace('Equals');
+  var store = NamespacedKVS.storerFactory('Equals');
   /**
    * @name set
    * @memberOf BeautifulProperties.Equals

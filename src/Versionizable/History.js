@@ -1,6 +1,6 @@
 define('Versionizable/History',[
-  'InternalObject/PropertySpecific'
-],function (PropertySpecific) {
+  'InternalObject/NamespacedKVS'
+],function (NamespacedKVS) {
   var proto = Object.create(null);
   /**
    *
@@ -15,7 +15,7 @@ define('Versionizable/History',[
     });
     return self;
   }
-  PropertySpecific.mixinNamespace('Versionizable::History',History);
+  NamespacedKVS.mixinNamespace('Versionizable::History',History);
   /**
    * @function retrieve
    * @memberOf BeautifulProperties.Versionizable~History
@@ -23,6 +23,6 @@ define('Versionizable/History',[
    * @param {string} key
    * @returns BeautifulProperties.Versionizable~History
    */
-  History.retrieve = PropertySpecific.retrieverFactory('Versionizable::History',true);
+  History.retrieve = NamespacedKVS.retrieverFactory('Versionizable::History',true);
   return History;
 });

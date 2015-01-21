@@ -1,15 +1,15 @@
 define('Hookable/Descriptor',[
   'internal/Descriptor',
-  'InternalObject/PropertySpecific','InternalObject/PrototypeWalker'
+  'InternalObject/NamespacedKVS','InternalObject/PrototypeWalker'
 ],function (base,
-            PropertySpecific,PrototypeWalker) {
+            NamespacedKVS,PrototypeWalker) {
   /**
    * @namespace BeautifulProperties.Hookable~Descriptor
    * @extends BeautifulProperties~Descriptor
    * @private
    */
   var Descriptor = Object.create(base);
-  PropertySpecific.mixinNamespace('Hookable::Descriptor');
+  NamespacedKVS.mixinNamespace('Hookable::Descriptor');
   /**
    * @function retrieve
    * @memberOf BeautifulProperties.Hookable~Descriptor
@@ -17,7 +17,7 @@ define('Hookable/Descriptor',[
    * @param {string} key
    * @returns {(BeautifulProperties~DataDescriptor|BeautifulProperties~AccessorDescriptor|BeautifulProperties~GenericDescriptor)=}
    */
-  Descriptor.retrieve = PropertySpecific.retrieverFactory('Hookable::Descriptor',false);
+  Descriptor.retrieve = NamespacedKVS.retrieverFactory('Hookable::Descriptor',false);
   /**
    * @function walkAndRetrieve
    * @memberOf BeautifulProperties.Hookable~Descriptor
@@ -33,6 +33,6 @@ define('Hookable/Descriptor',[
    * @param {string} key
    * @param {(BeautifulProperties~DataDescriptor|BeautifulProperties~AccessorDescriptor|BeautifulProperties~GenericDescriptor)}
    */
-  Descriptor.store = PropertySpecific.storerFactory('Hookable::Descriptor');
+  Descriptor.store = NamespacedKVS.storerFactory('Hookable::Descriptor');
   return Descriptor;
 });

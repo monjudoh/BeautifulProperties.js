@@ -1,7 +1,7 @@
 define('Hookable/Raw',[
-  'InternalObject/PropertySpecific'
-],function (PropertySpecific) {
-  PropertySpecific.mixinNamespace('Hookable::Raw');
+  'InternalObject/NamespacedKVS'
+],function (NamespacedKVS) {
+  NamespacedKVS.mixinNamespace('Hookable::Raw');
   /**
    * @namespace BeautifulProperties.Hookable~Raw
    * @private
@@ -14,7 +14,7 @@ define('Hookable/Raw',[
    * @param {string} key
    * @returns {*}
    */
-  Raw.retrieve = PropertySpecific.retrieverFactory('Hookable::Raw',false);
+  Raw.retrieve = NamespacedKVS.retrieverFactory('Hookable::Raw',false);
   /**
    * @function store
    * @memberOf BeautifulProperties.Hookable~Raw
@@ -22,6 +22,6 @@ define('Hookable/Raw',[
    * @param {string} key
    * @param {*}
    */
-  Raw.store = PropertySpecific.storerFactory('Hookable::Raw');
+  Raw.store = NamespacedKVS.storerFactory('Hookable::Raw');
   return Raw;
 });

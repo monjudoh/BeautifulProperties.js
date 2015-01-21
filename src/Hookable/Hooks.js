@@ -1,9 +1,9 @@
 define('Hookable/Hooks',[
   'LazyInitializable',
-  'InternalObject/PropertySpecific','InternalObject/PrototypeWalker',
+  'InternalObject/NamespacedKVS','InternalObject/PrototypeWalker',
   './HookCollection'
 ],function (LazyInitializable,
-            PropertySpecific,PrototypeWalker,
+            NamespacedKVS,PrototypeWalker,
             HookCollection) {
   /**
    * @constructor BeautifulProperties.Hookable~Hooks
@@ -25,7 +25,7 @@ define('Hookable/Hooks',[
     });
   });
 
-  PropertySpecific.mixinNamespace('Hookable::Hooks',Hooks);
+  NamespacedKVS.mixinNamespace('Hookable::Hooks',Hooks);
   /**
    * @function retrieve
    * @memberOf BeautifulProperties.Hookable~Hooks
@@ -33,7 +33,7 @@ define('Hookable/Hooks',[
    * @param {string} key
    * @returns BeautifulProperties.Hookable~Hooks
    */
-  Hooks.retrieve = PropertySpecific.retrieverFactory('Hookable::Hooks',true);
+  Hooks.retrieve = NamespacedKVS.retrieverFactory('Hookable::Hooks',true);
   /**
    * @function walkAndRetrieve
    * @memberOf BeautifulProperties.Hookable~Hooks
@@ -54,6 +54,6 @@ define('Hookable/Hooks',[
       return !!retrieve(object,key);
     }
     return hasHooks;
-  })(PropertySpecific.retrieverFactory('Hookable::Hooks',false));
+  })(NamespacedKVS.retrieverFactory('Hookable::Hooks',false));
   return Hooks;
 });

@@ -1,14 +1,14 @@
 define('InternalObject/PrototypeWalker',[
-  './PropertySpecific'
-],function (PropertySpecific) {
+  './NamespacedKVS'
+],function (NamespacedKVS) {
   var PrototypeWalker = Object.create(null);
-  PropertySpecific.mixinNamespace('PrototypeWalker::Cache',function() {
+  NamespacedKVS.mixinNamespace('PrototypeWalker::Cache',function() {
     return Object.create(null);
   });
-  var retrieveCache = PropertySpecific.retrieverFactory('PrototypeWalker::Cache',true);
+  var retrieveCache = NamespacedKVS.retrieverFactory('PrototypeWalker::Cache',true);
   PrototypeWalker.retrieve = function retrieve(namespace,object,key){
     var prototypeCache = retrieveCache(object,key);
-    var retrieveValue = PropertySpecific.retrieverFactory(namespace,false);
+    var retrieveValue = NamespacedKVS.retrieverFactory(namespace,false);
     if (prototypeCache[namespace]) {
       return retrieveValue(prototypeCache[namespace],key);
     }

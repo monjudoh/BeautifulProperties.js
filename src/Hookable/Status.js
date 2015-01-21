@@ -1,6 +1,6 @@
 define('Hookable/Status',[
-  'InternalObject/PropertySpecific'
-],function (PropertySpecific) {
+  'InternalObject/NamespacedKVS'
+],function (NamespacedKVS) {
   /**
    * @constructor BeautifulProperties.Hookable~Status
    * @property {boolean} isInitialized
@@ -9,7 +9,7 @@ define('Hookable/Status',[
   function Status(){
     this.isInitialized = false;
   }
-  PropertySpecific.mixinNamespace('Hookable::Status',Status);
+  NamespacedKVS.mixinNamespace('Hookable::Status',Status);
   /**
    * @function retrieve
    * @memberOf BeautifulProperties.Hookable~Status
@@ -17,6 +17,6 @@ define('Hookable/Status',[
    * @param {string} key
    * @returns BeautifulProperties.Hookable~Status
    */
-  Status.retrieve = PropertySpecific.retrieverFactory('Hookable::Status',true);
+  Status.retrieve = NamespacedKVS.retrieverFactory('Hookable::Status',true);
   return Status;
 });
