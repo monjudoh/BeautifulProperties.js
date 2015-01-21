@@ -1,6 +1,7 @@
 define('Hookable/impl',[
   './namespace','./Get',
-  './Raw','./Status','./Hooks', './Descriptor'
+  './Raw','./Status','./Hooks', './Descriptor',
+  './alias'
 ],function (Hookable,Get,
             Raw,Status,Hooks, Descriptor) {
 
@@ -10,40 +11,6 @@ define('Hookable/impl',[
    */
   Hookable.Undefined = Object.create(null);
 
-  /**
-   * @name getRaw
-   * @memberOf BeautifulProperties.Hookable
-   * @function
-   *
-   * @param {Object} object
-   * @param {String} key
-   * @return {*}
-   * @description Get the property value away from hook executing.
-   */
-  Hookable.getRaw = Raw.retrieve;
-
-  /**
-   * @name setRaw
-   * @memberOf BeautifulProperties.Hookable
-   * @function
-   *
-   * @param {Object} object
-   * @param {String} key
-   * @param {*} val
-   * @description Set the property value away from hook executing.
-   */
-  Hookable.setRaw = Raw.store;
-  /**
-   * @function hasHooks
-   * @memberOf BeautifulProperties.Hookable
-   *
-   * @param {object} object
-   * @param {string} key
-   * @return {boolean}
-   * @description Return true if the property has hooks.
-   * @see BeautifulProperties.Hookable~Hooks.has
-   */
-  Hookable.hasHooks = Hooks.has;
   /**
    * @callback BeautifulProperties.Hookable~beforeGet
    */
