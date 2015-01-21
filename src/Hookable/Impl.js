@@ -1,8 +1,8 @@
 define('Hookable/impl',[
   './namespace','./Get',
-  './Internal','./Status','./Hooks', './Descriptor'
+  './Raw','./Status','./Hooks', './Descriptor'
 ],function (Hookable,Get,
-            Internal,Status,Hooks, Descriptor) {
+            Raw,Status,Hooks, Descriptor) {
 
   /**
    * @name Undefined
@@ -20,7 +20,7 @@ define('Hookable/impl',[
    * @return {*}
    * @description Get the property value away from hook executing.
    */
-  Hookable.getRaw = Internal.getRaw;
+  Hookable.getRaw = Raw.retrieve;
 
   /**
    * @name setRaw
@@ -32,7 +32,7 @@ define('Hookable/impl',[
    * @param {*} val
    * @description Set the property value away from hook executing.
    */
-  Hookable.setRaw = Internal.setRaw;
+  Hookable.setRaw = Raw.store;
   /**
    * @function hasHooks
    * @memberOf BeautifulProperties.Hookable
@@ -229,7 +229,7 @@ define('Hookable/impl',[
       if (descriptor.writable) {
         this[key] = initialValue;
       } else {
-        Internal.setRaw(this,key,initialValue);
+        Raw.store(this,key,initialValue);
       }
     }
     function get_beforeGet(){
@@ -288,7 +288,7 @@ define('Hookable/impl',[
               return this[key];
             } else {
               get_beforeGet.call(this);
-              return get_afterGet.call(this,Internal.getRaw(this,key));
+              return get_afterGet.call(this,Raw.retrieve(this,key));
             }
           case Descriptor.Types.AccessorDescriptor:
             // write only
@@ -297,7 +297,7 @@ define('Hookable/impl',[
             }
             get_beforeGet.call(this);
             Get.refreshProperty(this,key);
-            return get_afterGet.call(this,Internal.getRaw(this,key));
+            return get_afterGet.call(this,Raw.retrieve(this,key));
           default :
             throw new Error('InvalidState');
         }
@@ -315,9 +315,9 @@ define('Hookable/impl',[
             if (!status.isInitialized) {
               status.isInitialized = true;
             }
-            var previousVal = Internal.getRaw(this,key);
+            var previousVal = Raw.retrieve(this,key);
             val = set_beforeSet.call(this,val,previousVal);
-            Internal.setRaw(this,key,val);
+            Raw.store(this,key,val);
             set_afterSet.call(this,val,previousVal);
             break;
           case Descriptor.Types.AccessorDescriptor:
@@ -325,7 +325,7 @@ define('Hookable/impl',[
             if (!descriptor.set) {
               return;
             }
-            var previousVal = Internal.getRaw(this,key);
+            var previousVal = Raw.retrieve(this,key);
             val = set_beforeSet.call(this,val,previousVal);
             descriptor.set.call(this,val);
             if (descriptor.get) {
