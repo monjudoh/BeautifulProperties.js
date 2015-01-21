@@ -7,72 +7,71 @@ define('Events/bindImpl',[
             Array_from) {
   var retrieveCallbacks = InternalObject.retrieve.bind(null,'callbacks',true);
   /**
-   * @name on
+   * @function on
    * @memberOf BeautifulProperties.Events
-   * @function
    *
    * @param {object} object
-   * @param {string} event
-   * @param {function} callback
-   * @param {{context:*=}=} options `context` is the ThisBinding of the callback execution context.
+   * @param {string} eventType
+   * @param {function} handler
+   * @param {{context:*=}=} options `context` is the ThisBinding of the handler execution context.
    */
-  Events.on = function on(object, event, callback, options) {
+  Events.on = function on(object, eventType, handler, options) {
     options = options || Object.create(null);
     var context = options.context || null;
-    if (!callback) {
-      throw new Error('callback is necessary in BeautifulProperties.Events.on');
+    if (!handler) {
+      throw new Error('handler is necessary in BeautifulProperties.Events.on');
     }
 
     var calls = retrieveCallbacks(object);
-    var list = calls[event] || (calls[event] = []);
+    var list = calls[eventType] || (calls[eventType] = []);
     var boundCallback = context
-    ? callback.bind(context)
+    ? handler.bind(context)
     : function () {
       var self = this;
-      callback.apply(self,Array_from(arguments));
+      handler.apply(self,Array_from(arguments));
     };
-    boundCallback.originalCallback = callback;
+    boundCallback.originalCallback = handler;
     list.push(boundCallback);
   };
 
   /**
-   * @name off
+   * @function off
    * @memberOf BeautifulProperties.Events
-   * @function
    *
    * @param {object} object
-   * @param {string} event
-   * @param {function} callback
+   * @param {string} eventType
+   * @param {function} handler
    *
-   * @description Remove callbacks.<br/>
-   * If `callback` is null, removes all callbacks for the event.<br/>
-   * If `event` is null, removes all bound callbacks for all events.
+   * @description <pre>Remove callbacks.
+   * If `handler` is null, removes all handlers for the eventType.
+   * If `eventType` is null, removes all bound handlers for all events.</pre>
    */
-  Events.off = function off(object, event, callback) {
-    var events, calls, list, i;
+  Events.off = function off(object, eventType, handler) {
+    var eventTypes, calls, list, i;
 
-    // No event, or removing *all* event.
+    // No eventType, or removing *all* eventType.
     if (!(calls = retrieveCallbacks(object))){
       return;
     }
-    if (!(event || callback)) {
+    // only object argument
+    if (!(eventType || handler)) {
       Object.keys(calls).forEach(function(event){
         delete calls[event];
       });
       return;
     }
 
-    events = event ? [event] : Object.keys(calls);
+    eventTypes = eventType ? [eventType] : Object.keys(calls);
 
-    // Loop through the callback list, splicing where appropriate.
-    while (event = events.shift()) {
-      if (!(list = calls[event]) || !callback) {
-        delete calls[event];
+    // Loop through the handler list, splicing where appropriate.
+    while (eventType = eventTypes.shift()) {
+      if (!(list = calls[eventType]) || !handler) {
+        delete calls[eventType];
         continue;
       }
 
       for (i = list.length - 1; i >= 0; i--) {
-        if (callback && list[i].originalCallback === callback) {
+        if (handler && list[i].originalCallback === handler) {
           list.splice(i, 1);
         }
       }

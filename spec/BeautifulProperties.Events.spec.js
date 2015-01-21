@@ -55,6 +55,82 @@
         });
       });
     });
+    describe("off",function () {
+      var targetPrototype,targetObject;
+      var triggerAll;
+      var spy1,spy1_1,spy2,spy3;
+      beforeEach(function(){
+        targetPrototype = Object.create(null);
+        targetObject = Object.create(targetPrototype);
+
+        spy1 = jasmine.createSpy();
+        spy1_1 = jasmine.createSpy();
+        spy2 = jasmine.createSpy();
+        spy3 = jasmine.createSpy();
+        BeautifulProperties.Events.on(targetObject, 'test1', spy1);
+        BeautifulProperties.Events.on(targetObject, 'test1', spy1_1);
+        BeautifulProperties.Events.on(targetObject, 'test2', spy2);
+        BeautifulProperties.Events.on(targetObject, 'test3', spy3);
+        triggerAll = function () {
+          BeautifulProperties.Events.trigger(targetObject,'test1');
+          BeautifulProperties.Events.trigger(targetObject,'test2');
+          BeautifulProperties.Events.trigger(targetObject,'test3');
+        };
+      });
+      describe("with only object argument",function(){
+        beforeEach(function(){
+          BeautifulProperties.Events.off(targetObject);
+          triggerAll();
+        });
+        it("all handlers are unbound.",function(){
+          expect(spy1).not.toHaveBeenCalled();
+          expect(spy1_1).not.toHaveBeenCalled();
+          expect(spy2).not.toHaveBeenCalled();
+          expect(spy3).not.toHaveBeenCalled();
+        });
+      });
+      describe("with object,eventType arguments",function(){
+        describe("eventType argument is single eventType",function(){
+          beforeEach(function(){
+            BeautifulProperties.Events.off(targetObject,'test1');
+            triggerAll();
+          });
+          it("handlers related with given eventType are unbound.",function(){
+            expect(spy1).not.toHaveBeenCalled();
+            expect(spy1_1).not.toHaveBeenCalled();
+            expect(spy2).toHaveBeenCalled();
+            expect(spy3).toHaveBeenCalled();
+          });
+        });
+        describe("eventType argument is eventTypes",function(){
+        });
+      });
+      describe("with object,eventType,handler arguments",function(){
+        beforeEach(function(){
+          BeautifulProperties.Events.off(targetObject,'test1',spy1);
+          triggerAll();
+        });
+        it("handler related with given eventType,handler is unbound.",function(){
+          expect(spy1).not.toHaveBeenCalled();
+          expect(spy1_1).toHaveBeenCalled();
+          expect(spy2).toHaveBeenCalled();
+          expect(spy3).toHaveBeenCalled();
+        });
+      });
+      describe("with object,handler arguments",function(){
+        beforeEach(function(){
+          BeautifulProperties.Events.on(targetObject, 'test2', spy1);
+          BeautifulProperties.Events.off(targetObject,null,spy1);
+          triggerAll();
+        });
+        it("handlers related with given handler are unbound.",function(){
+          expect(spy1).not.toHaveBeenCalled();
+          expect(spy1_1).toHaveBeenCalled();
+          expect(spy2).toHaveBeenCalled();
+          expect(spy3).toHaveBeenCalled();
+        });
+      });
+    });
     [{
       desc:"trigger bubbles:false",
       exercise:function(targetObject,eventType){
