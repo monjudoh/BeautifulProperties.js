@@ -65,5 +65,26 @@ define('InternalObject/NamespacedKVS',[
       container.dict[key] = value;
     };
   };
+  /**
+   * @callback BeautifulProperties~InternalObject/NamespacedKVS~keysFn
+   * @param {object} object
+   * @param {Array.<string>} keys
+   */
+  /**
+   * @function keysFnFactory
+   * @memberOf BeautifulProperties~InternalObject/NamespacedKVS
+   * @param {string} namespase
+   * @returns {BeautifulProperties~InternalObject/NamespacedKVS~keysFn}
+   */
+  NamespacedKVS.keysFnFactory = function keysFnFactory(namespase) {
+    return function keys(object) {
+      var container = InternalObject.retrieve(namespase,false,object);
+      if (container) {
+        return Object.keys(container.dict);
+      } else {
+        return [];
+      }
+    };
+  };
   return NamespacedKVS;
 });
