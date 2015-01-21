@@ -1,7 +1,7 @@
 define('InternalObject/PropertySpecific',[
-  'InternalObject','./retrieve',
+  'InternalObject',
   'LazyInitializable'
-],function (InternalObject,retrieveInternalObject,
+],function (InternalObject,
             LazyInitializable) {
   var PropertySpecific = Object.create(null);
   /**
@@ -39,7 +39,7 @@ define('InternalObject/PropertySpecific',[
    * @private
    */
   PropertySpecific.retrieverFactory = function retrieverFactory(key,create) {
-    var getRetrieverFromObject = retrieveInternalObject.bind(null,key,create);
+    var getRetrieverFromObject = InternalObject.retrieve.bind(null,key,create);
     return function (object,key) {
       var retrieve = getRetrieverFromObject(object);
       return retrieve !== undefined
@@ -48,7 +48,7 @@ define('InternalObject/PropertySpecific',[
     }
   };
   PropertySpecific.storerFactory = function storerFactory(key) {
-    var getRetrieverFromObject = retrieveInternalObject.bind(null,key,true);
+    var getRetrieverFromObject = InternalObject.retrieve.bind(null,key,true);
     return function store(object,key,value) {
       var retriever = getRetrieverFromObject(object);
       var store = retriever.store;

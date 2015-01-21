@@ -1,9 +1,9 @@
 define('Events/Ancestor',[
   './namespace',
-  'InternalObject','InternalObject/retrieve',
+  'InternalObject',
   'utils/createChildNamespace'
 ],function (Events,
-            InternalObject,retrieveInternalObject,
+            InternalObject,
             createChildNamespace) {
   /**
    * @namespace Ancestor
@@ -39,7 +39,7 @@ define('Events/Ancestor',[
    * If the target object don't have ancestorRetriever,the method returns the prototype of the target object.
    */
   Ancestor.retrieve = function retrieve(object) {
-    var retriever = retrieveInternalObject(namespace,false,object);
+    var retriever = InternalObject.retrieve(namespace,false,object);
     if (retriever) {
       return retriever(object);
     } else {

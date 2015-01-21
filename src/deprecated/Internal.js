@@ -1,10 +1,10 @@
 define('deprecated/Internal',[
   'namespace',
   'utils/createChildNamespace',
-  'InternalObject','InternalObject/retrieve'
+  'InternalObject'
 ],function (BeautifulProperties,
             createChildNamespace,
-            InternalObject,retrieveInternalObject) {
+            InternalObject) {
   /**
    * @namespace Internal
    * @memberOf BeautifulProperties
@@ -12,6 +12,6 @@ define('deprecated/Internal',[
    */
   var Internal = createChildNamespace(BeautifulProperties,'Internal');
   BeautifulProperties.Internal.Key = InternalObject.Key;
-  BeautifulProperties.Internal.retrieve = retrieveInternalObject;
+  BeautifulProperties.Internal.retrieve = InternalObject.retrieve;
   return Internal;
 });

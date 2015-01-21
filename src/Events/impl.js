@@ -1,12 +1,12 @@
 define('Events/impl',[
   './namespace','./Event','./Ancestor',
-  'InternalObject','InternalObject/retrieve',
+  'InternalObject',
   'utils/Array_from','utils/hasOwn','utils/cloneDict','utils/provideMethodsFactory'
 ],function(Events,Event,Ancestor,
-           InternalObject,retrieveInternalObject,
+           InternalObject,
            Array_from,hasOwn,cloneDict,provideMethodsFactory){
   (function () {
-    var retrieveCallbacks = retrieveInternalObject.bind(null,'callbacks',true);
+    var retrieveCallbacks = InternalObject.retrieve.bind(null,'callbacks',true);
     /**
      * @name on
      * @memberOf BeautifulProperties.Events
@@ -82,7 +82,7 @@ define('Events/impl',[
   })();
   (function () {
     var toString = Object.prototype.toString;
-    var retrieveCallbacks = retrieveInternalObject.bind(null,'callbacks',false);
+    var retrieveCallbacks = InternalObject.retrieve.bind(null,'callbacks',false);
     // Trigger one or many events, firing all bound callbacks. Callbacks are
     // passed the same arguments as `trigger` is, apart from the event name.
     /**
