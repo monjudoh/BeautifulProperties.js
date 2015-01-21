@@ -1,6 +1,6 @@
 define('Versionizable/Transaction',[
-  './namespace','./Version','./retrieveHistory'
-],function (Versionizable,Version,retrieveHistory) {
+  './namespace','./Version','./History'
+],function (Versionizable,Version,History) {
   /**
    * @constructor Transaction
    * @memberOf BeautifulProperties.Versionizable
@@ -34,7 +34,7 @@ define('Versionizable/Transaction',[
    * @param {{timestamp:number=}=} options
    */
   Transaction.prototype.insert = function insert(index,value,options) {
-    var history = retrieveHistory(this.object)(this.key);
+    var history = History.retrieve(this.object,this.key);
     var version = new Version;
     version.value = value;
     version.timestamp = (options && options.timestamp) || Date.now();
@@ -47,7 +47,7 @@ define('Versionizable/Transaction',[
    * @param {BeautifulProperties.Versionizable.Version} version
    */
   Transaction.prototype.remove = function remove(version) {
-    var history = retrieveHistory(this.object)(this.key);
+    var history = History.retrieve(this.object,this.key);
     var index = history.indexOf(version);
     if (index === -1) {
       return;

@@ -1,15 +1,10 @@
 define('Versionizable/impl',[
-  './namespace','./Version','./Transaction','./retrieveHistory',
+  './namespace','./Version','./Transaction','./History',
   'Hookable','Hookable/Descriptor',
-  'Equals','Events',
-  'InternalObject/PropertySpecific'
-],function (Versionizable,Version,Transaction,retrieveHistory,
+  'Equals','Events'
+],function (Versionizable,Version,Transaction,History,
             Hookable,Descriptor,
-            Equals,Events,
-            PropertySpecific) {
-  PropertySpecific.mixinRetriever('Versionizable::History',Array);
-  // internal functions
-
+            Equals,Events) {
   /**
    * @function
    * @name getHistoryLength
@@ -20,7 +15,7 @@ define('Versionizable/impl',[
    * @returns {number}
    */
   Versionizable.getHistoryLength = function getHistoryLength(object,key) {
-    var history = retrieveHistory(object)(key);
+    var history = History.retrieve(object,key);
     return history.length;
   };
   var aNullVersion = new Version();
@@ -44,7 +39,7 @@ define('Versionizable/impl',[
    * @returns {Array.<BeautifulProperties.Versionizable.Version>}
    */
   Versionizable.getVersions = function getVersions(object,key) {
-    var history = retrieveHistory(object)(key);
+    var history = History.retrieve(object,key);
     return history.slice();
   };
   /**
@@ -58,7 +53,7 @@ define('Versionizable/impl',[
    * @returns {BeautifulProperties.Versionizable.Version}
    */
   Versionizable.getVersion = function getVersion(object,key,index) {
-    var history = retrieveHistory(object)(key);
+    var history = History.retrieve(object,key);
     return history[index] || aNullVersion;
   };
   /**
@@ -138,7 +133,7 @@ define('Versionizable/impl',[
    * @returns {*}
    */
   Versionizable.getPreviousValue = function getPreviousValue(object,key) {
-    var history = retrieveHistory(object)(key);
+    var history = History.retrieve(object,key);
     return (history[1] || aNullVersion).value;
   };
   /**
@@ -164,7 +159,7 @@ define('Versionizable/impl',[
     var descriptor = Descriptor.retrieve(object,key);
     function checkChangeAndEnqueue(val,previousVal) {
       if (!Equals.equals(this,key,val,previousVal)) {
-        var history = retrieveHistory(this)(key);
+        var history = History.retrieve(this,key);
         var version = new Version;
         version.value = val;
         version.timestamp = Date.now();
