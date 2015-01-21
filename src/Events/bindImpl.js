@@ -1,8 +1,8 @@
 define('Events/bindImpl',[
-  './namespace','./Event','./Ancestor',
+  './namespace','./Event','./Ancestor','./HandlerCollection',
   'InternalObject',
   'utils/Array_from'
-],function (Events,Event,Ancestor,
+],function (Events,Event,Ancestor,HandlerCollection,
             InternalObject,
             Array_from) {
   var retrieveCallbacks = InternalObject.retrieve.bind(null,'callbacks',true);
@@ -23,7 +23,7 @@ define('Events/bindImpl',[
     }
 
     var calls = retrieveCallbacks(object);
-    var list = calls[eventType] || (calls[eventType] = []);
+    var list = calls[eventType] || (calls[eventType] = new HandlerCollection);
     var boundCallback = context
     ? handler.bind(context)
     : function () {
@@ -55,8 +55,8 @@ define('Events/bindImpl',[
     }
     // only object argument
     if (!(eventType || handler)) {
-      Object.keys(calls).forEach(function(event){
-        delete calls[event];
+      Object.keys(calls).forEach(function(eventType){
+        calls[eventType].clear();
       });
       return;
     }
@@ -66,15 +66,10 @@ define('Events/bindImpl',[
     // Loop through the handler list, splicing where appropriate.
     while (eventType = eventTypes.shift()) {
       if (!(list = calls[eventType]) || !handler) {
-        delete calls[eventType];
+        calls[eventType].clear();
         continue;
       }
-
-      for (i = list.length - 1; i >= 0; i--) {
-        if (handler && list[i].originalCallback === handler) {
-          list.splice(i, 1);
-        }
-      }
+      list.remove(handler);
     }
   };
 });
