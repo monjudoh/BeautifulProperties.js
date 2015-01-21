@@ -66,6 +66,25 @@ define('InternalObject/NamespacedKVS',[
     };
   };
   /**
+   * @callback BeautifulProperties~InternalObject/NamespacedKVS~removeFn
+   * @param {object} object
+   * @param {string} key
+   */
+  /**
+   * @function removeFnFactory
+   * @memberOf BeautifulProperties~InternalObject/NamespacedKVS
+   * @param {string} namespase
+   * @returns {BeautifulProperties~InternalObject/NamespacedKVS~removeFn}
+   */
+  NamespacedKVS.removeFnFactory = function removeFnFactory(namespase) {
+    return function remove(object,key) {
+      var container = InternalObject.retrieve(namespase,false,object);
+      if (container) {
+        delete container.dict[key];
+      }
+    };
+  };
+  /**
    * @callback BeautifulProperties~InternalObject/NamespacedKVS~keysFn
    * @param {object} object
    * @param {Array.<string>} keys
