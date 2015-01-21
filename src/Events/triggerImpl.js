@@ -43,8 +43,13 @@ define('Events/triggerImpl',[
       }
       event.currentTarget = currentTarget;
       // Copy handler lists to prevent modification.
-      handlers.slice().forEach(function(handler){
-        handler.apply(target, [event].concat(rest));
+      handlers = handlers.clone();
+      handlers.forEach(function(handler,index){
+        var context = handlers.contexts[index];
+        if (context === null) {
+          context = target;
+        }
+        handler.apply(context, [event].concat(rest));
       });
       if (!event.bubbles || event.isPropagationStopped) {
         break;
