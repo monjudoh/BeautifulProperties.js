@@ -1,8 +1,6 @@
 define('Events/bindImpl',[
-  './namespace','./Event','./Ancestor','./HandlerCollection',
-  'utils/Array_from'
-],function (Events,Event,Ancestor,HandlerCollection,
-            Array_from) {
+  './namespace','./Event','./Ancestor','./HandlerCollection'
+],function (Events,Event,Ancestor,HandlerCollection) {
   /**
    * @function on
    * @memberOf BeautifulProperties.Events
@@ -18,16 +16,8 @@ define('Events/bindImpl',[
     if (!handler) {
       throw new Error('handler is necessary in BeautifulProperties.Events.on');
     }
-
     var handlers = HandlerCollection.retrieveWithCreate(object,eventType);
-    var boundCallback = context
-    ? handler.bind(context)
-    : function () {
-      var self = this;
-      handler.apply(self,Array_from(arguments));
-    };
-    boundCallback.originalCallback = handler;
-    handlers.push(boundCallback);
+    handlers.add(handler,context);
   };
 
   /**

@@ -1,8 +1,20 @@
 define('Events/HandlerCollection',[
-  'InternalObject/NamespacedKVS'
-],function (NamespacedKVS) {
+  'InternalObject/NamespacedKVS',
+  'utils/Array_from'
+],function (NamespacedKVS,
+            Array_from) {
   var namespace = 'Events:HandlerCollection';
   var proto = Object.create(null);
+  proto.add = function add(handler,context) {
+    var boundCallback = context
+    ? handler.bind(context)
+    : function () {
+      var self = this;
+      handler.apply(self,Array_from(arguments));
+    };
+    boundCallback.originalCallback = handler;
+    this.push(boundCallback);
+  };
   proto.remove = function remove(handler) {
     var list = this;
     var i;
