@@ -5,12 +5,7 @@ define('InternalObject/constructor',[
    * @constructor BeautifulProperties~InternalObject
    * @private
    */
-  function InternalObject() {
-    Object.defineProperty(this,'callbacks',{
-      value : {},
-      writable : false
-    });
-  }
+  function InternalObject() {}
   InternalObject.Key = 'BeautifulProperties::InternalObject::Key';
   var Key = InternalObject.Key;
   InternalObject.register = function register(object,namespace,value){

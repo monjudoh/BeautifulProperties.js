@@ -1,4 +1,7 @@
-define('Events/HandlerCollection',function () {
+define('Events/HandlerCollection',[
+  'InternalObject/NamespacedKVS'
+],function (NamespacedKVS) {
+  var namespace = 'Events:HandlerCollection';
   var proto = Object.create(null);
   proto.remove = function remove(handler) {
     var list = this;
@@ -19,5 +22,11 @@ define('Events/HandlerCollection',function () {
     });
     return self;
   }
+
+  NamespacedKVS.mixinNamespace(namespace,HandlerCollection);
+  HandlerCollection.retrieve = NamespacedKVS.retrieveFnFactory(namespace,false);
+  HandlerCollection.retrieveWithCreate = NamespacedKVS.retrieveFnFactory(namespace,true);
+  HandlerCollection.remove = NamespacedKVS.removeFnFactory(namespace);
+  HandlerCollection.keys = NamespacedKVS.keysFnFactory(namespace);
   return HandlerCollection;
 });

@@ -1,11 +1,8 @@
 define('Events/bindImpl',[
   './namespace','./Event','./Ancestor','./HandlerCollection',
-  'InternalObject',
   'utils/Array_from'
 ],function (Events,Event,Ancestor,HandlerCollection,
-            InternalObject,
             Array_from) {
-  var retrieveCallbacks = InternalObject.retrieve.bind(null,'callbacks',true);
   /**
    * @function on
    * @memberOf BeautifulProperties.Events
@@ -22,8 +19,7 @@ define('Events/bindImpl',[
       throw new Error('handler is necessary in BeautifulProperties.Events.on');
     }
 
-    var calls = retrieveCallbacks(object);
-    var list = calls[eventType] || (calls[eventType] = new HandlerCollection);
+    var handlers = HandlerCollection.retrieveWithCreate(object,eventType);
     var boundCallback = context
     ? handler.bind(context)
     : function () {
@@ -31,7 +27,7 @@ define('Events/bindImpl',[
       handler.apply(self,Array_from(arguments));
     };
     boundCallback.originalCallback = handler;
-    list.push(boundCallback);
+    handlers.push(boundCallback);
   };
 
   /**
@@ -47,29 +43,23 @@ define('Events/bindImpl',[
    * If `eventType` is null, removes all bound handlers for all events.</pre>
    */
   Events.off = function off(object, eventType, handler) {
-    var eventTypes, calls, list, i;
-
+    var registeredEventTypes = HandlerCollection.keys(object);
     // No eventType, or removing *all* eventType.
-    if (!(calls = retrieveCallbacks(object))){
+    if (registeredEventTypes.length === 0){
       return;
     }
-    // only object argument
-    if (!(eventType || handler)) {
-      Object.keys(calls).forEach(function(eventType){
-        calls[eventType].clear();
-      });
-      return;
-    }
-
-    eventTypes = eventType ? [eventType] : Object.keys(calls);
-
-    // Loop through the handler list, splicing where appropriate.
-    while (eventType = eventTypes.shift()) {
-      if (!(list = calls[eventType]) || !handler) {
-        calls[eventType].clear();
-        continue;
+    var eventTypes = eventType ? [eventType] : registeredEventTypes;
+    eventTypes.forEach(function(eventType){
+      var handlers = HandlerCollection.retrieve(object,eventType);
+      if (!handlers) {
+        return;
       }
-      list.remove(handler);
-    }
+      if (handler) {
+        handlers.remove(handler);
+      } else {
+        handlers.clear();
+        HandlerCollection.remove(object,eventType);
+      }
+    });
   };
 });

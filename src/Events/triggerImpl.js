@@ -1,12 +1,9 @@
 define('Events/triggerImpl',[
-  './namespace','./Event','./Ancestor',
-  'InternalObject',
+  './namespace','./Event','./Ancestor','./HandlerCollection',
   'utils/Array_from','utils/cloneDict'
-],function (Events,Event,Ancestor,
-            InternalObject,
+],function (Events,Event,Ancestor,HandlerCollection,
             Array_from,cloneDict) {
   var toString = Object.prototype.toString;
-  var retrieveCallbacks = InternalObject.retrieve.bind(null,'callbacks',false);
 
   /**
    * @function trigger
@@ -33,20 +30,21 @@ define('Events/triggerImpl',[
       })());
     }
 
+    var handlers;
     do {
       if (target !== currentTarget && !event.bubbles) {
         // no bubbling
         break;
       }
-      var callbackDict = retrieveCallbacks(currentTarget);
+      handlers = HandlerCollection.retrieve(currentTarget,event.type);
       // no callbacks
-      if (!callbackDict || !callbackDict[event.type] || callbackDict[event.type].length === 0) {
+      if (!handlers  || handlers.length === 0) {
         continue;
       }
       event.currentTarget = currentTarget;
-      // Copy callback lists to prevent modification.
-      callbackDict[event.type].slice().forEach(function(callback){
-        callback.apply(target, [event].concat(rest));
+      // Copy handler lists to prevent modification.
+      handlers.slice().forEach(function(handler){
+        handler.apply(target, [event].concat(rest));
       });
       if (!event.bubbles || event.isPropagationStopped) {
         break;
