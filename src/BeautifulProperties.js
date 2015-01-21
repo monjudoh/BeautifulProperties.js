@@ -6,14 +6,8 @@ define('BeautifulProperties',[
   'Equals',
   'Observable',
   'Versionizable',
-  'Internal',
   'deprecated'
-],function(BeautifulProperties,
-           LazyInitializable,
-           Hookable,
-           Events,
-           Equals,
-           Observable) {
+],function(BeautifulProperties) {
   /**
    * @constant
    * @name VERSION

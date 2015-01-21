@@ -1,5 +1,6 @@
 define('deprecated/since0.1.9',[
-  'Hookable'
+  'Hookable',
+  './Internal'
 ],function (Hookable) {
   /**
    * @function addHooks
