@@ -33,7 +33,7 @@ define('Hookable/Hooks',[
    * @param {string} key
    * @returns BeautifulProperties.Hookable~Hooks
    */
-  Hooks.retrieve = NamespacedKVS.retrieverFactory('Hookable::Hooks',true);
+  Hooks.retrieve = NamespacedKVS.retrieveFnFactory('Hookable::Hooks', true);
   /**
    * @function walkAndRetrieve
    * @memberOf BeautifulProperties.Hookable~Hooks
@@ -54,6 +54,6 @@ define('Hookable/Hooks',[
       return !!retrieve(object,key);
     }
     return hasHooks;
-  })(NamespacedKVS.retrieverFactory('Hookable::Hooks',false));
+  })(NamespacedKVS.retrieveFnFactory('Hookable::Hooks', false));
   return Hooks;
 });

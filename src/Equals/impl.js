@@ -4,7 +4,7 @@ define('Equals/impl',[
 ],function (Equals,Functions,
             NamespacedKVS,PrototypeWalker) {
   NamespacedKVS.mixinNamespace('Equals');
-  var store = NamespacedKVS.storerFactory('Equals');
+  var store = NamespacedKVS.storeFnFactory('Equals');
   /**
    * @name set
    * @memberOf BeautifulProperties.Equals

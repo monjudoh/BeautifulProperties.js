@@ -14,7 +14,7 @@ define('Hookable/Raw',[
    * @param {string} key
    * @returns {*}
    */
-  Raw.retrieve = NamespacedKVS.retrieverFactory('Hookable::Raw',false);
+  Raw.retrieve = NamespacedKVS.retrieveFnFactory('Hookable::Raw', false);
   /**
    * @function store
    * @memberOf BeautifulProperties.Hookable~Raw
@@ -22,6 +22,6 @@ define('Hookable/Raw',[
    * @param {string} key
    * @param {*}
    */
-  Raw.store = NamespacedKVS.storerFactory('Hookable::Raw');
+  Raw.store = NamespacedKVS.storeFnFactory('Hookable::Raw');
   return Raw;
 });

@@ -23,6 +23,6 @@ define('Versionizable/History',[
    * @param {string} key
    * @returns BeautifulProperties.Versionizable~History
    */
-  History.retrieve = NamespacedKVS.retrieverFactory('Versionizable::History',true);
+  History.retrieve = NamespacedKVS.retrieveFnFactory('Versionizable::History', true);
   return History;
 });

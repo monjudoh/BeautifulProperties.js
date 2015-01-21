@@ -5,10 +5,10 @@ define('InternalObject/PrototypeWalker',[
   NamespacedKVS.mixinNamespace('PrototypeWalker::Cache',function() {
     return Object.create(null);
   });
-  var retrieveCache = NamespacedKVS.retrieverFactory('PrototypeWalker::Cache',true);
+  var retrieveCache = NamespacedKVS.retrieveFnFactory('PrototypeWalker::Cache', true);
   PrototypeWalker.retrieve = function retrieve(namespace,object,key){
     var prototypeCache = retrieveCache(object,key);
-    var retrieveValue = NamespacedKVS.retrieverFactory(namespace,false);
+    var retrieveValue = NamespacedKVS.retrieveFnFactory(namespace, false);
     if (prototypeCache[namespace]) {
       return retrieveValue(prototypeCache[namespace],key);
     }

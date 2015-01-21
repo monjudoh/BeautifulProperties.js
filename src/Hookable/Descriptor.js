@@ -17,7 +17,7 @@ define('Hookable/Descriptor',[
    * @param {string} key
    * @returns {(BeautifulProperties~DataDescriptor|BeautifulProperties~AccessorDescriptor|BeautifulProperties~GenericDescriptor)=}
    */
-  Descriptor.retrieve = NamespacedKVS.retrieverFactory('Hookable::Descriptor',false);
+  Descriptor.retrieve = NamespacedKVS.retrieveFnFactory('Hookable::Descriptor', false);
   /**
    * @function walkAndRetrieve
    * @memberOf BeautifulProperties.Hookable~Descriptor
@@ -33,6 +33,6 @@ define('Hookable/Descriptor',[
    * @param {string} key
    * @param {(BeautifulProperties~DataDescriptor|BeautifulProperties~AccessorDescriptor|BeautifulProperties~GenericDescriptor)}
    */
-  Descriptor.store = NamespacedKVS.storerFactory('Hookable::Descriptor');
+  Descriptor.store = NamespacedKVS.storeFnFactory('Hookable::Descriptor');
   return Descriptor;
 });

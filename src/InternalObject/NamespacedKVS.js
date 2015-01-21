@@ -5,6 +5,7 @@ define('InternalObject/NamespacedKVS',[
             LazyInitializable) {
   /**
    * @namespace BeautifulProperties~InternalObject/NamespacedKVS
+   * @private
    */
   var NamespacedKVS = Object.create(null);
   NamespacedKVS.mixinNamespace = function mixinNamespace(namespase,constructor) {
@@ -18,7 +19,20 @@ define('InternalObject/NamespacedKVS',[
       },writable:false
     });
   };
-  NamespacedKVS.retrieverFactory = function retrieverFactory(namespase,create) {
+  /**
+   * @callback BeautifulProperties~InternalObject/NamespacedKVS~retrieveFn
+   * @param {object} object
+   * @param {string} key
+   * @returns {*} value
+   */
+  /**
+   * @function retrieveFnFactory
+   * @memberOf BeautifulProperties~InternalObject/NamespacedKVS
+   * @param {string} namespase
+   * @param {boolean} create
+   * @returns {BeautifulProperties~InternalObject/NamespacedKVS~retrieveFn}
+   */
+  NamespacedKVS.retrieveFnFactory = function retrieveFnFactory(namespase, create) {
     if (create === undefined) {
       create = true;
     }
@@ -33,7 +47,19 @@ define('InternalObject/NamespacedKVS',[
       return container.dict[key];
     };
   };
-  NamespacedKVS.storerFactory = function storerFactory(namespase) {
+  /**
+   * @callback BeautifulProperties~InternalObject/NamespacedKVS~storeFn
+   * @param {object} object
+   * @param {string} key
+   * @param {*} value
+   */
+  /**
+   * @function storeFnFactory
+   * @memberOf BeautifulProperties~InternalObject/NamespacedKVS
+   * @param {string} namespase
+   * @returns {BeautifulProperties~InternalObject/NamespacedKVS~storeFn}
+   */
+  NamespacedKVS.storeFnFactory = function storeFnFactory(namespase) {
     return function store(object,key,value) {
       var container = InternalObject.retrieve(namespase,true,object);
       container.dict[key] = value;

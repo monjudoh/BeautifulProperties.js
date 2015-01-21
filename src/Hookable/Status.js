@@ -17,6 +17,6 @@ define('Hookable/Status',[
    * @param {string} key
    * @returns BeautifulProperties.Hookable~Status
    */
-  Status.retrieve = NamespacedKVS.retrieverFactory('Hookable::Status',true);
+  Status.retrieve = NamespacedKVS.retrieveFnFactory('Hookable::Status', true);
   return Status;
 });
