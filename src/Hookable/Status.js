@@ -9,7 +9,7 @@ define('Hookable/Status',[
   function Status(){
     this.isInitialized = false;
   }
-  PropertySpecific.mixinRetriever('Hookable::Status',Status);
+  PropertySpecific.mixinNamespace('Hookable::Status',Status);
   /**
    * @function retrieve
    * @memberOf BeautifulProperties.Hookable~Status

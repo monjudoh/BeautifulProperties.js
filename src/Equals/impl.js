@@ -3,7 +3,7 @@ define('Equals/impl',[
   'InternalObject/PropertySpecific','InternalObject/PrototypeWalker'
 ],function (Equals,Functions,
             PropertySpecific,PrototypeWalker) {
-  PropertySpecific.mixinRetriever('Equals');
+  PropertySpecific.mixinNamespace('Equals');
   var store = PropertySpecific.storerFactory('Equals');
   /**
    * @name set

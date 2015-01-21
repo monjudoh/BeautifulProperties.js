@@ -15,7 +15,7 @@ define('Versionizable/History',[
     });
     return self;
   }
-  PropertySpecific.mixinRetriever('Versionizable::History',History);
+  PropertySpecific.mixinNamespace('Versionizable::History',History);
   /**
    * @function retrieve
    * @memberOf BeautifulProperties.Versionizable~History

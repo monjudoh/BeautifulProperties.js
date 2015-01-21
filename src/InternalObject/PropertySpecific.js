@@ -3,57 +3,41 @@ define('InternalObject/PropertySpecific',[
   'LazyInitializable'
 ],function (InternalObject,
             LazyInitializable) {
-  var PropertySpecific = Object.create(null);
   /**
-   *
-   * @param key
-   * @param constructor
-   * @private
+   * @namespace BeautifulProperties~InternalObject/PropertySpecific
    */
-  PropertySpecific.mixinRetriever = function mixinRetriever(key,constructor) {
-    LazyInitializable.define(InternalObject.prototype,key,{
+  var PropertySpecific = Object.create(null);
+  PropertySpecific.mixinNamespace = function mixinNamespace(namespase,constructor) {
+    LazyInitializable.define(InternalObject.prototype,namespase,{
       init: function() {
-        var object = Object.create(null);
-        var canCreate = typeof constructor === 'function';
-        var boundRetrieve = (function retrieve(key,create){
-          if (create === undefined) {
-            create = true;
-          }
-          if (canCreate && create && !this[key]) {
-            this[key] = new constructor;
-          }
-          return this[key];
-        }).bind(object);
-        boundRetrieve.store = (function store(key,value) {
-          this[key] = value;
-        }).bind(object);
-        return boundRetrieve;
+        var container = Object.create(null);
+        container.dict = Object.create(null);
+        container._constructor = constructor;
+        container.canCreate = typeof constructor === 'function';
+        return container;
       },writable:false
     });
   };
-  /**
-   *
-   * @param key
-   * @param create
-   * @return {function}
-   * @private
-   */
-  PropertySpecific.retrieverFactory = function retrieverFactory(key,create) {
-    var getRetrieverFromObject = InternalObject.retrieve.bind(null,key,create);
-    return function (object,key) {
-      var retrieve = getRetrieverFromObject(object);
-      return retrieve !== undefined
-      ? retrieve(key,create)
-      : undefined;
+  PropertySpecific.retrieverFactory = function retrieverFactory(namespase,create) {
+    if (create === undefined) {
+      create = true;
     }
+    return function retrieve(object,key) {
+      var container = InternalObject.retrieve(namespase,create,object);
+      if (container === undefined) {
+        return undefined;
+      }
+      if (container.canCreate && create && !container.dict[key]) {
+        container.dict[key] = new (container._constructor);
+      }
+      return container.dict[key];
+    };
   };
-  PropertySpecific.storerFactory = function storerFactory(key) {
-    var getRetrieverFromObject = InternalObject.retrieve.bind(null,key,true);
+  PropertySpecific.storerFactory = function storerFactory(namespase) {
     return function store(object,key,value) {
-      var retriever = getRetrieverFromObject(object);
-      var store = retriever.store;
-      store(key,value);
-    }
+      var container = InternalObject.retrieve(namespase,true,object);
+      container.dict[key] = value;
+    };
   };
   return PropertySpecific;
 });

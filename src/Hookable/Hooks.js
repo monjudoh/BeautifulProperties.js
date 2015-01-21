@@ -25,7 +25,7 @@ define('Hookable/Hooks',[
     });
   });
 
-  PropertySpecific.mixinRetriever('Hookable::Hooks',Hooks);
+  PropertySpecific.mixinNamespace('Hookable::Hooks',Hooks);
   /**
    * @function retrieve
    * @memberOf BeautifulProperties.Hookable~Hooks

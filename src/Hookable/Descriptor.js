@@ -9,7 +9,7 @@ define('Hookable/Descriptor',[
    * @private
    */
   var Descriptor = Object.create(base);
-  PropertySpecific.mixinRetriever('Hookable::Descriptor');
+  PropertySpecific.mixinNamespace('Hookable::Descriptor');
   /**
    * @function retrieve
    * @memberOf BeautifulProperties.Hookable~Descriptor

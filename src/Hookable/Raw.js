@@ -1,7 +1,7 @@
 define('Hookable/Raw',[
   'InternalObject/PropertySpecific'
 ],function (PropertySpecific) {
-  PropertySpecific.mixinRetriever('Hookable::Raw');
+  PropertySpecific.mixinNamespace('Hookable::Raw');
   /**
    * @namespace BeautifulProperties.Hookable~Raw
    * @private
