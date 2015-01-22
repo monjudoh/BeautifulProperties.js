@@ -1,0 +1,31 @@
+{
+  "name": "BeautifulProperties",
+  "version": "0.1.9",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/monjudoh/BeautifulProperties.js.git"
+  },
+  "private": true,
+  "devDependencies": {
+    "amdbuilder": "=0.0.7",
+    "jasmine-matchers": "^0.2.3",
+    "jasmine-node": "^1.14.5",
+    "jsdoc": "~3.3.0-alpha13",
+    "underscore": "~1.6"
+  },
+  "engine": {
+    "node": ">= 0.10",
+    "npm": ">= 2.1"
+  },
+  "main":"./dist/cjs/BeautifulProperties.js",
+  "scripts": {
+    "build": "node build.js",
+    "docs": "jsdoc -r src/ -d docs/",
+    "docs:clean": "rm -rf docs",
+    "docs-inner": "jsdoc -r -p src/ -d docs-inner/",
+    "docs-inner:clean": "rm -rf docs-inner/",
+    "spec": "jasmine-node spec/",
+    "prespec": "npm run build",
+    "rst2md" : "pandoc README.rst -s -o README.md"
+  }
+}

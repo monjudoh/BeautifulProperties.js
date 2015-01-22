@@ -1,4 +1,3 @@
-===========================================================
 BeautifulProperties.js - Extension of ECMAScript5 property.
 ===========================================================
 
@@ -6,7 +5,7 @@ Links
 =====
 
 - `Repository <https://github.com/monjudoh/BeautifulProperties.js>`_
-- `Reference <http://monjudoh.github.io/BeautifulProperties.js/doc/index.html>`_
+- `Reference <http://monjudoh.github.io/BeautifulProperties.js/docs/index.html>`_
 
 Features
 ========
@@ -161,6 +160,22 @@ In an AMD loader like RequireJS:
   require(['BeautifulProperties'], function(BeautifulProperties) {
   });
 
+Changelog
+=========
+
+0.1.9
+-----
+
+- Export as global,AMD,CJS.
+- Many refacotoring.
+- deprecated
+  - BeautifulProperties.Hookable.addHooks method
+  - BeautifulProperties.Internal namespace is deprecated.
+- removed
+  - BeautifulProperties.getRaw method (deprecated since 0.1.6)
+  - BeautifulProperties.setRaw method (deprecated since 0.1.6)
+
+
 Author
 ======
 
@@ -170,6 +185,6 @@ Contributors
 ============
 
 - aodag (Atsushi Odagiri) https://github.com/aodag
-    - He named this library.
+  - He named this library.
 - jbking (Yusuke Muraoka) https://github.com/jbking
-    - He provides ideas for this library.
+  - He provides ideas for this library.
