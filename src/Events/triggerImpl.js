@@ -54,7 +54,7 @@ define('Events/triggerImpl',[
       if (!event.bubbles || event.isPropagationStopped) {
         break;
       }
-    } while (currentTarget = Ancestor.retrieve(currentTarget)) ;
+    } while (currentTarget = Ancestor.retrieve(currentTarget,event)) ;
     event.currentTarget = null;
   };
 });

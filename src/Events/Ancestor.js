@@ -14,6 +14,7 @@ define('Events/Ancestor',[
   /**
    * @callback BeautifulProperties.Events.Ancestor~ancestorRetriever
    * @param {object} object target object
+   * @param {BeautifulProperties.Events.Event}
    * @returns {object|null}
    * @description The function to retrieve the ancestor of given object.
    */
@@ -33,15 +34,16 @@ define('Events/Ancestor',[
    * @name retrieve
    * @memberOf BeautifulProperties.Events.Ancestor
    * @param {object} object target object
+   * @param {BeautifulProperties.Events.Event}
    * @returns {object|null} the ancestor of the target object
    * @function
    * @description Retrieve the ancestor of the target object by the ancestorRetriever that set on the target object.
    * If the target object don't have ancestorRetriever,the method returns the prototype of the target object.
    */
-  Ancestor.retrieve = function retrieve(object) {
+  Ancestor.retrieve = function retrieve(object,event) {
     var retriever = InternalObject.retrieve(namespace,false,object);
     if (retriever) {
-      return retriever(object);
+      return retriever(object,event);
     } else {
       return Object.getPrototypeOf(object);
     }

@@ -14,8 +14,7 @@ define('Events/Event',[
   /**
    *
    * @param {BeautifulProperties.Events.Event.options} options
-   * @constructor
-   * @name Event
+   * @constructor Event
    * @memberOf BeautifulProperties.Events
    */
   function Event(options) {
