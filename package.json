@@ -10,7 +10,7 @@
     "amdbuilder": "=0.0.7",
     "jasmine-matchers": "^0.2.3",
     "jasmine-node": "^1.14.5",
-    "jsdoc": "~3.3.0-alpha13",
+    "jsdoc": "~3.3.0",
     "underscore": "~1.6"
   },
   "engine": {
