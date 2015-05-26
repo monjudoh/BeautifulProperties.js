@@ -10,7 +10,7 @@ define('Events/triggerImpl',[
    * @memberOf BeautifulProperties.Events
    *
    * @param {object} object
-   * @param {string|BeautifulProperties.Events.Event.options} eventType
+   * @param {string|BeautifulProperties.Events.Event~options} eventType
    * @description  <pre>Trigger one or many events, firing all bound callbacks. Callbacks are
    * passed the same arguments as `trigger` is, apart from the event name.</pre>
    */
@@ -22,7 +22,7 @@ define('Events/triggerImpl',[
     if (toString.call(eventType) == '[object String]') {
       event = new Event({type:eventType,target:target});
     } else {
-      // eventType is a BeautifulProperties.Events.Event.options.
+      // eventType is a BeautifulProperties.Events.Event~options.
       event = new Event((function () {
         var options = cloneDict(eventType);
         options.target = target;
@@ -54,7 +54,7 @@ define('Events/triggerImpl',[
       if (!event.bubbles || event.isPropagationStopped) {
         break;
       }
-    } while (currentTarget = Ancestor.retrieve(currentTarget)) ;
+    } while ((event.previousTarget = currentTarget || null,currentTarget = Ancestor.retrieve(currentTarget, event))) ;
     event.currentTarget = null;
   };
 });

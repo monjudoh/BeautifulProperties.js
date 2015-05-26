@@ -4,8 +4,10 @@ define('Events/Event',[
 ],function (Events,
             hasConsoleError) {
   /**
-   * @name BeautifulProperties.Events.Event.options
-   * @typedef {{type:string,target:object,bubbles:boolean=}}
+   * @typedef BeautifulProperties.Events.Event~options
+   * @property {string} type
+   * @property {object} target
+   * @property {boolean=} bubbles
    * @description Options for BeautifulProperties.Events.Event constructor.
    */
   var readonlyKeys = 'type target'.split(' ');
@@ -13,9 +15,8 @@ define('Events/Event',[
   var optionalKeys = 'bubbles'.split(' ');
   /**
    *
-   * @param {BeautifulProperties.Events.Event.options} options
-   * @constructor
-   * @name Event
+   * @param {BeautifulProperties.Events.Event~options} options
+   * @constructor Event
    * @memberOf BeautifulProperties.Events
    */
   function Event(options) {
@@ -58,11 +59,17 @@ define('Events/Event',[
      */
     proto.isPropagationStopped = false;
     /**
-     * @type {object}
+     * @type {object?}
      * @name currentTarget
      * @memberOf BeautifulProperties.Events.Event#
      */
     this.currentTarget = null;
+    /**
+     * @type {object?}
+     * @name previousTarget
+     * @memberOf BeautifulProperties.Events.Event#
+     * @description Previous `currentTarget` in bubbling phase.
+     */
     /**
      * @function
      * @name stopPropagation

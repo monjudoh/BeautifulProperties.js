@@ -163,6 +163,16 @@ In an AMD loader like RequireJS:
 Changelog
 =========
 
+0.1.10
+------
+
+- added
+  - BeautifulProperties.Events.Event#previousTarget property
+- changed
+  - BeautifulProperties.Events.Ancestor~ancestorRetriever callback
+    - has 2 params.
+    - If the ancestorRetriever returns undefined,Ancestor.retrieve method returns the prototype of the target object.
+
 0.1.9
 -----
 

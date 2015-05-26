@@ -4,7 +4,7 @@ define('BeautifulProperties', [], function () {
     /**
      * @name BeautifulProperties
      * @namespace
-     * @version 0.1.9
+     * @version 0.1.10
      * @author monjudoh
      * @copyright <pre>(c) 2012 monjudoh
      * Dual licensed under the MIT (MIT-LICENSE.txt)
@@ -1115,8 +1115,10 @@ define('BeautifulProperties', [], function () {
   }(namespace, utils_createChildNamespace);
   Events_Event = function (Events, hasConsoleError) {
     /**
-     * @name BeautifulProperties.Events.Event.options
-     * @typedef {{type:string,target:object,bubbles:boolean=}}
+     * @typedef BeautifulProperties.Events.Event~options
+     * @property {string} type
+     * @property {object} target
+     * @property {boolean=} bubbles
      * @description Options for BeautifulProperties.Events.Event constructor.
      */
     var readonlyKeys = 'type target'.split(' ');
@@ -1124,9 +1126,8 @@ define('BeautifulProperties', [], function () {
     var optionalKeys = 'bubbles'.split(' ');
     /**
      *
-     * @param {BeautifulProperties.Events.Event.options} options
-     * @constructor
-     * @name Event
+     * @param {BeautifulProperties.Events.Event~options} options
+     * @constructor Event
      * @memberOf BeautifulProperties.Events
      */
     function Event(options) {
@@ -1166,11 +1167,17 @@ define('BeautifulProperties', [], function () {
        */
       proto.isPropagationStopped = false;
       /**
-       * @type {object}
+       * @type {object?}
        * @name currentTarget
        * @memberOf BeautifulProperties.Events.Event#
        */
       this.currentTarget = null;
+      /**
+       * @type {object?}
+       * @name previousTarget
+       * @memberOf BeautifulProperties.Events.Event#
+       * @description Previous `currentTarget` in bubbling phase.
+       */
       /**
        * @function
        * @name stopPropagation
@@ -1193,7 +1200,8 @@ define('BeautifulProperties', [], function () {
     /**
      * @callback BeautifulProperties.Events.Ancestor~ancestorRetriever
      * @param {object} object target object
-     * @returns {object|null}
+     * @param {BeautifulProperties.Events.Event} event
+     * @returns {object|null|undefined}
      * @description The function to retrieve the ancestor of given object.
      */
     /**
@@ -1212,18 +1220,23 @@ define('BeautifulProperties', [], function () {
      * @name retrieve
      * @memberOf BeautifulProperties.Events.Ancestor
      * @param {object} object target object
+     * @param {BeautifulProperties.Events.Event}
      * @returns {object|null} the ancestor of the target object
      * @function
      * @description Retrieve the ancestor of the target object by the ancestorRetriever that set on the target object.
-     * If the target object don't have ancestorRetriever,the method returns the prototype of the target object.
+     * If the target object don't have ancestorRetriever or the ancestorRetriever returns undefined,
+     * the method returns the prototype of the target object.
      */
-    Ancestor.retrieve = function retrieve(object) {
+    Ancestor.retrieve = function retrieve(object, event) {
       var retriever = InternalObject.retrieve(namespace, false, object);
+      var ancestor;
       if (retriever) {
-        return retriever(object);
-      } else {
-        return Object.getPrototypeOf(object);
+        ancestor = retriever(object, event);
       }
+      if (ancestor === undefined) {
+        ancestor = Object.getPrototypeOf(object);
+      }
+      return ancestor;
     };
     return Ancestor;
   }(Events_namespace, InternalObject, utils_createChildNamespace);
@@ -1368,7 +1381,7 @@ define('BeautifulProperties', [], function () {
      * @memberOf BeautifulProperties.Events
      *
      * @param {object} object
-     * @param {string|BeautifulProperties.Events.Event.options} eventType
+     * @param {string|BeautifulProperties.Events.Event~options} eventType
      * @description  <pre>Trigger one or many events, firing all bound callbacks. Callbacks are
      * passed the same arguments as `trigger` is, apart from the event name.</pre>
      */
@@ -1383,7 +1396,7 @@ define('BeautifulProperties', [], function () {
           target: target
         });
       } else {
-        // eventType is a BeautifulProperties.Events.Event.options.
+        // eventType is a BeautifulProperties.Events.Event~options.
         event = new Event(function () {
           var options = cloneDict(eventType);
           options.target = target;
@@ -1414,7 +1427,7 @@ define('BeautifulProperties', [], function () {
         if (!event.bubbles || event.isPropagationStopped) {
           break;
         }
-      } while (currentTarget = Ancestor.retrieve(currentTarget));
+      } while (event.previousTarget = currentTarget || null, currentTarget = Ancestor.retrieve(currentTarget, event));
       event.currentTarget = null;
     };
   }(Events_namespace, Events_Event, Events_Ancestor, Events_HandlerCollection, utils_Array_from, utils_cloneDict);
@@ -1523,11 +1536,11 @@ define('BeautifulProperties', [], function () {
      * @name define
      * @memberOf BeautifulProperties.Observable
      * @see BeautifulProperties.Equals.equals
-     * @see BeautifulProperties.Events.Event.options
+     * @see BeautifulProperties.Events.Event~options
      *
      * @param {object} object
      * @param {string} key
-     * @param {{bubbles:boolean=}=} options part of BeautifulProperties.Events.Event.options.
+     * @param {{bubbles:boolean=}=} options part of BeautifulProperties.Events.Event~options.
      * @description This method can be use after Hookable.define.
      */
     Observable.define = function defineObservableProperty(object, key, options) {
@@ -1871,7 +1884,7 @@ define('BeautifulProperties', [], function () {
      * @memberOf BeautifulProperties
      */
     Object.defineProperty(BeautifulProperties, 'VERSION', {
-      value: '0.1.9',
+      value: '0.1.10',
       writable: false
     });
     return BeautifulProperties;
