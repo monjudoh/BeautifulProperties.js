@@ -15,11 +15,11 @@ define('Observable/impl',[
    * @name define
    * @memberOf BeautifulProperties.Observable
    * @see BeautifulProperties.Equals.equals
-   * @see BeautifulProperties.Events.Event.options
+   * @see BeautifulProperties.Events.Event~options
    *
    * @param {object} object
    * @param {string} key
-   * @param {{bubbles:boolean=}=} options part of BeautifulProperties.Events.Event.options.
+   * @param {{bubbles:boolean=}=} options part of BeautifulProperties.Events.Event~options.
    * @description This method can be use after Hookable.define.
    */
   Observable.define = function defineObservableProperty(object,key,options) {
