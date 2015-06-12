@@ -30,8 +30,11 @@ define('Events/triggerImpl',[
       })());
     }
 
+    var previousTarget = null;
     var handlers;
     do {
+      event.previousTarget = previousTarget;
+      event.currentTarget = currentTarget;
       if (target !== currentTarget && !event.bubbles) {
         // no bubbling
         break;
@@ -41,7 +44,6 @@ define('Events/triggerImpl',[
       if (!handlers  || handlers.length === 0) {
         continue;
       }
-      event.currentTarget = currentTarget;
       // Copy handler lists to prevent modification.
       handlers = handlers.clone();
       handlers.forEach(function(handler,index){
@@ -54,7 +56,7 @@ define('Events/triggerImpl',[
       if (!event.bubbles || event.isPropagationStopped) {
         break;
       }
-    } while ((event.previousTarget = currentTarget || null,currentTarget = Ancestor.retrieve(currentTarget, event))) ;
+    } while ((previousTarget = currentTarget,currentTarget = Ancestor.retrieve(currentTarget, event)))
     event.currentTarget = null;
   };
 });
