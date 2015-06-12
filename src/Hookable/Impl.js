@@ -37,9 +37,8 @@ define('Hookable/impl',[
    * @param {*} previousVal
    */
   /**
-   * @name addHook
+   * @function addHook
    * @memberOf BeautifulProperties.Hookable
-   * @function
    *
    * @param {object} object
    * @param {string} key
@@ -60,8 +59,7 @@ define('Hookable/impl',[
     hooks[hookType].add(hook,priority);
   };
   /**
-   * @function
-   * @name define
+   * @function define
    * @memberOf BeautifulProperties.Hookable
    *
    * @param {object} object

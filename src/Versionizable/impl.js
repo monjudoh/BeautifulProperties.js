@@ -6,8 +6,7 @@ define('Versionizable/impl',[
             Hookable,Descriptor,
             Equals,Events) {
   /**
-   * @function
-   * @name getHistoryLength
+   * @function getHistoryLength
    * @memberOf BeautifulProperties.Versionizable
    *
    * @param {object} object
@@ -30,8 +29,7 @@ define('Versionizable/impl',[
     });
   })(aNullVersion);
   /**
-   * @function
-   * @name getVersions
+   * @function getVersions
    * @memberOf BeautifulProperties.Versionizable
    *
    * @param {object} object
@@ -43,8 +41,7 @@ define('Versionizable/impl',[
     return history.slice();
   };
   /**
-   * @function
-   * @name getVersion
+   * @function getVersion
    * @memberOf BeautifulProperties.Versionizable
    *
    * @param {object} object
@@ -57,9 +54,8 @@ define('Versionizable/impl',[
     return history[index] || aNullVersion;
   };
   /**
-   * @name undo
+   * @function undo
    * @memberOf BeautifulProperties.Versionizable
-   * @function
    *
    * @param {object} object
    * @param {string} key
@@ -97,9 +93,8 @@ define('Versionizable/impl',[
    * @param {Array.<BeautifulProperties.Versionizable.Version>} versionsBeforeTransaction
    */
   /**
-   * @name transaction
+   * @function transaction
    * @memberOf BeautifulProperties.Versionizable
-   * @function
    *
    * @param {object} object
    * @param {string} key
@@ -124,8 +119,7 @@ define('Versionizable/impl',[
     }
   };
   /**
-   * @function
-   * @name getPreviousValue
+   * @function getPreviousValue
    * @memberOf BeautifulProperties.Versionizable
    *
    * @param {object} object
@@ -137,8 +131,7 @@ define('Versionizable/impl',[
     return (history[1] || aNullVersion).value;
   };
   /**
-   * @function
-   * @name define
+   * @function define
    * @memberOf BeautifulProperties.Versionizable
    * @see BeautifulProperties.Equals.equals
    *

@@ -20,23 +20,21 @@ define('Events/Ancestor',[
    */
   /**
    *
-   * @name setRetriever
+   * @function setRetriever
    * @memberOf BeautifulProperties.Events.Ancestor
    * @param {object} object target object
    * @param {BeautifulProperties.Events.Ancestor~ancestorRetriever} ancestorRetriever
-   * @function
    */
   Ancestor.setRetriever = function set(object,ancestorRetriever){
     InternalObject.register(object,namespace,ancestorRetriever);
   };
   /**
    *
-   * @name retrieve
+   * @function retrieve
    * @memberOf BeautifulProperties.Events.Ancestor
    * @param {object} object target object
    * @param {BeautifulProperties.Events.Event}
    * @returns {object|null} the ancestor of the target object
-   * @function
    * @description Retrieve the ancestor of the target object by the ancestorRetriever that set on the target object.
    * If the target object don't have ancestorRetriever or the ancestorRetriever returns undefined,
    * the method returns the prototype of the target object.

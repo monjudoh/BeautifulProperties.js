@@ -6,9 +6,8 @@ define('Equals/impl',[
   NamespacedKVS.mixinNamespace('Equals');
   var store = NamespacedKVS.storeFnFactory('Equals');
   /**
-   * @name set
+   * @function set
    * @memberOf BeautifulProperties.Equals
-   * @function
    * @see BeautifulProperties.Equals.equals
    *
    * @param {object} object
@@ -22,9 +21,8 @@ define('Equals/impl',[
   };
   var walkAndRetrieve = PrototypeWalker.retrieve.bind(null,'Equals');
   /**
-   * @name equals
+   * @function equals
    * @memberOf BeautifulProperties.Equals
-   * @function
    *
    * @param {object} object
    * @param {string} key

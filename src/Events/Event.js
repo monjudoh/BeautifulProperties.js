@@ -71,8 +71,7 @@ define('Events/Event',[
      * @description Previous `currentTarget` in bubbling phase.
      */
     /**
-     * @function
-     * @name stopPropagation
+     * @function stopPropagation
      * @memberOf BeautifulProperties.Events.Event#
      */
     proto.stopPropagation = function stopPropagation () {
