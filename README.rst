@@ -163,6 +163,12 @@ In an AMD loader like RequireJS:
 Changelog
 =========
 
+0.1.11
+------
+
+- fixes
+  - event.previousTarget,event.currentTarget in BeautifulProperties.Events.Ancestor~ancestorRetriever.
+
 0.1.10
 ------
 
