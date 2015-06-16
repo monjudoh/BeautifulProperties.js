@@ -11,9 +11,8 @@ define('LazyInitializable',[
    */
   var LazyInitializable = createChildNamespace(BeautifulProperties,'LazyInitializable');
   /**
-   * @name define
+   * @function define
    * @memberOf BeautifulProperties.LazyInitializable
-   * @function
    *
    * @param {object} object
    * @param {string} key

@@ -4,7 +4,7 @@ module.exports = function () {
     /**
      * @name BeautifulProperties
      * @namespace
-     * @version 0.1.10
+     * @version 0.1.11
      * @author monjudoh
      * @copyright <pre>(c) 2012 monjudoh
      * Dual licensed under the MIT (MIT-LICENSE.txt)
@@ -230,9 +230,8 @@ module.exports = function () {
      */
     var LazyInitializable = createChildNamespace(BeautifulProperties, 'LazyInitializable');
     /**
-     * @name define
+     * @function define
      * @memberOf BeautifulProperties.LazyInitializable
-     * @function
      *
      * @param {object} object
      * @param {string} key
@@ -835,9 +834,8 @@ module.exports = function () {
      * @param {*} previousVal
      */
     /**
-     * @name addHook
+     * @function addHook
      * @memberOf BeautifulProperties.Hookable
-     * @function
      *
      * @param {object} object
      * @param {string} key
@@ -858,8 +856,7 @@ module.exports = function () {
       hooks[hookType].add(hook, priority);
     };
     /**
-     * @function
-     * @name define
+     * @function define
      * @memberOf BeautifulProperties.Hookable
      *
      * @param {object} object
@@ -1179,8 +1176,7 @@ module.exports = function () {
        * @description Previous `currentTarget` in bubbling phase.
        */
       /**
-       * @function
-       * @name stopPropagation
+       * @function stopPropagation
        * @memberOf BeautifulProperties.Events.Event#
        */
       proto.stopPropagation = function stopPropagation() {
@@ -1206,23 +1202,21 @@ module.exports = function () {
      */
     /**
      *
-     * @name setRetriever
+     * @function setRetriever
      * @memberOf BeautifulProperties.Events.Ancestor
      * @param {object} object target object
      * @param {BeautifulProperties.Events.Ancestor~ancestorRetriever} ancestorRetriever
-     * @function
      */
     Ancestor.setRetriever = function set(object, ancestorRetriever) {
       InternalObject.register(object, namespace, ancestorRetriever);
     };
     /**
      *
-     * @name retrieve
+     * @function retrieve
      * @memberOf BeautifulProperties.Events.Ancestor
      * @param {object} object target object
      * @param {BeautifulProperties.Events.Event}
      * @returns {object|null} the ancestor of the target object
-     * @function
      * @description Retrieve the ancestor of the target object by the ancestorRetriever that set on the target object.
      * If the target object don't have ancestorRetriever or the ancestorRetriever returns undefined,
      * the method returns the prototype of the target object.
@@ -1403,8 +1397,11 @@ module.exports = function () {
           return options;
         }());
       }
+      var previousTarget = null;
       var handlers;
       do {
+        event.previousTarget = previousTarget;
+        event.currentTarget = currentTarget;
         if (target !== currentTarget && !event.bubbles) {
           // no bubbling
           break;
@@ -1414,7 +1411,6 @@ module.exports = function () {
         if (!handlers || handlers.length === 0) {
           continue;
         }
-        event.currentTarget = currentTarget;
         // Copy handler lists to prevent modification.
         handlers = handlers.clone();
         handlers.forEach(function (handler, index) {
@@ -1427,7 +1423,7 @@ module.exports = function () {
         if (!event.bubbles || event.isPropagationStopped) {
           break;
         }
-      } while (event.previousTarget = currentTarget || null, currentTarget = Ancestor.retrieve(currentTarget, event));
+      } while (previousTarget = currentTarget, currentTarget = Ancestor.retrieve(currentTarget, event));
       event.currentTarget = null;
     };
   }(Events_namespace, Events_Event, Events_Ancestor, Events_HandlerCollection, utils_Array_from, utils_cloneDict);
@@ -1480,9 +1476,8 @@ module.exports = function () {
     NamespacedKVS.mixinNamespace('Equals');
     var store = NamespacedKVS.storeFnFactory('Equals');
     /**
-     * @name set
+     * @function set
      * @memberOf BeautifulProperties.Equals
-     * @function
      * @see BeautifulProperties.Equals.equals
      *
      * @param {object} object
@@ -1496,9 +1491,8 @@ module.exports = function () {
     };
     var walkAndRetrieve = PrototypeWalker.retrieve.bind(null, 'Equals');
     /**
-     * @name equals
+     * @function equals
      * @memberOf BeautifulProperties.Equals
-     * @function
      *
      * @param {object} object
      * @param {string} key
@@ -1532,8 +1526,7 @@ module.exports = function () {
     // internal functions
     var trigger = Events.trigger.bind(Events);
     /**
-     * @function
-     * @name define
+     * @function define
      * @memberOf BeautifulProperties.Observable
      * @see BeautifulProperties.Equals.equals
      * @see BeautifulProperties.Events.Event~options
@@ -1674,8 +1667,7 @@ module.exports = function () {
   }(Versionizable_namespace, Versionizable_Version, Versionizable_History);
   Versionizable_impl = function (Versionizable, Version, Transaction, History, Hookable, Descriptor, Equals, Events) {
     /**
-     * @function
-     * @name getHistoryLength
+     * @function getHistoryLength
      * @memberOf BeautifulProperties.Versionizable
      *
      * @param {object} object
@@ -1698,8 +1690,7 @@ module.exports = function () {
       });
     }(aNullVersion));
     /**
-     * @function
-     * @name getVersions
+     * @function getVersions
      * @memberOf BeautifulProperties.Versionizable
      *
      * @param {object} object
@@ -1711,8 +1702,7 @@ module.exports = function () {
       return history.slice();
     };
     /**
-     * @function
-     * @name getVersion
+     * @function getVersion
      * @memberOf BeautifulProperties.Versionizable
      *
      * @param {object} object
@@ -1725,9 +1715,8 @@ module.exports = function () {
       return history[index] || aNullVersion;
     };
     /**
-     * @name undo
+     * @function undo
      * @memberOf BeautifulProperties.Versionizable
-     * @function
      *
      * @param {object} object
      * @param {string} key
@@ -1765,9 +1754,8 @@ module.exports = function () {
      * @param {Array.<BeautifulProperties.Versionizable.Version>} versionsBeforeTransaction
      */
     /**
-     * @name transaction
+     * @function transaction
      * @memberOf BeautifulProperties.Versionizable
-     * @function
      *
      * @param {object} object
      * @param {string} key
@@ -1790,8 +1778,7 @@ module.exports = function () {
       }
     };
     /**
-     * @function
-     * @name getPreviousValue
+     * @function getPreviousValue
      * @memberOf BeautifulProperties.Versionizable
      *
      * @param {object} object
@@ -1803,8 +1790,7 @@ module.exports = function () {
       return (history[1] || aNullVersion).value;
     };
     /**
-     * @function
-     * @name define
+     * @function define
      * @memberOf BeautifulProperties.Versionizable
      * @see BeautifulProperties.Equals.equals
      *
@@ -1884,7 +1870,7 @@ module.exports = function () {
      * @memberOf BeautifulProperties
      */
     Object.defineProperty(BeautifulProperties, 'VERSION', {
-      value: '0.1.10',
+      value: '0.1.11',
       writable: false
     });
     return BeautifulProperties;

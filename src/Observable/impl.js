@@ -11,8 +11,7 @@ define('Observable/impl',[
   var trigger = Events.trigger.bind(Events);
 
   /**
-   * @function
-   * @name define
+   * @function define
    * @memberOf BeautifulProperties.Observable
    * @see BeautifulProperties.Equals.equals
    * @see BeautifulProperties.Events.Event~options
