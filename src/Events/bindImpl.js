@@ -2,13 +2,17 @@ define('Events/bindImpl',[
   './namespace','./Event','./Ancestor','./HandlerCollection'
 ],function (Events,Event,Ancestor,HandlerCollection) {
   /**
+   * @typedef BeautifulProperties.Events~BindingOptions
+   * @property {*=} context is the ThisBinding of the handler execution context.
+   */
+  /**
    * @function on
    * @memberOf BeautifulProperties.Events
    *
    * @param {object} object
    * @param {string} eventType
    * @param {function} handler
-   * @param {{context:*=}=} options `context` is the ThisBinding of the handler execution context.
+   * @param {BeautifulProperties.Events~BindingOptions=} options
    */
   Events.on = function on(object, eventType, handler, options) {
     options = options || Object.create(null);
