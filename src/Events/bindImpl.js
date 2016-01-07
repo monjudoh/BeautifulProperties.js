@@ -5,7 +5,8 @@ define('Events/bindImpl',[
             cloneDict) {
   /**
    * @typedef BeautifulProperties.Events~BindingOptions
-   * @property {*=} context is the ThisBinding of the handler execution context.
+   * @property {*=} thisObject is the ThisBinding of the handler execution context.
+   * @property {*=} context is the alias of the thisObject.
    */
   /**
    * @function on
@@ -21,8 +22,11 @@ define('Events/bindImpl',[
       throw new Error('handler is necessary in BeautifulProperties.Events.on');
     }
     options = options ? cloneDict(options) : Object.create(null);
-    if (options.context === undefined) {
-      options.context = null;
+    if (options.context !== undefined) {
+      options.thisObject = options.context;
+    }
+    if (options.thisObject === undefined) {
+      options.thisObject = null;
     }
     var handlers = HandlerCollection.retrieveWithCreate(object,eventType);
     handlers.add(handler,options);

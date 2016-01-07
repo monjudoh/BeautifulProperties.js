@@ -40,7 +40,7 @@
         object['key'];
         expect(spy).toHaveBeenCalled();
       });
-      it("init's context is saved",function(){
+      it("init's this is saved",function(){
         BeautifulProperties.LazyInitializable.define(object,'key',{
           init : function (){
             expect(this).toBe(object);

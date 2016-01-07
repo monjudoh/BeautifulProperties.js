@@ -24,9 +24,9 @@
         targetPrototype = Object.create(null);
         targetObject = Object.create(targetPrototype);
       });
-      describe("no context argument",function () {
+      describe("no thisObject argument",function () {
         describe("trigger",function () {
-          it("callback's context is trrigger target object",function () {
+          it("callback's this is trrigger target object",function () {
             var spy = jasmine.createSpy();
             BeautifulProperties.Events.on(targetObject, 'test', function () {
               expect(this).toBe(targetObject);
@@ -37,18 +37,27 @@
           });
         });
       });
-      describe("with context argument",function () {
-        var contextObject;
+      describe("with thisObject argument",function () {
+        var thisObject;
         beforeEach(function(){
-          contextObject = Object.create(null);
+          thisObject = Object.create(null);
         });
         describe("trigger",function () {
-          it("callback's context is bound context object",function () {
+          it("callback's this is bound thisObject",function () {
             var spy = jasmine.createSpy();
             BeautifulProperties.Events.on(targetObject, 'test', function () {
-              expect(this).toBe(contextObject);
+              expect(this).toBe(thisObject);
               spy();
-            }, {context : contextObject});
+            }, {thisObject : thisObject});
+            BeautifulProperties.Events.trigger(targetObject,'test');
+            expect(spy).toHaveBeenCalled();
+          });
+          it("callback's this is bound context object",function () {
+            var spy = jasmine.createSpy();
+            BeautifulProperties.Events.on(targetObject, 'test', function () {
+              expect(this).toBe(thisObject);
+              spy();
+            }, {context : thisObject});
             BeautifulProperties.Events.trigger(targetObject,'test');
             expect(spy).toHaveBeenCalled();
           });

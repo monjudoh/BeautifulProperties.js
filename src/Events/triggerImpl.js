@@ -47,7 +47,7 @@ define('Events/triggerImpl',[
       // Copy handler lists to prevent modification.
       handlers = handlers.clone();
       handlers.forEach(function(handler,index){
-        var thisObject = handlers.optionsList[index].context;
+        var thisObject = handlers.optionsList[index].thisObject;
         if (thisObject === null) {
           thisObject = target;
         }

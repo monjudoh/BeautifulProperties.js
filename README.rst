@@ -163,6 +163,12 @@ In an AMD loader like RequireJS:
 Changelog
 =========
 
+0.1.12
+------
+
+- changed
+  - `context` property of BeautifulProperties.Events~BindingOptions is renamed to `thisObject`.
+
 0.1.11
 ------
 
