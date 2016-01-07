@@ -6,7 +6,7 @@ define('Events/bindImpl',[
   /**
    * @typedef BeautifulProperties.Events~BindingOptions
    * @property {*=} thisObject is the ThisBinding of the handler execution context.
-   * @property {*=} context is the alias of the thisObject.
+   * @property {*=} context is the alias of the thisObject. (deprecated)
    */
   /**
    * @function on
@@ -22,6 +22,7 @@ define('Events/bindImpl',[
       throw new Error('handler is necessary in BeautifulProperties.Events.on');
     }
     options = options ? cloneDict(options) : Object.create(null);
+    // deprecated
     if (options.context !== undefined) {
       options.thisObject = options.context;
     }
