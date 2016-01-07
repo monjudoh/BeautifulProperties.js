@@ -7,11 +7,11 @@ define('Events/HandlerCollection',[
    * @function add
    * @memberOf BeautifulProperties.Events~HandlerCollection#
    * @param {function} handler
-   * @param {object=} context
+   * @param {BeautifulProperties.Events~BindingOptions} options
    */
-  proto.add = function add(handler,context) {
+  proto.add = function add(handler,options) {
     this.push(handler);
-    this.contexts.push(context);
+    this.optionsList.push(options);
   };
   /**
    * @function remove
@@ -22,7 +22,7 @@ define('Events/HandlerCollection',[
     var index;
     while ((index = this.indexOf(handler)) !== -1) {
       this.splice(index, 1);
-      this.contexts.splice(index, 1);
+      this.optionsList.splice(index, 1);
     }
   };
 
@@ -32,7 +32,7 @@ define('Events/HandlerCollection',[
    */
   proto.clear = function clear() {
     this.length = 0;
-    this.contexts.length = 0;
+    this.optionsList.length = 0;
   };
   /**
    * @function clone
@@ -43,7 +43,7 @@ define('Events/HandlerCollection',[
     var length = this.length;
     for (var i = 0; i < length; i++) {
       clone[i] = this[i];
-      clone.contexts[i] = this.contexts[i];
+      clone.optionsList[i] = this.optionsList[i];
     }
     return clone;
   };
@@ -57,7 +57,7 @@ define('Events/HandlerCollection',[
     Object.keys(proto).forEach(function(key){
       self[key] = proto[key];
     });
-    self.contexts = [];
+    self.optionsList = [];
     return self;
   }
 
