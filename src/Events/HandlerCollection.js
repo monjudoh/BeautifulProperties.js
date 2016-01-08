@@ -17,12 +17,27 @@ define('Events/HandlerCollection',[
    * @function remove
    * @memberOf BeautifulProperties.Events~HandlerCollection#
    * @param {function} handler
+   * @param {BeautifulProperties.Events~BindingOptions=} options
    */
-  proto.remove = function remove(handler) {
+  proto.remove = function remove(handler, options) {
+    var thisObject;
+    var existsThisObject = false;
+    if (options) {
+      if (options.thisObject != null) {
+        thisObject = options.thisObject;
+        existsThisObject = true;
+      }
+    }
     var index;
-    while ((index = this.indexOf(handler)) !== -1) {
+    var previousIndex = 0;
+    while ((index = this.indexOf(handler,previousIndex)) !== -1) {
+      if (existsThisObject && this.optionsList[index].thisObject !== thisObject) {
+        previousIndex = index + 1;
+        continue;
+      }
       this.splice(index, 1);
       this.optionsList.splice(index, 1);
+      previousIndex = index;
     }
   };
 

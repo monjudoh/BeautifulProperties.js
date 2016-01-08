@@ -40,12 +40,13 @@ define('Events/bindImpl',[
    * @param {object} object
    * @param {string} eventType
    * @param {function} handler
+   * @param {BeautifulProperties.Events~BindingOptions=} options
    *
    * @description <pre>Remove callbacks.
    * If `handler` is null, removes all handlers for the eventType.
    * If `eventType` is null, removes all bound handlers for all events.</pre>
    */
-  Events.off = function off(object, eventType, handler) {
+  Events.off = function off(object, eventType, handler, options) {
     var registeredEventTypes = HandlerCollection.keys(object);
     // No eventType, or removing *all* eventType.
     if (registeredEventTypes.length === 0){
@@ -58,7 +59,7 @@ define('Events/bindImpl',[
         return;
       }
       if (handler) {
-        handlers.remove(handler);
+        handlers.remove(handler, options);
       } else {
         handlers.clear();
         HandlerCollection.remove(object,eventType);

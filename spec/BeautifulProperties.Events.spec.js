@@ -126,6 +126,21 @@
           expect(spy3).toHaveBeenCalled();
         });
       });
+      describe("with object,eventType,handler arguments and thisObject option",function(){
+        beforeEach(function(){
+          var thisObject = Object.create(null);
+          BeautifulProperties.Events.on(targetObject,'test1',spy1,{thisObject:thisObject});
+          BeautifulProperties.Events.on(targetObject,'test1',spy1,{thisObject:thisObject});
+          BeautifulProperties.Events.off(targetObject,'test1',spy1,{thisObject:thisObject});
+          triggerAll();
+        });
+        it("handlers related with given eventType,handler,thisObject is unbound.",function(){
+          expect(spy1.calls.length).toBe(1);
+          expect(spy1_1).toHaveBeenCalled();
+          expect(spy2).toHaveBeenCalled();
+          expect(spy3).toHaveBeenCalled();
+        });
+      });
       describe("with object,handler arguments",function(){
         beforeEach(function(){
           BeautifulProperties.Events.on(targetObject, 'test2', spy1);
