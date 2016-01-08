@@ -166,8 +166,12 @@ Changelog
 0.1.12
 ------
 
+- added
+  - Multiple binding is supported in BeautifulProperties.Events.
 - changed
   - `context` property of BeautifulProperties.Events~BindingOptions is renamed to `thisObject`.
+- deprecated
+  - `context` property of BeautifulProperties.Events~BindingOptions
 
 0.1.11
 ------

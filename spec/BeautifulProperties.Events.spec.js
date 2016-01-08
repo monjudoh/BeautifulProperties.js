@@ -63,6 +63,15 @@
           });
         });
       });
+      describe("multiple binding",function () {
+        it("",function () {
+          var spy = jasmine.createSpy();
+          BeautifulProperties.Events.on(targetObject, ['test1','test2'], spy);
+          BeautifulProperties.Events.trigger(targetObject,'test1');
+          BeautifulProperties.Events.trigger(targetObject,'test2');
+          expect(spy.calls.length).toBe(2);
+        });
+      });
     });
     describe("off",function () {
       var targetPrototype,targetObject;
@@ -152,6 +161,16 @@
           expect(spy1_1).toHaveBeenCalled();
           expect(spy2).toHaveBeenCalled();
           expect(spy3).toHaveBeenCalled();
+        });
+      });
+      describe("multiple unbinding",function () {
+        it("",function () {
+          var spy = jasmine.createSpy();
+          BeautifulProperties.Events.on(targetObject, ['test1','test2'], spy);
+          BeautifulProperties.Events.off(targetObject, ['test1','test2'], spy);
+          BeautifulProperties.Events.trigger(targetObject,'test1');
+          BeautifulProperties.Events.trigger(targetObject,'test2');
+          expect(spy).not.toHaveBeenCalled();
         });
       });
     });

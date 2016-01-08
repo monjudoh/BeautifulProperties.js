@@ -13,7 +13,7 @@ define('Events/bindImpl',[
    * @memberOf BeautifulProperties.Events
    *
    * @param {object} object
-   * @param {string} eventType
+   * @param {string|Array.<string>} eventType
    * @param {function} handler
    * @param {BeautifulProperties.Events~BindingOptions=} options
    */
@@ -29,8 +29,16 @@ define('Events/bindImpl',[
     if (options.thisObject === undefined) {
       options.thisObject = null;
     }
-    var handlers = HandlerCollection.retrieveWithCreate(object,eventType);
-    handlers.add(handler,options);
+    if (Array.isArray(eventType)) {
+      eventType.forEach(function(eventType){
+        options = cloneDict(options);
+        var handlers = HandlerCollection.retrieveWithCreate(object, eventType);
+        handlers.add(handler, options);
+      });
+    } else {
+      var handlers = HandlerCollection.retrieveWithCreate(object, eventType);
+      handlers.add(handler, options);
+    }
   };
 
   /**
@@ -38,7 +46,7 @@ define('Events/bindImpl',[
    * @memberOf BeautifulProperties.Events
    *
    * @param {object} object
-   * @param {string} eventType
+   * @param {string|Array.<string>|null} eventType
    * @param {function} handler
    * @param {BeautifulProperties.Events~BindingOptions=} options
    *
@@ -52,7 +60,9 @@ define('Events/bindImpl',[
     if (registeredEventTypes.length === 0){
       return;
     }
-    var eventTypes = eventType ? [eventType] : registeredEventTypes;
+    var eventTypes = !eventType ? registeredEventTypes
+                                : Array.isArray(eventType) ? eventType
+                                                           : [eventType];
     eventTypes.forEach(function(eventType){
       var handlers = HandlerCollection.retrieve(object,eventType);
       if (!handlers) {
