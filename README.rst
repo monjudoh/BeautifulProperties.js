@@ -163,6 +163,12 @@ In an AMD loader like RequireJS:
 Changelog
 =========
 
+0.2.0
+-----
+
+- changed
+  - It trigger `init:{key}` event when Observable property is initialized.
+
 0.1.12
 ------
 

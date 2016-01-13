@@ -150,20 +150,27 @@ define('Versionizable/impl',[
       Hookable.define(object,key);
     }
     var descriptor = Descriptor.retrieve(object,key);
-    function checkChangeAndEnqueue(val,previousVal) {
-      if (!Equals.equals(this,key,val,previousVal)) {
-        var history = History.retrieve(this,key);
-        var version = new Version;
-        version.value = val;
-        version.timestamp = Date.now();
-        history.unshift(version);
-        // truncate
-        if (history.length > options.length){
-          history.length = options.length;
-        }
+    function enqueue(key,val) {
+      var history = History.retrieve(this,key);
+      var version = new Version;
+      version.value = val;
+      version.timestamp = Date.now();
+      history.unshift(version);
+      // truncate
+      if (history.length > options.length){
+        history.length = options.length;
       }
     }
+    function enqueueWhenChangeExists(val,previousVal) {
+      if (!Equals.equals(this,key,val,previousVal)) {
+        enqueue.call(this,key,val)
+      }
+    }
+    function enqueueWhenInit(val) {
+      enqueue.call(this,key,val)
+    }
     var hookType = descriptor.get ? 'refresh' : 'afterSet';
-    Hookable.addHook(object,key,hookType,checkChangeAndEnqueue,10000);
+    Hookable.addHook(object,key,hookType,enqueueWhenChangeExists,10000);
+    Hookable.addHook(object,key,'afterInit',enqueueWhenInit,10000);
   };
 });

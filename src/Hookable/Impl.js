@@ -180,22 +180,21 @@ define('Hookable/impl',[
       storeDescriptor(descriptor);
     }
     // internal functions
-    function init_DataDescriptor(){
+    function init_DataDescriptor(value){
       var descriptor = Descriptor.retrieve(object,key);
       var status = Status.retrieve(this,key);
-      var isValueExist = descriptor.value !== undefined;
       status.isInitialized = true;
       var initialValue;
-      if (descriptor.init) {
+      if (value !== Undefined) {
+        initialValue = value;
+      } else if (descriptor.init) {
         initialValue = descriptor.init.call(this);
-      } else if (isValueExist) {
+      } else {
         initialValue = descriptor.value;
       }
-      if (descriptor.writable) {
-        this[key] = initialValue;
-      } else {
-        Raw.store(this,key,initialValue);
-      }
+      initialValue = beforeInit.call(this,initialValue);
+      Raw.store(this,key,initialValue);
+      afterInit.call(this,initialValue);
     }
     function get_beforeGet(){
       var self = this;
@@ -218,6 +217,27 @@ define('Hookable/impl',[
         }
       });
       return val;
+    }
+    function beforeInit(val){
+      var self = this;
+      var storedHooks = Hooks.retrieve(object,key);
+      storedHooks.beforeInit.forEach(function(beforeInit){
+        var replacement = beforeInit.call(self,val);
+        if (replacement === undefined && replacement !== Undefined) {
+        } else if (replacement === Undefined) {
+          val = undefined;
+        } else {
+          val = replacement;
+        }
+      });
+      return val;
+    }
+    function afterInit(val){
+      var self = this;
+      var storedHooks = Hooks.retrieve(object,key);
+      storedHooks.afterInit.forEach(function(afterInit){
+        afterInit.call(self,val);
+      });
     }
     function set_beforeSet(val,previousVal){
       var self = this;
@@ -247,10 +267,9 @@ define('Hookable/impl',[
         var status = Status.retrieve(this,key);
         switch (type) {
           case Descriptor.Types.DataDescriptor:
-            var isValueExist = descriptor.value !== undefined;
-            if (!status.isInitialized && (descriptor.init || isValueExist)) {
-              init_DataDescriptor.call(this);
-              return this[key];
+            if (!status.isInitialized) {
+              init_DataDescriptor.call(this,Undefined);
+              return Raw.retrieve(this,key);
             } else {
               get_beforeGet.call(this);
               return get_afterGet.call(this,Raw.retrieve(this,key));
@@ -278,7 +297,8 @@ define('Hookable/impl',[
             }
             var status = Status.retrieve(this,key);
             if (!status.isInitialized) {
-              status.isInitialized = true;
+              init_DataDescriptor.call(this,val);
+              return;
             }
             var previousVal = Raw.retrieve(this,key);
             val = set_beforeSet.call(this,val,previousVal);

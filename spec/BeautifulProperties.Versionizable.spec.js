@@ -233,6 +233,7 @@
           return false;
         });
         BeautifulProperties.Versionizable.define(object,'key');
+        object.key; // init
         object.key = 1;
         expect(equals).toHaveBeenCalledWith(object,1,undefined);
       });
@@ -240,14 +241,19 @@
         BeautifulProperties.Equals.set(object,'key',function(val,previousVal){
           return true;
         });
+        BeautifulProperties.Hookable.define(object,'key');
+        object.key; // init
         BeautifulProperties.Versionizable.define(object,'key');
         object.key = 1;
+        object.key = 2;
         expect(BeautifulProperties.Versionizable.getHistoryLength(object,'key')).toBe(0);
       });
       it("The new vesion is added to history when it assign 'key' property and equals return false.",function(){
         BeautifulProperties.Equals.set(object,'key',function(val,previousVal){
           return false;
         });
+        BeautifulProperties.Hookable.define(object,'key');
+        object.key; // init
         BeautifulProperties.Versionizable.define(object,'key');
         object.key = 1;
         expect(BeautifulProperties.Versionizable.getHistoryLength(object,'key')).toBe(1);
