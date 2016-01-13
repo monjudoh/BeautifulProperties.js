@@ -196,6 +196,19 @@ define('Hookable/impl',[
       Raw.store(this,key,initialValue);
       afterInit.call(this,initialValue);
     }
+
+    function init_AccessorDescriptor(value){
+      var descriptor = Descriptor.retrieve(object,key);
+      var status = Status.retrieve(this,key);
+      var retriever = descriptor.get;
+      if (retriever === undefined) {
+        return;
+      }
+      var initialValue = retriever.call(this);
+      Raw.store(this,key,initialValue);
+      status.isInitialized = true;
+      afterInit.call(this,initialValue);
+    }
     function beforeInit(val){
       var self = this;
       var storedHooks = Hooks.retrieve(object,key);
@@ -239,7 +252,7 @@ define('Hookable/impl',[
       });
       return val;
     }
-    
+
     function set_beforeSet(val,previousVal){
       var self = this;
       var storedHooks = Hooks.retrieve(object,key);
@@ -280,9 +293,14 @@ define('Hookable/impl',[
             if (!descriptor.get) {
               return undefined;
             }
-            get_beforeGet.call(this);
-            Get.refreshProperty(this,key);
-            return get_afterGet.call(this,Raw.retrieve(this,key));
+            if (status.isInitialized) {
+              get_beforeGet.call(this);
+              Get.refreshProperty(this,key);
+              return get_afterGet.call(this,Raw.retrieve(this,key));
+            } else {
+              init_AccessorDescriptor.call(this,key);
+              return Raw.retrieve(this,key);
+            }
           default :
             throw new Error('InvalidState');
         }
@@ -290,13 +308,13 @@ define('Hookable/impl',[
       set : function __BeautifulProperties_Hookable_set(val) {
         var descriptor = Descriptor.retrieve(object,key);
         var type = Descriptor.getTypeOf(descriptor);
+        var status = Status.retrieve(this,key);
         switch (type) {
           case Descriptor.Types.DataDescriptor:
             // read only
             if (!descriptor.writable) {
               return;
             }
-            var status = Status.retrieve(this,key);
             if (!status.isInitialized) {
               init_DataDescriptor.call(this,val);
               return;
@@ -311,13 +329,20 @@ define('Hookable/impl',[
             if (!descriptor.set) {
               return;
             }
-            var previousVal = Raw.retrieve(this,key);
-            val = set_beforeSet.call(this,val,previousVal);
-            descriptor.set.call(this,val);
-            if (descriptor.get) {
-              Get.refreshProperty(this,key);
+            if (status.isInitialized) {
+              var previousVal = Raw.retrieve(this,key);
+              val = set_beforeSet.call(this,val,previousVal);
+              descriptor.set.call(this,val);
+              if (descriptor.get) {
+                Get.refreshProperty(this,key);
+              }
+              set_afterSet.call(this,val,previousVal);
+            } else {
+              val = beforeInit.call(this,val);
+              descriptor.set.call(this,val);
+              init_AccessorDescriptor.call(this,key);
             }
-            set_afterSet.call(this,val,previousVal);
+
             break;
           default :
             throw new Error('InvalidState');

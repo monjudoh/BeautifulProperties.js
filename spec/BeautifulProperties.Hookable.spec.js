@@ -451,15 +451,16 @@
                 return 1;
               }
             });
+            object['key']; // init
             BeautifulProperties.Hookable.addHooks(object,'key',hooks);
           });
           it(" when refreshProperty is called.",function(){
             BeautifulProperties.Hookable.Get.refreshProperty(object,'key');
-            expect(refresh).toHaveBeenCalledWith(1,undefined);
+            expect(refresh).toHaveBeenCalledWith(1,1);
           });
           it(" when property is accessed.",function(){
             object['key'];
-            expect(refresh).toHaveBeenCalledWith(1,undefined);
+            expect(refresh).toHaveBeenCalledWith(1,1);
           });
         });
         it("Get.getSilently skip refresh hook.",function(){
@@ -510,11 +511,12 @@
                 return value;
               }
             });
+            object['key'] = 0; // init
             BeautifulProperties.Hookable.addHooks(object,'key',hooks);
           });
           it("refresh hook should be called when property is accessed.",function(){
             object['key'] = 1;
-            expect(refresh).toHaveBeenCalledWith(1,undefined);
+            expect(refresh).toHaveBeenCalledWith(1,0);
           });
         });
       });
