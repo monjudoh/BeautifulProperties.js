@@ -196,28 +196,6 @@ define('Hookable/impl',[
       Raw.store(this,key,initialValue);
       afterInit.call(this,initialValue);
     }
-    function get_beforeGet(){
-      var self = this;
-      var storedHooks = Hooks.retrieve(object,key);
-      storedHooks.beforeGet.forEach(function(beforeGet){
-        beforeGet.call(self);
-      });
-    }
-
-    function get_afterGet(val){
-      var self = this;
-      var storedHooks = Hooks.retrieve(object,key);
-      storedHooks.afterGet.forEach(function(afterGet){
-        var replacedVal = afterGet.call(self,val);
-        if (replacedVal === undefined && replacedVal !== Undefined) {
-        } else if (replacedVal === Undefined) {
-          val = undefined;
-        } else {
-          val = replacedVal;
-        }
-      });
-      return val;
-    }
     function beforeInit(val){
       var self = this;
       var storedHooks = Hooks.retrieve(object,key);
@@ -239,6 +217,29 @@ define('Hookable/impl',[
         afterInit.call(self,val);
       });
     }
+
+    function get_beforeGet(){
+      var self = this;
+      var storedHooks = Hooks.retrieve(object,key);
+      storedHooks.beforeGet.forEach(function(beforeGet){
+        beforeGet.call(self);
+      });
+    }
+    function get_afterGet(val){
+      var self = this;
+      var storedHooks = Hooks.retrieve(object,key);
+      storedHooks.afterGet.forEach(function(afterGet){
+        var replacedVal = afterGet.call(self,val);
+        if (replacedVal === undefined && replacedVal !== Undefined) {
+        } else if (replacedVal === Undefined) {
+          val = undefined;
+        } else {
+          val = replacedVal;
+        }
+      });
+      return val;
+    }
+    
     function set_beforeSet(val,previousVal){
       var self = this;
       var storedHooks = Hooks.retrieve(object,key);
