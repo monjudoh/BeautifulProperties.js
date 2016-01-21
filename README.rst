@@ -171,6 +171,7 @@ Changelog
 - removed
   - BeautifulProperties.Hookable.addHooks method
   - BeautifulProperties.Internal namespace
+  - `context` property of BeautifulProperties.Events~BindingOptions
 
 0.1.12
 ------
