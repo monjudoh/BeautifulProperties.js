@@ -11,6 +11,16 @@
     fn(BeautifulProperties);
   }
 })(function (BeautifulProperties) {
+  function addHooks(object,key,hooks) {
+    if (!BeautifulProperties.Hookable.hasHooks(object,key)) {
+      throw new TypeError('The property (key:'+key+') is not a Hookable property. Hookable.addHooks is the method for a Hookable property.');
+    }
+    'beforeGet afterGet beforeSet afterSet refresh'.split(' ').forEach(function(hookType){
+      if (hooks[hookType]) {
+        BeautifulProperties.Hookable.addHook(object,key,hookType,hooks[hookType]);
+      }
+    });
+  }
   describe("BeautifulProperties.Hookable", function() {
     describe(" hooks ",function() {
       var beforeGet,afterGet,beforeSet,afterSet,beforeInit,afterInit;
@@ -202,7 +212,7 @@
             replacement = 2;
             BeautifulProperties.Hookable.define(object,'key');
             object['key'] = originalValue;
-            BeautifulProperties.Hookable.addHooks(object,'key',hooks);
+            addHooks(object,'key',hooks);
             object['key'];
           });
           it("beforeGet to have been called with no arguments",function(){
@@ -217,7 +227,7 @@
             replacement = 2;
             BeautifulProperties.Hookable.define(object,'key');
             object['key'] = originalValue;
-            BeautifulProperties.Hookable.addHooks(object,'key',hooks);
+            addHooks(object,'key',hooks);
           });
           it("value should be replaced",function(){
             expect(object['key']).toBe(replacement);
@@ -227,7 +237,7 @@
           beforeEach(function(){
             replacement = undefined;
             BeautifulProperties.Hookable.define(object,'key');
-            BeautifulProperties.Hookable.addHooks(object,'key',hooks);
+            addHooks(object,'key',hooks);
             object['key'] = originalValue;
           });
           it("value should not be replaced",function(){
@@ -242,7 +252,7 @@
               return replacement;
             };
             BeautifulProperties.Hookable.define(object,'key');
-            BeautifulProperties.Hookable.addHooks(object,'key',hooks);
+            addHooks(object,'key',hooks);
             BeautifulProperties.Hookable.setRaw(object,'key',originalValue);
           });
           it("value should not be replaced to undefined",function(){
@@ -268,7 +278,7 @@
             replacement = 2;
             BeautifulProperties.Hookable.define(object,'key');
             object['key'] = undefined;
-            BeautifulProperties.Hookable.addHooks(object,'key',hooks);
+            addHooks(object,'key',hooks);
             BeautifulProperties.Hookable.setRaw(object,'key',previousValue);
             object['key'] = originalValue;
           });
@@ -284,7 +294,7 @@
             replacement = 2;
             BeautifulProperties.Hookable.define(object,'key');
             object['key'] = undefined;
-            BeautifulProperties.Hookable.addHooks(object,'key',hooks);
+            addHooks(object,'key',hooks);
             BeautifulProperties.Hookable.setRaw(object,'key',previousValue);
             object['key'] = originalValue;
           });
@@ -296,7 +306,7 @@
           beforeEach(function(){
             replacement = undefined;
             BeautifulProperties.Hookable.define(object,'key');
-            BeautifulProperties.Hookable.addHooks(object,'key',hooks);
+            addHooks(object,'key',hooks);
             BeautifulProperties.Hookable.setRaw(object,'key',previousValue);
             object['key'] = originalValue;
           });
@@ -309,7 +319,7 @@
             replacement = BeautifulProperties.Hookable.Undefined;
             BeautifulProperties.Hookable.define(object,'key');
             object['key'] = previousValue;
-            BeautifulProperties.Hookable.addHooks(object,'key',hooks);
+            addHooks(object,'key',hooks);
             object['key'] = originalValue;
           });
           it("value should not be replaced to undefined",function(){
@@ -433,7 +443,7 @@
                 return 1;
               }
             });
-            BeautifulProperties.Hookable.addHooks(object,'key',hooks);
+            addHooks(object,'key',hooks);
           });
           it("object could get value.",function(){
             expect(object['key']).toBe(1);
@@ -452,7 +462,7 @@
               }
             });
             object['key']; // init
-            BeautifulProperties.Hookable.addHooks(object,'key',hooks);
+            addHooks(object,'key',hooks);
           });
           it(" when refreshProperty is called.",function(){
             BeautifulProperties.Hookable.Get.refreshProperty(object,'key');
@@ -470,7 +480,7 @@
               return 1;
             }
           });
-          BeautifulProperties.Hookable.addHooks(object,'key',hooks);
+          addHooks(object,'key',hooks);
           expect(BeautifulProperties.Hookable.Get.getSilently(object,'key')).toBe(1);
           expect(refresh).not.toHaveBeenCalledWith(1,undefined);
         });
@@ -489,7 +499,7 @@
               set:set
             });
 
-            BeautifulProperties.Hookable.addHooks(object,'key',hooks);
+            addHooks(object,'key',hooks);
           });
           it(" when property is accessed.",function(){
             object['key'] = 1;
@@ -512,7 +522,7 @@
               }
             });
             object['key'] = 0; // init
-            BeautifulProperties.Hookable.addHooks(object,'key',hooks);
+            addHooks(object,'key',hooks);
           });
           it("refresh hook should be called when property is accessed.",function(){
             object['key'] = 1;

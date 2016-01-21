@@ -168,6 +168,9 @@ Changelog
 
 - changed
   - It trigger `init:{key}` event when Observable property is initialized.
+- removed
+  - BeautifulProperties.Hookable.addHooks method
+  - BeautifulProperties.Internal namespace
 
 0.1.12
 ------
