@@ -232,6 +232,9 @@
           equals(this,val,previousVal);
           return false;
         });
+        BeautifulProperties.Hookable.define(object,'key',{
+          value:BeautifulProperties.Hookable.Undefined
+        });
         BeautifulProperties.Versionizable.define(object,'key');
         object.key; // init
         object.key = 1;
@@ -241,7 +244,9 @@
         BeautifulProperties.Equals.set(object,'key',function(val,previousVal){
           return true;
         });
-        BeautifulProperties.Hookable.define(object,'key');
+        BeautifulProperties.Hookable.define(object,'key',{
+          value:BeautifulProperties.Hookable.Undefined
+        });
         object.key; // init
         BeautifulProperties.Versionizable.define(object,'key');
         object.key = 1;

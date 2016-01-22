@@ -95,6 +95,9 @@
             equals(this,val,previousVal);
             return false;
           });
+          BeautifulProperties.Hookable.define(object,'key',{
+            value:BeautifulProperties.Hookable.Undefined
+          });
           BeautifulProperties.Observable.define(object,'key');
           object.key; // init
           object.key = 1;

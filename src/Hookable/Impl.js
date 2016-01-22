@@ -182,19 +182,30 @@ define('Hookable/impl',[
     // internal functions
     function init_DataDescriptor(value){
       var descriptor = Descriptor.retrieve(object,key);
-      var status = Status.retrieve(this,key);
-      status.isInitialized = true;
       var initialValue;
-      if (value !== Undefined) {
-        initialValue = value;
-      } else if (descriptor.init) {
+      var isInitialiseByAssignedValue = false;
+      if (descriptor.init) {
         initialValue = descriptor.init.call(this);
+      } else if (descriptor.value !== undefined) {
+        if (descriptor.value !== Undefined) {
+          initialValue = descriptor.value;
+        } else {
+          initialValue = undefined;
+        }
+      } else if (value !== Undefined) {
+        initialValue = value;
+        isInitialiseByAssignedValue = true;
       } else {
-        initialValue = descriptor.value;
+        return;
       }
       initialValue = beforeInit.call(this,initialValue);
       Raw.store(this,key,initialValue);
+      Status.retrieve(this,key).isInitialized = true;
       afterInit.call(this,initialValue);
+      if (value !== Undefined && !isInitialiseByAssignedValue) {
+        this[key] = value;
+      }
+
     }
 
     function init_AccessorDescriptor(value){
@@ -283,11 +294,12 @@ define('Hookable/impl',[
           case Descriptor.Types.DataDescriptor:
             if (!status.isInitialized) {
               init_DataDescriptor.call(this,Undefined);
-              return Raw.retrieve(this,key);
-            } else {
-              get_beforeGet.call(this);
-              return get_afterGet.call(this,Raw.retrieve(this,key));
+              if (!status.isInitialized) {
+                return;
+              }
             }
+            get_beforeGet.call(this);
+            return get_afterGet.call(this,Raw.retrieve(this,key));
           case Descriptor.Types.AccessorDescriptor:
             // write only
             if (!descriptor.get) {

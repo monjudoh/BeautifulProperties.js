@@ -36,7 +36,9 @@
         var object;
         beforeEach(function(){
           object = Object.create(null);
-          BeautifulProperties.Hookable.define(object,'initializedKey');
+          BeautifulProperties.Hookable.define(object,'initializedKey',{
+            value:0
+          });
           object['initializedKey'];// init
           BeautifulProperties.Hookable.addHook(object,'initializedKey','beforeGet',beforeGet);
           BeautifulProperties.Hookable.addHook(object,'initializedKey','afterGet',afterGet);
@@ -45,7 +47,9 @@
           BeautifulProperties.Hookable.addHook(object,'initializedKey','beforeInit',beforeInit);
           BeautifulProperties.Hookable.addHook(object,'initializedKey','afterInit',afterInit);
 
-          BeautifulProperties.Hookable.define(object,'notInitializedKey');
+          BeautifulProperties.Hookable.define(object,'notInitializedKey',{
+            value:0
+          });
           BeautifulProperties.Hookable.addHook(object,'notInitializedKey','beforeGet',beforeGet);
           BeautifulProperties.Hookable.addHook(object,'notInitializedKey','afterGet',afterGet);
           BeautifulProperties.Hookable.addHook(object,'notInitializedKey','beforeSet',beforeSet);
@@ -81,10 +85,10 @@
             object['notInitializedKey'];
           });
           it("beforeGet was not called",function(){
-            expect(beforeGet).not.toHaveBeenCalled();
+            expect(beforeGet).toHaveBeenCalled();
           });
           it("afterGet was not called",function(){
-            expect(afterGet).not.toHaveBeenCalled();
+            expect(afterGet).toHaveBeenCalled();
           });
           it("beforeSet was not called",function(){
             expect(beforeSet).not.toHaveBeenCalled();
@@ -133,10 +137,10 @@
             expect(afterGet).not.toHaveBeenCalled();
           });
           it("beforeSet was not called",function(){
-            expect(beforeSet).not.toHaveBeenCalled();
+            expect(beforeSet).toHaveBeenCalled();
           });
           it("afterSet was not called",function(){
-            expect(afterSet).not.toHaveBeenCalled();
+            expect(afterSet).toHaveBeenCalled();
           });
           it("beforeInit was called",function(){
             expect(beforeInit).toHaveBeenCalled();
