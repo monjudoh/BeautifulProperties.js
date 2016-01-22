@@ -341,13 +341,21 @@ define('Hookable/impl',[
             if (!descriptor.set) {
               return;
             }
-            if (status.isInitialized) {
-              var previousVal = Raw.retrieve(this,key);
+            var previousVal;
+            // write only
+            if (!descriptor.get) {
+              previousVal = undefined;
               val = set_beforeSet.call(this,val,previousVal);
               descriptor.set.call(this,val);
-              if (descriptor.get) {
-                Get.refreshProperty(this,key);
-              }
+              // can't refresh
+              set_afterSet.call(this,val,previousVal);
+              return;
+            }
+            if (status.isInitialized) {
+              previousVal = Raw.retrieve(this,key);
+              val = set_beforeSet.call(this,val,previousVal);
+              descriptor.set.call(this,val);
+              Get.refreshProperty(this,key);
               set_afterSet.call(this,val,previousVal);
             } else {
               val = beforeInit.call(this,val);
