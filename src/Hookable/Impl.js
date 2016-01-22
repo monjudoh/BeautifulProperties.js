@@ -207,15 +207,11 @@ define('Hookable/impl',[
       }
 
     }
-
-    function init_AccessorDescriptor(value){
+    function init_AccessorDescriptor(){
       var descriptor = Descriptor.retrieve(object,key);
       var status = Status.retrieve(this,key);
-      var retriever = descriptor.get;
-      if (retriever === undefined) {
-        return;
-      }
-      var initialValue = retriever.call(this);
+      var initialValue = descriptor.get.call(this);
+      initialValue = beforeInit.call(this,initialValue);
       Raw.store(this,key,initialValue);
       status.isInitialized = true;
       afterInit.call(this,initialValue);
@@ -305,14 +301,15 @@ define('Hookable/impl',[
             if (!descriptor.get) {
               return undefined;
             }
-            if (status.isInitialized) {
-              get_beforeGet.call(this);
-              Get.refreshProperty(this,key);
-              return get_afterGet.call(this,Raw.retrieve(this,key));
-            } else {
-              init_AccessorDescriptor.call(this,key);
-              return Raw.retrieve(this,key);
+            var isInitialized = status.isInitialized;
+            if (!isInitialized) {
+              init_AccessorDescriptor.call(this, key);
             }
+            get_beforeGet.call(this);
+            if (isInitialized) {
+              Get.refreshProperty(this, key);
+            }
+            return get_afterGet.call(this,Raw.retrieve(this,key));
           default :
             throw new Error('InvalidState');
         }
@@ -351,6 +348,7 @@ define('Hookable/impl',[
               set_afterSet.call(this,val,previousVal);
               return;
             }
+            // read/write
             if (status.isInitialized) {
               previousVal = Raw.retrieve(this,key);
               val = set_beforeSet.call(this,val,previousVal);
@@ -358,9 +356,8 @@ define('Hookable/impl',[
               Get.refreshProperty(this,key);
               set_afterSet.call(this,val,previousVal);
             } else {
-              val = beforeInit.call(this,val);
-              descriptor.set.call(this,val);
               init_AccessorDescriptor.call(this,key);
+              this[key] = val;
             }
 
             break;
