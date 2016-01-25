@@ -1,7 +1,7 @@
 define('Hookable/Get',[
-  './namespace','./Raw','./Hooks','./Descriptor',
+  './namespace','./Descriptor','./internal',
   'utils/provideMethodsFactory','utils/createChildNamespace'
-],function (Hookable,Raw,Hooks,Descriptor,
+],function (Hookable,Descriptor,internal,
             provideMethodsFactory,createChildNamespace) {
   /**
    * @namespace Get
@@ -18,15 +18,7 @@ define('Hookable/Get',[
    * @see BeautifulProperties.Hookable~refresh
    */
   Get.refreshProperty = function refreshProperty(object,key){
-    var previousVal = Raw.retrieve(object,key);
-    var descriptor = Descriptor.walkAndRetrieve(object,key);
-    var retriever = descriptor.get;
-    var val = retriever.call(object);
-    Raw.store(object,key,val);
-    var storedHooks = Hooks.walkAndRetrieve(object,key);
-    storedHooks.refresh.forEach(function(refresh){
-      refresh.call(object,val,previousVal);
-    });
+    (internal.get_refreshProperty)(object,key);
   };
   /**
    * @function getSilently
