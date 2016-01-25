@@ -177,78 +177,6 @@ define('Hookable/impl',[
       Hooks.retrieve(object,key);
       storeDescriptor(descriptor);
     }
-    // internal functions
-    function init_DataDescriptor(value){
-      var descriptor = Descriptor.retrieve(object,key);
-      var initialValue;
-      var isInitialiseByAssignedValue = false;
-      if (descriptor.init) {
-        initialValue = descriptor.init.call(this);
-      } else if (descriptor.value !== undefined) {
-        if (descriptor.value !== Undefined) {
-          initialValue = descriptor.value;
-        } else {
-          initialValue = undefined;
-        }
-      } else if (value !== Undefined) {
-        initialValue = value;
-        isInitialiseByAssignedValue = true;
-      } else {
-        return;
-      }
-      initialValue = (internal.beforeInit)(this,key,initialValue,object);
-      Raw.store(this,key,initialValue);
-      Status.retrieve(this,key).isInitialized = true;
-      (internal.afterInit)(this, key, initialValue, object);
-      if (value !== Undefined && !isInitialiseByAssignedValue) {
-        this[key] = value;
-      }
-
-    }
-
-    function get_beforeGet(){
-      var self = this;
-      var storedHooks = Hooks.retrieve(object,key);
-      storedHooks.beforeGet.forEach(function(beforeGet){
-        beforeGet.call(self);
-      });
-    }
-    function get_afterGet(val){
-      var self = this;
-      var storedHooks = Hooks.retrieve(object,key);
-      storedHooks.afterGet.forEach(function(afterGet){
-        var replacedVal = afterGet.call(self,val);
-        if (replacedVal === undefined && replacedVal !== Undefined) {
-        } else if (replacedVal === Undefined) {
-          val = undefined;
-        } else {
-          val = replacedVal;
-        }
-      });
-      return val;
-    }
-
-    function set_beforeSet(val,previousVal){
-      var self = this;
-      var storedHooks = Hooks.retrieve(object,key);
-      storedHooks.beforeSet.forEach(function(beforeSet){
-        var replacedVal = beforeSet.call(self,val,previousVal);
-        if (replacedVal === undefined && replacedVal !== Undefined) {
-        } else if (replacedVal === Undefined) {
-          val = undefined;
-        } else {
-          val = replacedVal;
-        }
-      });
-      return val;
-    }
-    function set_afterSet(val,previousVal){
-      var self = this;
-      var storedHooks = Hooks.retrieve(object,key);
-      storedHooks.afterSet.forEach(function(afterSet){
-        afterSet.call(self,val,previousVal);
-      });
-    }
     Object.defineProperty(object,key,{
       get : function __BeautifulProperties_Hookable_get() {
         var descriptor = Descriptor.retrieve(object,key);
@@ -257,13 +185,13 @@ define('Hookable/impl',[
         switch (type) {
           case Descriptor.Types.DataDescriptor:
             if (!status.isInitialized) {
-              init_DataDescriptor.call(this,Undefined);
+              (internal.init_DataDescriptor)(this,key,Undefined,object);
               if (!status.isInitialized) {
                 return;
               }
             }
-            get_beforeGet.call(this);
-            return get_afterGet.call(this,Raw.retrieve(this,key));
+            (internal.get_beforeGet)(this,key,object);
+            return (internal.get_afterGet)(this,key,Raw.retrieve(this,key),object);
           case Descriptor.Types.AccessorDescriptor:
             // write only
             if (!descriptor.get) {
@@ -273,11 +201,11 @@ define('Hookable/impl',[
             if (!isInitialized) {
               (internal.init_AccessorDescriptor)(this, key, object);
             }
-            get_beforeGet.call(this);
+            (internal.get_beforeGet)(this,key,object);
             if (isInitialized) {
               (internal.get_refreshProperty)(this, key, object);
             }
-            return get_afterGet.call(this,Raw.retrieve(this,key));
+            return (internal.get_afterGet)(this,key,Raw.retrieve(this,key),object);
           default :
             throw new Error('InvalidState');
         }
@@ -293,13 +221,13 @@ define('Hookable/impl',[
               return;
             }
             if (!status.isInitialized) {
-              init_DataDescriptor.call(this,val);
+              (internal.init_DataDescriptor)(this,key,val,object);
               return;
             }
             var previousVal = Raw.retrieve(this,key);
-            val = set_beforeSet.call(this,val,previousVal);
+            val = (internal.set_beforeSet)(this,key,val,previousVal,object);
             Raw.store(this,key,val);
-            set_afterSet.call(this,val,previousVal);
+            (internal.set_afterSet)(this,key,val,previousVal,object);
             break;
           case Descriptor.Types.AccessorDescriptor:
             // read only
@@ -310,19 +238,19 @@ define('Hookable/impl',[
             // write only
             if (!descriptor.get) {
               previousVal = undefined;
-              val = set_beforeSet.call(this,val,previousVal);
+              val = (internal.set_beforeSet)(this,key,val,previousVal,object);
               descriptor.set.call(this,val);
               // can't refresh
-              set_afterSet.call(this,val,previousVal);
+              (internal.set_afterSet)(this,key,val,previousVal,object);
               return;
             }
             // read/write
             if (status.isInitialized) {
               previousVal = Raw.retrieve(this,key);
-              val = set_beforeSet.call(this,val,previousVal);
+              val = (internal.set_beforeSet)(this,key,val,previousVal,object);
               descriptor.set.call(this,val);
               (internal.get_refreshProperty)(this, key, object);
-              set_afterSet.call(this,val,previousVal);
+              (internal.set_afterSet)(this,key,val,previousVal,object);
             } else {
               (internal.init_AccessorDescriptor)(this, key, object);
               this[key] = val;
