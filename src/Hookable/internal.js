@@ -3,7 +3,7 @@ define('Hookable/internal',[
 ],function (Raw,Status,Hooks, Descriptor, Undefined) {
   var internal = Object.create(null);
   internal.init_AccessorDescriptor = function init_AccessorDescriptor(target,key,object){
-    var descriptor = Descriptor.retrieve(object,key);
+    var descriptor = object !== undefined ? Descriptor.retrieve(object,key) : Descriptor.walkAndRetrieve(target,key);
     var status = Status.retrieve(target,key);
     var initialValue = descriptor.get.call(target);
     initialValue = (internal.beforeInit)(target,key,initialValue,object);
@@ -12,7 +12,7 @@ define('Hookable/internal',[
     (internal.afterInit)(target, key, initialValue, object);
   };
   internal.beforeInit = function beforeInit(target, key, val, object){
-    var storedHooks = Hooks.retrieve(object,key);
+    var storedHooks = object !== undefined ? Hooks.retrieve(object,key) : Hooks.walkAndRetrieve(target,key);
     storedHooks.beforeInit.forEach(function(beforeInit){
       var replacement = beforeInit.call(target,val);
       if (replacement === undefined && replacement !== Undefined) {
@@ -25,7 +25,7 @@ define('Hookable/internal',[
     return val;
   };
   internal.afterInit = function afterInit(target, key, val, object){
-    var storedHooks = Hooks.retrieve(object,key);
+    var storedHooks = object !== undefined ? Hooks.retrieve(object,key) : Hooks.walkAndRetrieve(target,key);
     storedHooks.afterInit.forEach(function(afterInit){
       afterInit.call(target,val);
     });
@@ -36,7 +36,7 @@ define('Hookable/internal',[
     var retriever = descriptor.get;
     var val = retriever.call(target);
     Raw.store(target,key,val);
-    var storedHooks = object !== undefined ? Hooks.retrieve(object,key) : Hooks.walkAndRetrieve(target,key);;
+    var storedHooks = object !== undefined ? Hooks.retrieve(object,key) : Hooks.walkAndRetrieve(target,key);
     storedHooks.refresh.forEach(function(refresh){
       refresh.call(target,val,previousVal);
     });
