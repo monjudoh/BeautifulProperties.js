@@ -275,7 +275,7 @@ define('Hookable/impl',[
             }
             get_beforeGet.call(this);
             if (isInitialized) {
-              (internal.get_refreshProperty)(this, key);
+              (internal.get_refreshProperty)(this, key, object);
             }
             return get_afterGet.call(this,Raw.retrieve(this,key));
           default :
@@ -321,7 +321,7 @@ define('Hookable/impl',[
               previousVal = Raw.retrieve(this,key);
               val = set_beforeSet.call(this,val,previousVal);
               descriptor.set.call(this,val);
-              (internal.get_refreshProperty)(this,key);
+              (internal.get_refreshProperty)(this, key, object);
               set_afterSet.call(this,val,previousVal);
             } else {
               (internal.init_AccessorDescriptor)(this, key, object);

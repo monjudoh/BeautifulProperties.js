@@ -30,13 +30,13 @@ define('Hookable/internal',[
       afterInit.call(target,val);
     });
   };
-  internal.get_refreshProperty = function get_refreshProperty(target,key){
+  internal.get_refreshProperty = function get_refreshProperty(target, key, object){
     var previousVal = Raw.retrieve(target,key);
-    var descriptor = Descriptor.walkAndRetrieve(target,key);
+    var descriptor = object !== undefined ? Descriptor.retrieve(object,key) : Descriptor.walkAndRetrieve(target,key);
     var retriever = descriptor.get;
     var val = retriever.call(target);
     Raw.store(target,key,val);
-    var storedHooks = Hooks.walkAndRetrieve(target,key);
+    var storedHooks = object !== undefined ? Hooks.retrieve(object,key) : Hooks.walkAndRetrieve(target,key);;
     storedHooks.refresh.forEach(function(refresh){
       refresh.call(target,val,previousVal);
     });
