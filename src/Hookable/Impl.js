@@ -11,6 +11,35 @@ define('Hookable/impl',[
    */
   Hookable.Undefined = Object.create(null);
 
+  function init_AccessorDescriptor(target,key,object){
+    var descriptor = Descriptor.retrieve(object,key);
+    var status = Status.retrieve(target,key);
+    var initialValue = descriptor.get.call(target);
+    initialValue = beforeInit(target,key,initialValue,object);
+    Raw.store(target,key,initialValue);
+    status.isInitialized = true;
+    afterInit(target, key, initialValue, object);
+  }
+  function beforeInit(target, key, val, object){
+    var storedHooks = Hooks.retrieve(object,key);
+    storedHooks.beforeInit.forEach(function(beforeInit){
+      var replacement = beforeInit.call(target,val);
+      if (replacement === undefined && replacement !== Hookable.Undefined) {
+      } else if (replacement === Undefined) {
+        val = undefined;
+      } else {
+        val = replacement;
+      }
+    });
+    return val;
+  }
+  function afterInit(target, key, val, object){
+    var storedHooks = Hooks.retrieve(object,key);
+    storedHooks.afterInit.forEach(function(afterInit){
+      afterInit.call(target,val);
+    });
+  }
+
   /**
    * @callback BeautifulProperties.Hookable~beforeGet
    */
@@ -198,44 +227,14 @@ define('Hookable/impl',[
       } else {
         return;
       }
-      initialValue = beforeInit.call(this,initialValue);
+      initialValue = beforeInit(this,key,initialValue,object);
       Raw.store(this,key,initialValue);
       Status.retrieve(this,key).isInitialized = true;
-      afterInit.call(this,initialValue);
+      afterInit(this, key, initialValue, object);
       if (value !== Undefined && !isInitialiseByAssignedValue) {
         this[key] = value;
       }
 
-    }
-    function init_AccessorDescriptor(){
-      var descriptor = Descriptor.retrieve(object,key);
-      var status = Status.retrieve(this,key);
-      var initialValue = descriptor.get.call(this);
-      initialValue = beforeInit.call(this,initialValue);
-      Raw.store(this,key,initialValue);
-      status.isInitialized = true;
-      afterInit.call(this,initialValue);
-    }
-    function beforeInit(val){
-      var self = this;
-      var storedHooks = Hooks.retrieve(object,key);
-      storedHooks.beforeInit.forEach(function(beforeInit){
-        var replacement = beforeInit.call(self,val);
-        if (replacement === undefined && replacement !== Undefined) {
-        } else if (replacement === Undefined) {
-          val = undefined;
-        } else {
-          val = replacement;
-        }
-      });
-      return val;
-    }
-    function afterInit(val){
-      var self = this;
-      var storedHooks = Hooks.retrieve(object,key);
-      storedHooks.afterInit.forEach(function(afterInit){
-        afterInit.call(self,val);
-      });
     }
 
     function get_beforeGet(){
@@ -303,7 +302,7 @@ define('Hookable/impl',[
             }
             var isInitialized = status.isInitialized;
             if (!isInitialized) {
-              init_AccessorDescriptor.call(this, key);
+              init_AccessorDescriptor(this, key, object);
             }
             get_beforeGet.call(this);
             if (isInitialized) {
@@ -356,7 +355,7 @@ define('Hookable/impl',[
               Get.refreshProperty(this,key);
               set_afterSet.call(this,val,previousVal);
             } else {
-              init_AccessorDescriptor.call(this,key);
+              init_AccessorDescriptor(this, key, object);
               this[key] = val;
             }
 
