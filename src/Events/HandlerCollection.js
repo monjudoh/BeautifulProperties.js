@@ -7,22 +7,37 @@ define('Events/HandlerCollection',[
    * @function add
    * @memberOf BeautifulProperties.Events~HandlerCollection#
    * @param {function} handler
-   * @param {object=} context
+   * @param {BeautifulProperties.Events~BindingOptions} options
    */
-  proto.add = function add(handler,context) {
+  proto.add = function add(handler,options) {
     this.push(handler);
-    this.contexts.push(context);
+    this.optionsList.push(options);
   };
   /**
    * @function remove
    * @memberOf BeautifulProperties.Events~HandlerCollection#
    * @param {function} handler
+   * @param {BeautifulProperties.Events~BindingOptions=} options
    */
-  proto.remove = function remove(handler) {
+  proto.remove = function remove(handler, options) {
+    var thisObject;
+    var existsThisObject = false;
+    if (options) {
+      if (options.thisObject != null) {
+        thisObject = options.thisObject;
+        existsThisObject = true;
+      }
+    }
     var index;
-    while ((index = this.indexOf(handler)) !== -1) {
+    var previousIndex = 0;
+    while ((index = this.indexOf(handler,previousIndex)) !== -1) {
+      if (existsThisObject && this.optionsList[index].thisObject !== thisObject) {
+        previousIndex = index + 1;
+        continue;
+      }
       this.splice(index, 1);
-      this.contexts.splice(index, 1);
+      this.optionsList.splice(index, 1);
+      previousIndex = index;
     }
   };
 
@@ -32,7 +47,7 @@ define('Events/HandlerCollection',[
    */
   proto.clear = function clear() {
     this.length = 0;
-    this.contexts.length = 0;
+    this.optionsList.length = 0;
   };
   /**
    * @function clone
@@ -43,7 +58,7 @@ define('Events/HandlerCollection',[
     var length = this.length;
     for (var i = 0; i < length; i++) {
       clone[i] = this[i];
-      clone.contexts[i] = this.contexts[i];
+      clone.optionsList[i] = this.optionsList[i];
     }
     return clone;
   };
@@ -57,7 +72,7 @@ define('Events/HandlerCollection',[
     Object.keys(proto).forEach(function(key){
       self[key] = proto[key];
     });
-    self.contexts = [];
+    self.optionsList = [];
     return self;
   }
 

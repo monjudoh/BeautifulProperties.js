@@ -1,10 +1,10 @@
 var BeautifulProperties = function () {
-  var namespace, internal_Descriptor, utils_hasOwn, utils_hasConsoleError, utils_createChildNamespace, LazyInitializable, Hookable_namespace, InternalObject_constructor, InternalObject, InternalObject_NamespacedKVS, Hookable_Raw, InternalObject_PrototypeWalker, Hookable_HookCollection, Hookable_Hooks, Hookable_Descriptor, utils_Array_from, utils_provideMethodsFactory, Hookable_Get, Hookable_Status, Hookable_alias, Hookable_impl, Hookable, Events_namespace, Events_Event, Events_Ancestor, Events_HandlerCollection, Events_bindImpl, utils_cloneDict, Events_triggerImpl, Events_impl, Events, Equals_namespace, Equals_Functions, Equals_impl, Equals, Observable_namespace, Observable_impl, Observable, Versionizable_namespace, Versionizable_Version, Versionizable_History, Versionizable_Transaction, Versionizable_impl, Versionizable, deprecated_Internal, deprecated_since019, deprecated, BeautifulProperties;
+  var namespace, internal_Descriptor, utils_hasOwn, utils_hasConsoleError, utils_createChildNamespace, LazyInitializable, Hookable_namespace, InternalObject_constructor, InternalObject, InternalObject_NamespacedKVS, Hookable_Raw, InternalObject_PrototypeWalker, Hookable_HookCollection, Hookable_Hooks, Hookable_Descriptor, utils_Array_from, utils_provideMethodsFactory, Hookable_Get, Hookable_Status, Hookable_alias, Hookable_impl, Hookable, Events_namespace, Events_Event, Events_Ancestor, Events_HandlerCollection, utils_cloneDict, Events_bindImpl, Events_triggerImpl, Events_impl, Events, Equals_namespace, Equals_Functions, Equals_impl, Equals, Observable_namespace, Observable_impl, Observable, Versionizable_namespace, Versionizable_Version, Versionizable_History, Versionizable_Transaction, Versionizable_impl, Versionizable, deprecated_Internal, deprecated_since019, deprecated, BeautifulProperties;
   namespace = function () {
     /**
      * @name BeautifulProperties
      * @namespace
-     * @version 0.1.11
+     * @version 0.1.12
      * @author monjudoh
      * @copyright <pre>(c) 2012 monjudoh
      * Dual licensed under the MIT (MIT-LICENSE.txt)
@@ -657,9 +657,9 @@ var BeautifulProperties = function () {
   }(internal_Descriptor, InternalObject_NamespacedKVS, InternalObject_PrototypeWalker);
   utils_Array_from = function () {
     var slice = Array.prototype.slice;
-    return function Array_from(arrayLike) {
+    function Array_from(arrayLike) {
       return slice.call(arrayLike);
-    };
+    }
     return Array_from;
   }();
   utils_provideMethodsFactory = function (Array_from) {
@@ -1241,22 +1241,37 @@ var BeautifulProperties = function () {
      * @function add
      * @memberOf BeautifulProperties.Events~HandlerCollection#
      * @param {function} handler
-     * @param {object=} context
+     * @param {BeautifulProperties.Events~BindingOptions} options
      */
-    proto.add = function add(handler, context) {
+    proto.add = function add(handler, options) {
       this.push(handler);
-      this.contexts.push(context);
+      this.optionsList.push(options);
     };
     /**
      * @function remove
      * @memberOf BeautifulProperties.Events~HandlerCollection#
      * @param {function} handler
+     * @param {BeautifulProperties.Events~BindingOptions=} options
      */
-    proto.remove = function remove(handler) {
+    proto.remove = function remove(handler, options) {
+      var thisObject;
+      var existsThisObject = false;
+      if (options) {
+        if (options.thisObject != null) {
+          thisObject = options.thisObject;
+          existsThisObject = true;
+        }
+      }
       var index;
-      while ((index = this.indexOf(handler)) !== -1) {
+      var previousIndex = 0;
+      while ((index = this.indexOf(handler, previousIndex)) !== -1) {
+        if (existsThisObject && this.optionsList[index].thisObject !== thisObject) {
+          previousIndex = index + 1;
+          continue;
+        }
         this.splice(index, 1);
-        this.contexts.splice(index, 1);
+        this.optionsList.splice(index, 1);
+        previousIndex = index;
       }
     };
     /**
@@ -1265,7 +1280,7 @@ var BeautifulProperties = function () {
      */
     proto.clear = function clear() {
       this.length = 0;
-      this.contexts.length = 0;
+      this.optionsList.length = 0;
     };
     /**
      * @function clone
@@ -1276,7 +1291,7 @@ var BeautifulProperties = function () {
       var length = this.length;
       for (var i = 0; i < length; i++) {
         clone[i] = this[i];
-        clone.contexts[i] = this.contexts[i];
+        clone.optionsList[i] = this.optionsList[i];
       }
       return clone;
     };
@@ -1290,7 +1305,7 @@ var BeautifulProperties = function () {
       Object.keys(proto).forEach(function (key) {
         self[key] = proto[key];
       });
-      self.contexts = [];
+      self.optionsList = [];
       return self;
     }
     NamespacedKVS.mixinNamespace(namespace, HandlerCollection);
@@ -1300,58 +1315,6 @@ var BeautifulProperties = function () {
     HandlerCollection.keys = NamespacedKVS.keysFnFactory(namespace);
     return HandlerCollection;
   }(InternalObject_NamespacedKVS);
-  Events_bindImpl = function (Events, Event, Ancestor, HandlerCollection) {
-    /**
-     * @function on
-     * @memberOf BeautifulProperties.Events
-     *
-     * @param {object} object
-     * @param {string} eventType
-     * @param {function} handler
-     * @param {{context:*=}=} options `context` is the ThisBinding of the handler execution context.
-     */
-    Events.on = function on(object, eventType, handler, options) {
-      options = options || Object.create(null);
-      var context = options.context || null;
-      if (!handler) {
-        throw new Error('handler is necessary in BeautifulProperties.Events.on');
-      }
-      var handlers = HandlerCollection.retrieveWithCreate(object, eventType);
-      handlers.add(handler, context);
-    };
-    /**
-     * @function off
-     * @memberOf BeautifulProperties.Events
-     *
-     * @param {object} object
-     * @param {string} eventType
-     * @param {function} handler
-     *
-     * @description <pre>Remove callbacks.
-     * If `handler` is null, removes all handlers for the eventType.
-     * If `eventType` is null, removes all bound handlers for all events.</pre>
-     */
-    Events.off = function off(object, eventType, handler) {
-      var registeredEventTypes = HandlerCollection.keys(object);
-      // No eventType, or removing *all* eventType.
-      if (registeredEventTypes.length === 0) {
-        return;
-      }
-      var eventTypes = eventType ? [eventType] : registeredEventTypes;
-      eventTypes.forEach(function (eventType) {
-        var handlers = HandlerCollection.retrieve(object, eventType);
-        if (!handlers) {
-          return;
-        }
-        if (handler) {
-          handlers.remove(handler);
-        } else {
-          handlers.clear();
-          HandlerCollection.remove(object, eventType);
-        }
-      });
-    };
-  }(Events_namespace, Events_Event, Events_Ancestor, Events_HandlerCollection);
   utils_cloneDict = function () {
     /**
      *
@@ -1368,6 +1331,78 @@ var BeautifulProperties = function () {
     }
     return cloneDict;
   }();
+  Events_bindImpl = function (Events, Event, Ancestor, HandlerCollection, cloneDict) {
+    /**
+     * @typedef BeautifulProperties.Events~BindingOptions
+     * @property {*=} thisObject is the ThisBinding of the handler execution context.
+     * @property {*=} context is the alias of the thisObject. (deprecated)
+     */
+    /**
+     * @function on
+     * @memberOf BeautifulProperties.Events
+     *
+     * @param {object} object
+     * @param {string|Array.<string>} eventType
+     * @param {function} handler
+     * @param {BeautifulProperties.Events~BindingOptions=} options
+     */
+    Events.on = function on(object, eventType, handler, options) {
+      if (!handler) {
+        throw new Error('handler is necessary in BeautifulProperties.Events.on');
+      }
+      options = options ? cloneDict(options) : Object.create(null);
+      // deprecated
+      if (options.context !== undefined) {
+        options.thisObject = options.context;
+      }
+      if (options.thisObject === undefined) {
+        options.thisObject = null;
+      }
+      if (Array.isArray(eventType)) {
+        eventType.forEach(function (eventType) {
+          options = cloneDict(options);
+          var handlers = HandlerCollection.retrieveWithCreate(object, eventType);
+          handlers.add(handler, options);
+        });
+      } else {
+        var handlers = HandlerCollection.retrieveWithCreate(object, eventType);
+        handlers.add(handler, options);
+      }
+    };
+    /**
+     * @function off
+     * @memberOf BeautifulProperties.Events
+     *
+     * @param {object} object
+     * @param {string|Array.<string>|null} eventType
+     * @param {function} handler
+     * @param {BeautifulProperties.Events~BindingOptions=} options
+     *
+     * @description <pre>Remove callbacks.
+     * If `handler` is null, removes all handlers for the eventType.
+     * If `eventType` is null, removes all bound handlers for all events.</pre>
+     */
+    Events.off = function off(object, eventType, handler, options) {
+      var registeredEventTypes = HandlerCollection.keys(object);
+      // No eventType, or removing *all* eventType.
+      if (registeredEventTypes.length === 0) {
+        return;
+      }
+      var eventTypes = !eventType ? registeredEventTypes : Array.isArray(eventType) ? eventType : [eventType];
+      eventTypes.forEach(function (eventType) {
+        var handlers = HandlerCollection.retrieve(object, eventType);
+        if (!handlers) {
+          return;
+        }
+        if (handler) {
+          handlers.remove(handler, options);
+        } else {
+          handlers.clear();
+          HandlerCollection.remove(object, eventType);
+        }
+      });
+    };
+  }(Events_namespace, Events_Event, Events_Ancestor, Events_HandlerCollection, utils_cloneDict);
   Events_triggerImpl = function (Events, Event, Ancestor, HandlerCollection, Array_from, cloneDict) {
     var toString = Object.prototype.toString;
     /**
@@ -1414,11 +1449,11 @@ var BeautifulProperties = function () {
         // Copy handler lists to prevent modification.
         handlers = handlers.clone();
         handlers.forEach(function (handler, index) {
-          var context = handlers.contexts[index];
-          if (context === null) {
-            context = target;
+          var thisObject = handlers.optionsList[index].thisObject;
+          if (thisObject === null) {
+            thisObject = target;
           }
-          handler.apply(context, [event].concat(rest));
+          handler.apply(thisObject, [event].concat(rest));
         });
         if (!event.bubbles || event.isPropagationStopped) {
           break;
@@ -1870,7 +1905,7 @@ var BeautifulProperties = function () {
      * @memberOf BeautifulProperties
      */
     Object.defineProperty(BeautifulProperties, 'VERSION', {
-      value: '0.1.11',
+      value: '0.1.12',
       writable: false
     });
     return BeautifulProperties;

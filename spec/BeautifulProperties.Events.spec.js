@@ -24,9 +24,9 @@
         targetPrototype = Object.create(null);
         targetObject = Object.create(targetPrototype);
       });
-      describe("no context argument",function () {
+      describe("no thisObject argument",function () {
         describe("trigger",function () {
-          it("callback's context is trrigger target object",function () {
+          it("callback's this is trrigger target object",function () {
             var spy = jasmine.createSpy();
             BeautifulProperties.Events.on(targetObject, 'test', function () {
               expect(this).toBe(targetObject);
@@ -37,21 +37,39 @@
           });
         });
       });
-      describe("with context argument",function () {
-        var contextObject;
+      describe("with thisObject argument",function () {
+        var thisObject;
         beforeEach(function(){
-          contextObject = Object.create(null);
+          thisObject = Object.create(null);
         });
         describe("trigger",function () {
-          it("callback's context is bound context object",function () {
+          it("callback's this is bound thisObject",function () {
             var spy = jasmine.createSpy();
             BeautifulProperties.Events.on(targetObject, 'test', function () {
-              expect(this).toBe(contextObject);
+              expect(this).toBe(thisObject);
               spy();
-            }, {context : contextObject});
+            }, {thisObject : thisObject});
             BeautifulProperties.Events.trigger(targetObject,'test');
             expect(spy).toHaveBeenCalled();
           });
+          it("callback's this is bound context object",function () {
+            var spy = jasmine.createSpy();
+            BeautifulProperties.Events.on(targetObject, 'test', function () {
+              expect(this).toBe(thisObject);
+              spy();
+            }, {context : thisObject});
+            BeautifulProperties.Events.trigger(targetObject,'test');
+            expect(spy).toHaveBeenCalled();
+          });
+        });
+      });
+      describe("multiple binding",function () {
+        it("",function () {
+          var spy = jasmine.createSpy();
+          BeautifulProperties.Events.on(targetObject, ['test1','test2'], spy);
+          BeautifulProperties.Events.trigger(targetObject,'test1');
+          BeautifulProperties.Events.trigger(targetObject,'test2');
+          expect(spy.calls.length).toBe(2);
         });
       });
     });
@@ -117,6 +135,21 @@
           expect(spy3).toHaveBeenCalled();
         });
       });
+      describe("with object,eventType,handler arguments and thisObject option",function(){
+        beforeEach(function(){
+          var thisObject = Object.create(null);
+          BeautifulProperties.Events.on(targetObject,'test1',spy1,{thisObject:thisObject});
+          BeautifulProperties.Events.on(targetObject,'test1',spy1,{thisObject:thisObject});
+          BeautifulProperties.Events.off(targetObject,'test1',spy1,{thisObject:thisObject});
+          triggerAll();
+        });
+        it("handlers related with given eventType,handler,thisObject is unbound.",function(){
+          expect(spy1.calls.length).toBe(1);
+          expect(spy1_1).toHaveBeenCalled();
+          expect(spy2).toHaveBeenCalled();
+          expect(spy3).toHaveBeenCalled();
+        });
+      });
       describe("with object,handler arguments",function(){
         beforeEach(function(){
           BeautifulProperties.Events.on(targetObject, 'test2', spy1);
@@ -128,6 +161,16 @@
           expect(spy1_1).toHaveBeenCalled();
           expect(spy2).toHaveBeenCalled();
           expect(spy3).toHaveBeenCalled();
+        });
+      });
+      describe("multiple unbinding",function () {
+        it("",function () {
+          var spy = jasmine.createSpy();
+          BeautifulProperties.Events.on(targetObject, ['test1','test2'], spy);
+          BeautifulProperties.Events.off(targetObject, ['test1','test2'], spy);
+          BeautifulProperties.Events.trigger(targetObject,'test1');
+          BeautifulProperties.Events.trigger(targetObject,'test2');
+          expect(spy).not.toHaveBeenCalled();
         });
       });
     });
