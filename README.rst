@@ -43,25 +43,30 @@ hooks
 
   var object = {};
   BeautifulProperties.Hookable.define(object,'key');
-  BeautifulProperties.Hookable.addHooks(object,'key',{
-    beforeGet : function(val){
-      console.log('beforeGet');
-    },
-    afterGet : function(val){
-      console.log('afterGet',val);
-      return val;
-    },
-    beforeSet : function(val,previousVal){
-      console.log('beforeSet',val,previousVal);
-      return val;
-    },
-    afterSet : function(val,previousVal){
-      console.log('afterSet',val,previousVal);
-    }
+  BeautifulProperties.Hookable.addHook(object,'key','beforeInit',function(val){
+    console.log('beforeInit',val);
+    return val;
+  });
+  BeautifulProperties.Hookable.addHook(object,'key','afterInit',function(val){
+    console.log('afterInit',val);
+  });
+  BeautifulProperties.Hookable.addHook(object,'key','beforeGet',function(){
+    console.log('beforeGet');
+  });
+  BeautifulProperties.Hookable.addHook(object,'key','afterGet',function(val){
+    console.log('afterGet',val);
+    return val;
+  });
+  BeautifulProperties.Hookable.addHook(object,'key','beforeSet',function(val,previousVal){
+    console.log('beforeSet',val,previousVal);
+    return val;
+  });
+  BeautifulProperties.Hookable.addHook(object,'key','afterSet',function(val,previousVal){
+    console.log('afterSet',val,previousVal);
   });
   object.key = 1;
   object.key = 2;
-  object.key;//1
+  object.key;
 
 modify getting value
 
@@ -82,11 +87,16 @@ modify setting value
 
   var object = {};
   BeautifulProperties.Hookable.define(object,'key');
-  BeautifulProperties.Hookable.addHook(object,'key','beforeSet',function(val,previousVal){
+  BeautifulProperties.Hookable.addHook(object,'key','beforeInit',function(val,previousVal){
     return val * 2;
+  });
+  BeautifulProperties.Hookable.addHook(object,'key','beforeSet',function(val,previousVal){
+    return val * 3;
   });
   object.key = 1;
   object.key;//2
+  object.key = 1;
+  object.key;//3
 
 Events
 ------
@@ -135,10 +145,13 @@ BeautifulProperties.Observable.define supports key/value observation.
 
   var object = {};
   BeautifulProperties.Observable.define(object,'key');
-  object.key=1;
+  BeautifulProperties.Events.on(object,'init:key',function(ev,val){
+    console.log(val);// val:1
+  });
   BeautifulProperties.Events.on(object,'change:key',function(ev,val,previousVal){
     console.log(val,previousVal);// val:2,previousVal:1
   });
+  object.key=1;
   object.key=2;
 
 
