@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Beautifulproperties.js by monjudoh</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Beautifulproperties.js</h1>
+      <h2 class="project-tagline"></h2>
+      <a href="https://github.com/monjudoh/BeautifulProperties.js" class="btn">View on GitHub</a>
+      <a href="https://github.com/monjudoh/BeautifulProperties.js/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/monjudoh/BeautifulProperties.js/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="beautifulpropertiesjs---extension-of-ecmascript5-property" class="anchor" href="#beautifulpropertiesjs---extension-of-ecmascript5-property" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>BeautifulProperties.js - Extension of ECMAScript5 property.</h1>
+
+<h1>
+<a id="links" class="anchor" href="#links" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Links</h1>
+
+<ul>
+<li>  <a href="https://github.com/monjudoh/BeautifulProperties.js">Repository</a>
+</li>
+<li>  <a href="http://monjudoh.github.io/BeautifulProperties.js/docs/index.html">Reference</a>
+</li>
+</ul>
+
+<h1>
+<a id="features" class="anchor" href="#features" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Features</h1>
+
+<h2>
+<a id="lazyinitializable" class="anchor" href="#lazyinitializable" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>LazyInitializable</h2>
+
+<p>BeautifulProperties.LazyInitializable.define can define a property, it's
+initialized at first access.</p>
+
+<pre lang="sourceCode"><code>var proto = {};
+BeautifulProperties.LazyInitializable.define(proto,'boundFunction',function(){
+  return (function () {
+    console.log(this);
+  }).bind(this);
+});
+var object1 = Object.create(proto);
+object1.a = 1;
+var boundFunction1 = object1.boundFunction;
+boundFunction1();// {a:1,boundFunction:fn}
+var object2 = Object.create(proto);
+object2.a = 2;
+var boundFunction2 = object2.boundFunction;
+boundFunction2();// {a:2boundFunction:fn}
+</code></pre>
+
+<h2>
+<a id="hookable" class="anchor" href="#hookable" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Hookable</h2>
+
+<p>BeautifulProperties.Hookable.define supports hooks for setting/getting
+property,replace or modify value.</p>
+
+<p>hooks</p>
+
+<pre lang="sourceCode"><code>var object = {};
+BeautifulProperties.Hookable.define(object,'key');
+BeautifulProperties.Hookable.addHook(object,'key','beforeInit',function(val){
+  console.log('beforeInit',val);
+  return val;
+});
+BeautifulProperties.Hookable.addHook(object,'key','afterInit',function(val){
+  console.log('afterInit',val);
+});
+BeautifulProperties.Hookable.addHook(object,'key','beforeGet',function(){
+  console.log('beforeGet');
+});
+BeautifulProperties.Hookable.addHook(object,'key','afterGet',function(val){
+  console.log('afterGet',val);
+  return val;
+});
+BeautifulProperties.Hookable.addHook(object,'key','beforeSet',function(val,previousVal){
+  console.log('beforeSet',val,previousVal);
+  return val;
+});
+BeautifulProperties.Hookable.addHook(object,'key','afterSet',function(val,previousVal){
+  console.log('afterSet',val,previousVal);
+});
+object.key = 1;
+object.key = 2;
+object.key;
+</code></pre>
+
+<p>modify getting value</p>
+
+<pre lang="sourceCode"><code>var object = {};
+BeautifulProperties.Hookable.define(object,'key');
+BeautifulProperties.Hookable.addHook(object,'key','afterGet',function(val){
+  return val * 2;
+});
+
+object.key = 1;
+object.key;//2
+</code></pre>
+
+<p>modify setting value</p>
+
+<pre lang="sourceCode"><code>var object = {};
+BeautifulProperties.Hookable.define(object,'key');
+BeautifulProperties.Hookable.addHook(object,'key','beforeInit',function(val,previousVal){
+  return val * 2;
+});
+BeautifulProperties.Hookable.addHook(object,'key','beforeSet',function(val,previousVal){
+  return val * 3;
+});
+object.key = 1;
+object.key;//2
+object.key = 1;
+object.key;//3
+</code></pre>
+
+<h2>
+<a id="events" class="anchor" href="#events" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Events</h2>
+
+<pre lang="sourceCode"><code>var object = {};
+BeautifulProperties.Events.on(object,'eventType',function(ev){
+  console.log('event handler is called.');
+});
+BeautifulProperties.Events.trigger(object,'eventType');
+</code></pre>
+
+<p>event bubbling.</p>
+
+<p>A event bubble up to the prototype of the object.</p>
+
+<pre lang="sourceCode"><code>var proto = {};
+var object = Object.create(proto);
+BeautifulProperties.Events.on(proto,'eventType',function(ev){
+  console.log('event handler is called.');
+});
+BeautifulProperties.Events.trigger(object,'eventType');
+</code></pre>
+
+<p>controlling event bubbling.</p>
+
+<pre lang="sourceCode"><code>var ancestor = {};
+var object = {};
+BeautifulProperties.Events.Ancestor.setRetriever(object,function(){
+  return ancestor;
+});
+BeautifulProperties.Events.on(ancestor,'eventType',function(ev){
+  console.log('event handler is called.');
+});
+BeautifulProperties.Events.trigger(object,'eventType');
+</code></pre>
+
+<h2>
+<a id="observable" class="anchor" href="#observable" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Observable</h2>
+
+<p>BeautifulProperties.Observable.define supports key/value observation.</p>
+
+<pre lang="sourceCode"><code>var object = {};
+BeautifulProperties.Observable.define(object,'key');
+BeautifulProperties.Events.on(object,'init:key',function(ev,val){
+  console.log(val);// val:1
+});
+BeautifulProperties.Events.on(object,'change:key',function(ev,val,previousVal){
+  console.log(val,previousVal);// val:2,previousVal:1
+});
+object.key=1;
+object.key=2;
+</code></pre>
+
+<h1>
+<a id="installation-and-usage" class="anchor" href="#installation-and-usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation and usage</h1>
+
+<h2>
+<a id="in-browsers" class="anchor" href="#in-browsers" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>In browsers:</h2>
+
+<pre lang="sourceCode"><code>&lt;script src="BeautifulProperties.js"&gt;&lt;/script&gt;
+</code></pre>
+
+<h2>
+<a id="in-an-amd-loader-like-requirejs" class="anchor" href="#in-an-amd-loader-like-requirejs" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>In an AMD loader like RequireJS:</h2>
+
+<pre lang="sourceCode"><code>require(['BeautifulProperties'], function(BeautifulProperties) {
+});
+</code></pre>
+
+<h1>
+<a id="changelog" class="anchor" href="#changelog" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Changelog</h1>
+
+<h2>
+<a id="020" class="anchor" href="#020" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>0.2.0</h2>
+
+<ul>
+<li>  changed
+
+<ul>
+<li>It trigger init:{key} event when Observable property is
+initialized.</li>
+</ul>
+</li>
+<li>  removed
+
+<ul>
+<li>  BeautifulProperties.Hookable.addHooks method</li>
+<li>  BeautifulProperties.Internal namespace</li>
+<li>  context property of BeautifulProperties.Events~BindingOptions</li>
+</ul>
+</li>
+</ul>
+
+<h2>
+<a id="0112" class="anchor" href="#0112" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>0.1.12</h2>
+
+<ul>
+<li>  added
+
+<ul>
+<li>Multiple binding is supported in BeautifulProperties.Events.</li>
+</ul>
+</li>
+<li>  changed
+
+<ul>
+<li>context property of BeautifulProperties.Events~BindingOptions is
+renamed to thisObject.</li>
+</ul>
+</li>
+<li>  deprecated
+
+<ul>
+<li>  context property of BeautifulProperties.Events~BindingOptions</li>
+</ul>
+</li>
+</ul>
+
+<h2>
+<a id="0111" class="anchor" href="#0111" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>0.1.11</h2>
+
+<ul>
+<li>  fixes
+
+<ul>
+<li>  event.previousTarget,event.currentTarget in
+BeautifulProperties.Events.Ancestor~ancestorRetriever.</li>
+</ul>
+</li>
+</ul>
+
+<h2>
+<a id="0110" class="anchor" href="#0110" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>0.1.10</h2>
+
+<ul>
+<li>  added
+
+<ul>
+<li>BeautifulProperties.Events.Event#previousTarget property</li>
+</ul>
+</li>
+<li>  changed
+
+<ul>
+<li>  BeautifulProperties.Events.Ancestor~ancestorRetriever callback
+
+<ul>
+<li>  has 2 params.</li>
+<li>  If the ancestorRetriever returns undefined,Ancestor.retrieve
+method returns the prototype of the target object.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<h2>
+<a id="019" class="anchor" href="#019" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>0.1.9</h2>
+
+<ul>
+<li>  Export as global,AMD,CJS.</li>
+<li>  Many refacotoring.</li>
+<li>
+<p>deprecated</p>
+
+<ul>
+<li><p>BeautifulProperties.Hookable.addHooks method</p></li>
+<li><p>BeautifulProperties.Internal namespace is deprecated.</p></li>
+</ul>
+</li>
+<li>  removed
+
+<ul>
+<li>  BeautifulProperties.getRaw method (deprecated since 0.1.6)</li>
+<li>  BeautifulProperties.setRaw method (deprecated since 0.1.6)</li>
+</ul>
+</li>
+</ul>
+
+<h1>
+<a id="author" class="anchor" href="#author" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Author</h1>
+
+<p>monjudoh <a href="https://github.com/monjudoh">https://github.com/monjudoh</a></p>
+
+<h1>
+<a id="contributors" class="anchor" href="#contributors" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Contributors</h1>
+
+<ul>
+<li>  aodag (Atsushi Odagiri) <a href="https://github.com/aodag">https://github.com/aodag</a>
+
+<ul>
+<li>He named this library.</li>
+</ul>
+</li>
+<li>  jbking (Yusuke Muraoka) <a href="https://github.com/jbking">https://github.com/jbking</a>
+
+<ul>
+<li>  He provides ideas for this library.</li>
+</ul>
+</li>
+</ul>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/monjudoh/BeautifulProperties.js">Beautifulproperties.js</a> is maintained by <a href="https://github.com/monjudoh">monjudoh</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
