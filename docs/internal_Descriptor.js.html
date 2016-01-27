@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: internal/Descriptor.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: internal/Descriptor.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>define('internal/Descriptor',function () {
+  /**
+   * @name BeautifulProperties~GenericDescriptor
+   * @typedef
+   * @property {boolean=} configurable
+   * @property {boolean=} enumerable
+   * @description &lt;pre>GenericDescriptor
+   * http://www.ecma-international.org/ecma-262/5.1/#sec-8.10.3&lt;/pre>
+   */
+  /**
+   * @name BeautifulProperties~DataDescriptor
+   * @typedef
+   * @property {boolean=} configurable
+   * @property {boolean=} enumerable
+   * @property {boolean=} writable
+   * @property {*=} value
+   * @property {function=} init custom extension
+   * @description &lt;pre>DataDescriptor
+   * http://www.ecma-international.org/ecma-262/5.1/#sec-8.10.2&lt;/pre>
+   */
+  /**
+   * @name BeautifulProperties~AccessorDescriptor
+   * @typedef
+   * @property {boolean=} configurable
+   * @property {boolean=} enumerable
+   * @property {function=} get Either get or set is necessary.
+   * @property {function=} set Either get or set is necessary.
+   * @description &lt;pre>AccessorDescriptor.
+   * http://www.ecma-international.org/ecma-262/5.1/#sec-8.10.1&lt;/pre>
+   */
+  /**
+   * @namespace BeautifulProperties~Descriptor
+   * @private
+   */
+  var Descriptor = Object.create(null);
+  /**
+   * @typedef Type
+   * @memberOf BeautifulProperties~Descriptor
+   * @description marker object
+   */
+  /**
+   * @memberOf BeautifulProperties~Descriptor
+   * @enum {BeautifulProperties~Descriptor.Type}
+   */
+  var Types = {
+    /**
+     * http://www.ecma-international.org/ecma-262/5.1/#sec-8.10.3
+     */
+    GenericDescriptor:Object.create(null),
+    /**
+     * http://www.ecma-international.org/ecma-262/5.1/#sec-8.10.2
+     */
+    DataDescriptor:Object.create(null),
+    /**
+     * http://www.ecma-international.org/ecma-262/5.1/#sec-8.10.1
+     */
+    AccessorDescriptor:Object.create(null),
+    /**
+     * invalid
+     */
+    InvalidDescriptor:Object.create(null)
+  };
+  Descriptor.Types = Types;
+  var AllDescriptorKeys = 'configurable enumerable writable value init get set'.split(' ');
+  /**
+   * @function equals
+   * @memberOf BeautifulProperties~Descriptor
+   *
+   * @param {object} descriptor
+   * @param {object} otherDescriptor
+   * @returns boolean
+   */
+  Descriptor.equals = function equals(descriptor,otherDescriptor){
+    var length = AllDescriptorKeys.length;
+    for (var i = 0; i &lt; length; i++) {
+      var key = AllDescriptorKeys[i];
+      if (descriptor[key] !== otherDescriptor[key]) {
+        return false;
+      }
+    }
+    return true;
+  };
+  /**
+   * @function getTypeOf
+   * @memberOf BeautifulProperties~Descriptor
+   *
+   * @param {object} descriptor
+   * @returns {BeautifulProperties~Descriptor.Type}
+   */
+  Descriptor.getTypeOf = function getTypeOf(descriptor){
+    if (descriptor === undefined) {
+      return Types.InvalidDescriptor;
+    }
+    var isDataDescriptor = descriptor.writable !== undefined || descriptor.value !== undefined || descriptor.init!== undefined;
+    var isAccessorDescriptor = descriptor.get !== undefined || descriptor.set !== undefined;
+    if (!isDataDescriptor &amp;&amp; !isAccessorDescriptor) {
+      return Types.GenericDescriptor;
+    }
+    if (isDataDescriptor &amp;&amp; isAccessorDescriptor) {
+      return Types.InvalidDescriptor;
+    }
+    if (isDataDescriptor) {
+      return Types.DataDescriptor;
+    }
+    if (isAccessorDescriptor) {
+      return Types.AccessorDescriptor;
+    }
+  };
+  /**
+   * @function createTypeError
+   * @memberOf BeautifulProperties~Descriptor
+   *
+   * @param {object} invalidDescriptor
+   * @returns {TypeError}
+   */
+  Descriptor.createTypeError = function createTypeError(invalidDescriptor){
+    try{
+      Object.defineProperty(Object.create(null),'prop', invalidDescriptor);
+    }catch(e){
+      return new TypeError(e.message);
+    }
+  };
+  var globalDefaultDataDescriptor = (function () {
+    var obj = Object.create(null);
+    Object.defineProperty(obj,'key',{});
+    return Object.getOwnPropertyDescriptor(obj,'key');
+  })();
+  var DataDescriptorKeys = 'configurable enumerable writable value init'.split(' ');
+  var globalDefaultAccessorDescriptor = (function () {
+    var obj = Object.create(null);
+    Object.defineProperty(obj,'key',{
+      get:function(){}
+    });
+    var descriptor = Object.getOwnPropertyDescriptor(obj, 'key');
+    delete descriptor.get;
+    return descriptor;
+  })();
+  var AccessorDescriptorKeys = 'configurable enumerable get set'.split(' ');
+  /**
+   * @function applyDefault
+   * @memberOf BeautifulProperties~Descriptor
+   *
+   * @param {BeautifulProperties~Descriptor.Type} type
+   * @param {object} descriptor
+   * @param {BeautifulProperties~GenericDescriptor=|BeautifulProperties~DataDescriptor=|BeautifulProperties~AccessorDescriptor=} defaultDescriptor
+   * @returns {BeautifulProperties~DataDescriptor}
+   */
+  Descriptor.applyDefault = function applyDefault(type,descriptor,defaultDescriptor){
+    var DescriptorKeys;
+    var globalDefaultDescriptor;
+    switch (type) {
+      case Types.DataDescriptor:
+        DescriptorKeys = DataDescriptorKeys;
+        globalDefaultDescriptor = globalDefaultDataDescriptor;
+        break;
+      case Types.AccessorDescriptor:
+        DescriptorKeys = AccessorDescriptorKeys;
+        globalDefaultDescriptor = globalDefaultAccessorDescriptor;
+        break;
+      default :
+        throw new Error('The type argument is invalid in Internal.Descriptor.applyDefault.');
+    }
+    var origDescriptor = descriptor || Object.create(null);
+    descriptor = Object.create(null);
+    var i,key;
+    for (i = 0; i &lt; DescriptorKeys.length; i++) {
+      key = DescriptorKeys[i];
+      descriptor[key] = origDescriptor[key];
+    }
+    for (i = 0; i &lt; DescriptorKeys.length; i++) {
+      key = DescriptorKeys[i];
+      if (descriptor[key] !== undefined) {
+        continue;
+      }
+      if (defaultDescriptor &amp;&amp; defaultDescriptor[key] !== undefined) {
+        descriptor[key] = defaultDescriptor[key];
+        continue;
+      }
+      descriptor[key] = globalDefaultDescriptor[key];
+    }
+    return descriptor;
+  };
+  return Descriptor;
+});</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BeautifulProperties.Events.Event.html">Event</a></li><li><a href="BeautifulProperties.Versionizable.Transaction.html">Transaction</a></li><li><a href="BeautifulProperties.Versionizable.Version.html">Version</a></li></ul><h3>Namespaces</h3><ul><li><a href="BeautifulProperties.html">BeautifulProperties</a></li><li><a href="BeautifulProperties.Equals.html">Equals</a></li><li><a href="BeautifulProperties.Equals.Functions.html">Functions</a></li><li><a href="BeautifulProperties.Events.html">Events</a></li><li><a href="BeautifulProperties.Events.Ancestor.html">Ancestor</a></li><li><a href="BeautifulProperties.Hookable.html">Hookable</a></li><li><a href="BeautifulProperties.Hookable.Get.html">Get</a></li><li><a href="BeautifulProperties.LazyInitializable.html">LazyInitializable</a></li><li><a href="BeautifulProperties.Observable.html">Observable</a></li><li><a href="BeautifulProperties.Versionizable.html">Versionizable</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0</a> on Wed Jan 27 2016 12:26:51 GMT+0900 (JST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
