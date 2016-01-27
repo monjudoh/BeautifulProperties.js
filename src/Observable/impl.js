@@ -29,14 +29,20 @@ define('Observable/impl',[
     }
 
     var descriptor = Descriptor.retrieve(object,key);
-    function checkChangeAndTrigger(val,previousVal) {
+    function triggerChangeEventIfChangeExists(val,previousVal) {
       if (!Equals.equals(this,key,val,previousVal)){
         var eventOptions = cloneDict(options);
         eventOptions.type = 'change:' + key;
         trigger(this, eventOptions,val,previousVal);
       }
     }
+    function triggerInitEvent(val) {
+      var eventOptions = cloneDict(options);
+      eventOptions.type = 'init:' + key;
+      trigger(this, eventOptions,val);
+    }
     var hookType = descriptor.get ? 'refresh' : 'afterSet';
-    Hookable.addHook(object,key,hookType,checkChangeAndTrigger,1);
+    Hookable.addHook(object,key,hookType,triggerChangeEventIfChangeExists,1);
+    Hookable.addHook(object,key,'afterInit',triggerInitEvent,1);
   };
 });

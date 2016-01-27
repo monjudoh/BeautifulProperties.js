@@ -13,11 +13,12 @@
 })(function (BeautifulProperties) {
   describe("BeautifulProperties.Observable", function() {
     describe(".define", function() {
-      var proto,object,changeKey;
+      var proto,object,changeKey,initKey;
       beforeEach(function(){
         proto = Object.create(null);
         object = Object.create(proto);
         changeKey = jasmine.createSpy('changeKey');
+        initKey = jasmine.createSpy('initKey');
       });
       it("'change:key' event is triggered when it assign 'key' property and the value is changed.",function(){
         BeautifulProperties.Observable.define(object,'key');
@@ -26,6 +27,13 @@
         object.on('change:key',changeKey);
         object.key = 1;
         expect(changeKey).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event),1,0);
+      });
+      it("'init:key' event is triggered when it 'key' property is initialized.",function(){
+        BeautifulProperties.Observable.define(object,'key');
+        BeautifulProperties.Events.provideMethods(object);
+        object.on('init:key',initKey);
+        object.key = 1;
+        expect(initKey).toHaveBeenCalledWith(jasmine.any(BeautifulProperties.Events.Event),1);
       });
       describe("descriptor",function(){
         describe('get',function(){
@@ -87,7 +95,11 @@
             equals(this,val,previousVal);
             return false;
           });
+          BeautifulProperties.Hookable.define(object,'key',{
+            value:BeautifulProperties.Hookable.Undefined
+          });
           BeautifulProperties.Observable.define(object,'key');
+          object.key; // init
           object.key = 1;
           expect(equals).toHaveBeenCalledWith(object,1,undefined);
         });

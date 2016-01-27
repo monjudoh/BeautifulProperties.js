@@ -11,30 +11,55 @@
     fn(BeautifulProperties);
   }
 })(function (BeautifulProperties) {
+  function addHooks(object,key,hooks) {
+    if (!BeautifulProperties.Hookable.hasHooks(object,key)) {
+      throw new TypeError('The property (key:'+key+') is not a Hookable property. Hookable.addHooks is the method for a Hookable property.');
+    }
+    'beforeGet afterGet beforeSet afterSet refresh'.split(' ').forEach(function(hookType){
+      if (hooks[hookType]) {
+        BeautifulProperties.Hookable.addHook(object,key,hookType,hooks[hookType]);
+      }
+    });
+  }
   describe("BeautifulProperties.Hookable", function() {
     describe(" hooks ",function() {
-      var beforeGet,afterGet,beforeSet,afterSet;
+      var beforeGet,afterGet,beforeSet,afterSet,beforeInit,afterInit;
       beforeEach(function(){
         beforeGet = jasmine.createSpy('beforeGet');
         afterGet = jasmine.createSpy('afterGet');
         beforeSet = jasmine.createSpy('beforeSet');
         afterSet = jasmine.createSpy('afterSet');
+        beforeInit = jasmine.createSpy('beforeInit');
+        afterInit = jasmine.createSpy('afterInit');
       });
       describe("have been or don't to have been called",function(){
         var object;
         beforeEach(function(){
           object = Object.create(null);
-          BeautifulProperties.Hookable.define(object,'key');
-          BeautifulProperties.Hookable.addHooks(object,'key',{
-            beforeGet : beforeGet,
-            afterGet : afterGet,
-            beforeSet : beforeSet,
-            afterSet : afterSet
+          BeautifulProperties.Hookable.define(object,'initializedKey',{
+            value:0
           });
+          object['initializedKey'];// init
+          BeautifulProperties.Hookable.addHook(object,'initializedKey','beforeGet',beforeGet);
+          BeautifulProperties.Hookable.addHook(object,'initializedKey','afterGet',afterGet);
+          BeautifulProperties.Hookable.addHook(object,'initializedKey','beforeSet',beforeSet);
+          BeautifulProperties.Hookable.addHook(object,'initializedKey','afterSet',afterSet);
+          BeautifulProperties.Hookable.addHook(object,'initializedKey','beforeInit',beforeInit);
+          BeautifulProperties.Hookable.addHook(object,'initializedKey','afterInit',afterInit);
+
+          BeautifulProperties.Hookable.define(object,'notInitializedKey',{
+            value:0
+          });
+          BeautifulProperties.Hookable.addHook(object,'notInitializedKey','beforeGet',beforeGet);
+          BeautifulProperties.Hookable.addHook(object,'notInitializedKey','afterGet',afterGet);
+          BeautifulProperties.Hookable.addHook(object,'notInitializedKey','beforeSet',beforeSet);
+          BeautifulProperties.Hookable.addHook(object,'notInitializedKey','afterSet',afterSet);
+          BeautifulProperties.Hookable.addHook(object,'notInitializedKey','beforeInit',beforeInit);
+          BeautifulProperties.Hookable.addHook(object,'notInitializedKey','afterInit',afterInit);
         });
-        describe("get",function(){
+        describe("get initializedKey",function(){
           beforeEach(function(){
-            object['key'];
+            object['initializedKey'];
           });
           it("beforeGet was called",function(){
             expect(beforeGet).toHaveBeenCalled();
@@ -48,10 +73,39 @@
           it("afterSet was not called",function(){
             expect(afterSet).not.toHaveBeenCalled();
           });
+          it("beforeInit was not called",function(){
+            expect(beforeInit).not.toHaveBeenCalled();
+          });
+          it("afterInit was not called",function(){
+            expect(afterInit).not.toHaveBeenCalled();
+          });
         });
-        describe("set",function(){
+        describe("get notInitializedKey",function(){
           beforeEach(function(){
-            object['key'] = 1;
+            object['notInitializedKey'];
+          });
+          it("beforeGet was not called",function(){
+            expect(beforeGet).toHaveBeenCalled();
+          });
+          it("afterGet was not called",function(){
+            expect(afterGet).toHaveBeenCalled();
+          });
+          it("beforeSet was not called",function(){
+            expect(beforeSet).not.toHaveBeenCalled();
+          });
+          it("afterSet was not called",function(){
+            expect(afterSet).not.toHaveBeenCalled();
+          });
+          it("beforeInit was called",function(){
+            expect(beforeInit).toHaveBeenCalled();
+          });
+          it("afterInit was called",function(){
+            expect(afterInit).toHaveBeenCalled();
+          });
+        });
+        describe("set initializedKey",function(){
+          beforeEach(function(){
+            object['initializedKey'] = 1;
           });
           it("beforeGet was not called",function(){
             expect(beforeGet).not.toHaveBeenCalled();
@@ -65,10 +119,39 @@
           it("afterSet was called",function(){
             expect(afterSet).toHaveBeenCalled();
           });
+          it("beforeInit was not called",function(){
+            expect(beforeInit).not.toHaveBeenCalled();
+          });
+          it("afterInit was not called",function(){
+            expect(afterInit).not.toHaveBeenCalled();
+          });
+        });
+        describe("set notInitializedKey",function(){
+          beforeEach(function(){
+            object['notInitializedKey'] = 1;
+          });
+          it("beforeGet was not called",function(){
+            expect(beforeGet).not.toHaveBeenCalled();
+          });
+          it("afterGet was not called",function(){
+            expect(afterGet).not.toHaveBeenCalled();
+          });
+          it("beforeSet was not called",function(){
+            expect(beforeSet).toHaveBeenCalled();
+          });
+          it("afterSet was not called",function(){
+            expect(afterSet).toHaveBeenCalled();
+          });
+          it("beforeInit was called",function(){
+            expect(beforeInit).toHaveBeenCalled();
+          });
+          it("afterInit was called",function(){
+            expect(afterInit).toHaveBeenCalled();
+          });
         });
         describe("getRaw",function(){
           beforeEach(function(){
-            BeautifulProperties.Hookable.getRaw(object,'key');
+            BeautifulProperties.Hookable.getRaw(object,'initializedKey');
           });
           it("beforeGet was called",function(){
             expect(beforeGet).not.toHaveBeenCalled();
@@ -82,10 +165,16 @@
           it("afterSet was not called",function(){
             expect(afterSet).not.toHaveBeenCalled();
           });
+          it("beforeInit was not called",function(){
+            expect(beforeInit).not.toHaveBeenCalled();
+          });
+          it("afterInit was not called",function(){
+            expect(afterInit).not.toHaveBeenCalled();
+          });
         });
         describe("setRaw",function(){
           beforeEach(function(){
-            BeautifulProperties.Hookable.setRaw(object,'key',1);
+            BeautifulProperties.Hookable.setRaw(object,'initializedKey',1);
           });
           it("beforeGet was called",function(){
             expect(beforeGet).not.toHaveBeenCalled();
@@ -100,12 +189,18 @@
             expect(afterSet).not.toHaveBeenCalled();
           });
           it("value could getRaw",function(){
-            expect(BeautifulProperties.Hookable.getRaw(object,'key')).toBe(1);
-          })
+            expect(BeautifulProperties.Hookable.getRaw(object,'initializedKey')).toBe(1);
+          });
+          it("beforeInit was not called",function(){
+            expect(beforeInit).not.toHaveBeenCalled();
+          });
+          it("afterInit was not called",function(){
+            expect(afterInit).not.toHaveBeenCalled();
+          });
         });
       });
       describe("afterGet could replace get value",function(){
-        var object,originalValue,replacedValue,hooks;
+        var object,originalValue,replacement,hooks;
         beforeEach(function(){
           object = Object.create(null);
           hooks = Object.create(null);
@@ -113,15 +208,15 @@
           originalValue = 1;
           hooks.afterGet = function (val){
             afterGet(val);
-            return replacedValue;
+            return replacement;
           };
         });
         describe("hooks",function(){
           beforeEach(function(){
-            replacedValue = 2;
+            replacement = 2;
             BeautifulProperties.Hookable.define(object,'key');
-            BeautifulProperties.Hookable.addHooks(object,'key',hooks);
-            BeautifulProperties.Hookable.setRaw(object,'key',originalValue);
+            object['key'] = originalValue;
+            addHooks(object,'key',hooks);
             object['key'];
           });
           it("beforeGet to have been called with no arguments",function(){
@@ -133,21 +228,21 @@
         });
         describe("afterGet's return value isn't undefined",function(){
           beforeEach(function(){
-            replacedValue = 2;
+            replacement = 2;
             BeautifulProperties.Hookable.define(object,'key');
-            BeautifulProperties.Hookable.addHooks(object,'key',hooks);
-            BeautifulProperties.Hookable.setRaw(object,'key',originalValue);
+            object['key'] = originalValue;
+            addHooks(object,'key',hooks);
           });
           it("value should be replaced",function(){
-            expect(object['key']).toBe(replacedValue);
+            expect(object['key']).toBe(replacement);
           });
         });
         describe("afterGet's return value is undefined",function(){
           beforeEach(function(){
-            replacedValue = undefined;
+            replacement = undefined;
             BeautifulProperties.Hookable.define(object,'key');
-            BeautifulProperties.Hookable.addHooks(object,'key',hooks);
-            BeautifulProperties.Hookable.setRaw(object,'key',originalValue);
+            addHooks(object,'key',hooks);
+            object['key'] = originalValue;
           });
           it("value should not be replaced",function(){
             expect(object['key']).toBe(originalValue);
@@ -155,13 +250,13 @@
         });
         describe("afterGet's return value is Hookable.Undefined",function(){
           beforeEach(function(){
-            replacedValue = BeautifulProperties.Hookable.Undefined;
+            replacement = BeautifulProperties.Hookable.Undefined;
             hooks.afterGet = function (val){
               afterGet(val);
-              return replacedValue;
+              return replacement;
             };
             BeautifulProperties.Hookable.define(object,'key');
-            BeautifulProperties.Hookable.addHooks(object,'key',hooks);
+            addHooks(object,'key',hooks);
             BeautifulProperties.Hookable.setRaw(object,'key',originalValue);
           });
           it("value should not be replaced to undefined",function(){
@@ -170,13 +265,13 @@
         });
       });
       describe("beforeSet could replace set value",function(){
-        var object,originalValue,replacedValue,previousValue,hooks;
+        var object,originalValue,replacement,previousValue,hooks;
         beforeEach(function(){
           object = Object.create(null);
           hooks = Object.create(null);
           hooks.beforeSet = function (val,previousVal){
             beforeSet(val,previousVal);
-            return replacedValue;
+            return replacement;
           };
           hooks.afterSet = afterSet;
           previousValue = 0;
@@ -184,36 +279,38 @@
         });
         describe("hooks",function(){
           beforeEach(function(){
-            replacedValue = 2;
+            replacement = 2;
             BeautifulProperties.Hookable.define(object,'key');
-            BeautifulProperties.Hookable.addHooks(object,'key',hooks);
+            object['key'] = undefined;
+            addHooks(object,'key',hooks);
             BeautifulProperties.Hookable.setRaw(object,'key',previousValue);
             object['key'] = originalValue;
           });
           it("beforeSet to have been called with no originalValue,previousValue",function(){
             expect(beforeSet).toHaveBeenCalledWith(originalValue,previousValue);
           });
-          it("afterSet to have been called with replacedValue,previousValue",function(){
-            expect(afterSet).toHaveBeenCalledWith(replacedValue,previousValue);
+          it("afterSet to have been called with replacement,previousValue",function(){
+            expect(afterSet).toHaveBeenCalledWith(replacement,previousValue);
           });
         });
         describe("return value isn't undefined",function(){
           beforeEach(function(){
-            replacedValue = 2;
+            replacement = 2;
             BeautifulProperties.Hookable.define(object,'key');
-            BeautifulProperties.Hookable.addHooks(object,'key',hooks);
+            object['key'] = undefined;
+            addHooks(object,'key',hooks);
             BeautifulProperties.Hookable.setRaw(object,'key',previousValue);
             object['key'] = originalValue;
           });
           it("value should be replaced",function(){
-            expect(BeautifulProperties.Hookable.getRaw(object,'key')).toBe(replacedValue);
+            expect(BeautifulProperties.Hookable.getRaw(object,'key')).toBe(replacement);
           });
         });
         describe("return value is undefined",function(){
           beforeEach(function(){
-            replacedValue = undefined;
+            replacement = undefined;
             BeautifulProperties.Hookable.define(object,'key');
-            BeautifulProperties.Hookable.addHooks(object,'key',hooks);
+            addHooks(object,'key',hooks);
             BeautifulProperties.Hookable.setRaw(object,'key',previousValue);
             object['key'] = originalValue;
           });
@@ -223,10 +320,10 @@
         });
         describe("return value is Hookable.Undefined",function(){
           beforeEach(function(){
-            replacedValue = BeautifulProperties.Hookable.Undefined;
+            replacement = BeautifulProperties.Hookable.Undefined;
             BeautifulProperties.Hookable.define(object,'key');
-            BeautifulProperties.Hookable.addHooks(object,'key',hooks);
-            BeautifulProperties.Hookable.setRaw(object,'key',previousValue);
+            object['key'] = previousValue;
+            addHooks(object,'key',hooks);
             object['key'] = originalValue;
           });
           it("value should not be replaced to undefined",function(){
@@ -350,7 +447,7 @@
                 return 1;
               }
             });
-            BeautifulProperties.Hookable.addHooks(object,'key',hooks);
+            addHooks(object,'key',hooks);
           });
           it("object could get value.",function(){
             expect(object['key']).toBe(1);
@@ -368,15 +465,16 @@
                 return 1;
               }
             });
-            BeautifulProperties.Hookable.addHooks(object,'key',hooks);
+            object['key']; // init
+            addHooks(object,'key',hooks);
           });
           it(" when refreshProperty is called.",function(){
             BeautifulProperties.Hookable.Get.refreshProperty(object,'key');
-            expect(refresh).toHaveBeenCalledWith(1,undefined);
+            expect(refresh).toHaveBeenCalledWith(1,1);
           });
           it(" when property is accessed.",function(){
             object['key'];
-            expect(refresh).toHaveBeenCalledWith(1,undefined);
+            expect(refresh).toHaveBeenCalledWith(1,1);
           });
         });
         it("Get.getSilently skip refresh hook.",function(){
@@ -386,7 +484,7 @@
               return 1;
             }
           });
-          BeautifulProperties.Hookable.addHooks(object,'key',hooks);
+          addHooks(object,'key',hooks);
           expect(BeautifulProperties.Hookable.Get.getSilently(object,'key')).toBe(1);
           expect(refresh).not.toHaveBeenCalledWith(1,undefined);
         });
@@ -405,7 +503,7 @@
               set:set
             });
 
-            BeautifulProperties.Hookable.addHooks(object,'key',hooks);
+            addHooks(object,'key',hooks);
           });
           it(" when property is accessed.",function(){
             object['key'] = 1;
@@ -427,11 +525,12 @@
                 return value;
               }
             });
-            BeautifulProperties.Hookable.addHooks(object,'key',hooks);
+            object['key'] = 0; // init
+            addHooks(object,'key',hooks);
           });
           it("refresh hook should be called when property is accessed.",function(){
             object['key'] = 1;
-            expect(refresh).toHaveBeenCalledWith(1,undefined);
+            expect(refresh).toHaveBeenCalledWith(1,0);
           });
         });
       });

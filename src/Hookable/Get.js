@@ -1,7 +1,7 @@
 define('Hookable/Get',[
-  './namespace','./Raw','./Hooks','./Descriptor',
+  './namespace','./Descriptor','./Status','./internal',
   'utils/provideMethodsFactory','utils/createChildNamespace'
-],function (Hookable,Raw,Hooks,Descriptor,
+],function (Hookable,Descriptor,Status,internal,
             provideMethodsFactory,createChildNamespace) {
   /**
    * @namespace Get
@@ -12,21 +12,17 @@ define('Hookable/Get',[
    * @function refreshProperty
    * @memberOf BeautifulProperties.Hookable.Get
    *
-   * @param {object} object
+   * @param {object} target
    * @param {string} key
    *
    * @see BeautifulProperties.Hookable~refresh
    */
-  Get.refreshProperty = function refreshProperty(object,key){
-    var previousVal = Raw.retrieve(object,key);
-    var descriptor = Descriptor.walkAndRetrieve(object,key);
-    var retriever = descriptor.get;
-    var val = retriever.call(object);
-    Raw.store(object,key,val);
-    var storedHooks = Hooks.walkAndRetrieve(object,key);
-    storedHooks.refresh.forEach(function(refresh){
-      refresh.call(object,val,previousVal);
-    });
+  Get.refreshProperty = function refreshProperty(target,key){
+    var status = Status.retrieve(target,key);
+    if (!status.isInitialized) {
+      (internal.init_AccessorDescriptor)(target, key);
+    }
+    (internal.get_refreshProperty)(target,key);
   };
   /**
    * @function getSilently

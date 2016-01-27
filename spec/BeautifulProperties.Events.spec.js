@@ -57,7 +57,7 @@
             BeautifulProperties.Events.on(targetObject, 'test', function () {
               expect(this).toBe(thisObject);
               spy();
-            }, {context : thisObject});
+            }, {thisObject : thisObject});
             BeautifulProperties.Events.trigger(targetObject,'test');
             expect(spy).toHaveBeenCalled();
           });

@@ -1,10 +1,10 @@
 module.exports = function () {
-  var namespace, internal_Descriptor, utils_hasOwn, utils_hasConsoleError, utils_createChildNamespace, LazyInitializable, Hookable_namespace, InternalObject_constructor, InternalObject, InternalObject_NamespacedKVS, Hookable_Raw, InternalObject_PrototypeWalker, Hookable_HookCollection, Hookable_Hooks, Hookable_Descriptor, utils_Array_from, utils_provideMethodsFactory, Hookable_Get, Hookable_Status, Hookable_alias, Hookable_impl, Hookable, Events_namespace, Events_Event, Events_Ancestor, Events_HandlerCollection, utils_cloneDict, Events_bindImpl, Events_triggerImpl, Events_impl, Events, Equals_namespace, Equals_Functions, Equals_impl, Equals, Observable_namespace, Observable_impl, Observable, Versionizable_namespace, Versionizable_Version, Versionizable_History, Versionizable_Transaction, Versionizable_impl, Versionizable, deprecated_Internal, deprecated_since019, deprecated, BeautifulProperties;
+  var namespace, internal_Descriptor, utils_hasOwn, utils_hasConsoleError, utils_createChildNamespace, LazyInitializable, Hookable_namespace, InternalObject_constructor, InternalObject, InternalObject_NamespacedKVS, InternalObject_PrototypeWalker, Hookable_Descriptor, Hookable_Status, Hookable_Raw, Hookable_HookCollection, Hookable_Hooks, Hookable_Undefined, Hookable_internal, utils_Array_from, utils_provideMethodsFactory, Hookable_Get, Hookable_alias, Hookable_impl, Hookable, Events_namespace, Events_Event, Events_Ancestor, Events_HandlerCollection, utils_cloneDict, Events_bindImpl, Events_triggerImpl, Events_impl, Events, Equals_namespace, Equals_Functions, Equals_impl, Equals, Observable_namespace, Observable_impl, Observable, Versionizable_namespace, Versionizable_Version, Versionizable_History, Versionizable_Transaction, Versionizable_impl, Versionizable, deprecated, BeautifulProperties;
   namespace = function () {
     /**
      * @name BeautifulProperties
      * @namespace
-     * @version 0.1.12
+     * @version 0.2.0
      * @author monjudoh
      * @copyright <pre>(c) 2012 monjudoh
      * Dual licensed under the MIT (MIT-LICENSE.txt)
@@ -431,31 +431,6 @@ module.exports = function () {
     };
     return NamespacedKVS;
   }(InternalObject, LazyInitializable);
-  Hookable_Raw = function (NamespacedKVS) {
-    NamespacedKVS.mixinNamespace('Hookable::Raw');
-    /**
-     * @namespace BeautifulProperties.Hookable~Raw
-     * @private
-     */
-    var Raw = Object.create(null);
-    /**
-     * @function retrieve
-     * @memberOf BeautifulProperties.Hookable~Raw
-     * @param {object} object
-     * @param {string} key
-     * @returns {*}
-     */
-    Raw.retrieve = NamespacedKVS.retrieveFnFactory('Hookable::Raw', false);
-    /**
-     * @function store
-     * @memberOf BeautifulProperties.Hookable~Raw
-     * @param {object} object
-     * @param {string} key
-     * @param {*}
-     */
-    Raw.store = NamespacedKVS.storeFnFactory('Hookable::Raw');
-    return Raw;
-  }(InternalObject_NamespacedKVS);
   InternalObject_PrototypeWalker = function (NamespacedKVS) {
     var PrototypeWalker = Object.create(null);
     NamespacedKVS.mixinNamespace('PrototypeWalker::Cache', function () {
@@ -481,6 +456,85 @@ module.exports = function () {
       }
     };
     return PrototypeWalker;
+  }(InternalObject_NamespacedKVS);
+  Hookable_Descriptor = function (base, NamespacedKVS, PrototypeWalker) {
+    /**
+     * @namespace BeautifulProperties.Hookable~Descriptor
+     * @extends BeautifulProperties~Descriptor
+     * @private
+     */
+    var Descriptor = Object.create(base);
+    NamespacedKVS.mixinNamespace('Hookable::Descriptor');
+    /**
+     * @function retrieve
+     * @memberOf BeautifulProperties.Hookable~Descriptor
+     * @param {object} object
+     * @param {string} key
+     * @returns {(BeautifulProperties~DataDescriptor|BeautifulProperties~AccessorDescriptor|BeautifulProperties~GenericDescriptor)=}
+     */
+    Descriptor.retrieve = NamespacedKVS.retrieveFnFactory('Hookable::Descriptor', false);
+    /**
+     * @function walkAndRetrieve
+     * @memberOf BeautifulProperties.Hookable~Descriptor
+     * @param {object} object
+     * @param {string} key
+     * @returns {(BeautifulProperties~DataDescriptor|BeautifulProperties~AccessorDescriptor|BeautifulProperties~GenericDescriptor)=}
+     */
+    Descriptor.walkAndRetrieve = PrototypeWalker.retrieve.bind(null, 'Hookable::Descriptor');
+    /**
+     * @function store
+     * @memberOf BeautifulProperties.Hookable~Descriptor
+     * @param {object} object
+     * @param {string} key
+     * @param {(BeautifulProperties~DataDescriptor|BeautifulProperties~AccessorDescriptor|BeautifulProperties~GenericDescriptor)}
+     */
+    Descriptor.store = NamespacedKVS.storeFnFactory('Hookable::Descriptor');
+    return Descriptor;
+  }(internal_Descriptor, InternalObject_NamespacedKVS, InternalObject_PrototypeWalker);
+  Hookable_Status = function (NamespacedKVS) {
+    /**
+     * @constructor BeautifulProperties.Hookable~Status
+     * @property {boolean} isInitialized
+     * @private
+     */
+    function Status() {
+      this.isInitialized = false;
+    }
+    NamespacedKVS.mixinNamespace('Hookable::Status', Status);
+    /**
+     * @function retrieve
+     * @memberOf BeautifulProperties.Hookable~Status
+     * @param {object} object
+     * @param {string} key
+     * @returns BeautifulProperties.Hookable~Status
+     */
+    Status.retrieve = NamespacedKVS.retrieveFnFactory('Hookable::Status', true);
+    return Status;
+  }(InternalObject_NamespacedKVS);
+  Hookable_Raw = function (NamespacedKVS) {
+    NamespacedKVS.mixinNamespace('Hookable::Raw');
+    /**
+     * @namespace BeautifulProperties.Hookable~Raw
+     * @private
+     */
+    var Raw = Object.create(null);
+    /**
+     * @function retrieve
+     * @memberOf BeautifulProperties.Hookable~Raw
+     * @param {object} object
+     * @param {string} key
+     * @returns {*}
+     */
+    Raw.retrieve = NamespacedKVS.retrieveFnFactory('Hookable::Raw', false);
+    /**
+     * @function store
+     * @memberOf BeautifulProperties.Hookable~Raw
+     * @param {object} object
+     * @param {string} key
+     * @param {*}
+     */
+    Raw.store = NamespacedKVS.storeFnFactory('Hookable::Raw');
+    return Raw;
   }(InternalObject_NamespacedKVS);
   Hookable_HookCollection = function () {
     /**
@@ -577,12 +631,14 @@ module.exports = function () {
      * @property {BeautifulProperties.Hookable~HookCollection} beforeSet
      * @property {BeautifulProperties.Hookable~HookCollection} afterSet
      * @property {BeautifulProperties.Hookable~HookCollection} refresh
+     * @property {BeautifulProperties.Hookable~HookCollection} beforeInit
+     * @property {BeautifulProperties.Hookable~HookCollection} afterInit
      * @private
      */
     function Hooks() {
     }
     var proto = Hooks.prototype;
-    'beforeGet afterGet beforeSet afterSet refresh'.split(' ').forEach(function (key) {
+    'beforeGet afterGet beforeSet afterSet refresh beforeInit afterInit'.split(' ').forEach(function (key) {
       LazyInitializable.define(proto, key, {
         init: function () {
           return new HookCollection();
@@ -621,40 +677,114 @@ module.exports = function () {
     }(NamespacedKVS.retrieveFnFactory('Hookable::Hooks', false));
     return Hooks;
   }(LazyInitializable, InternalObject_NamespacedKVS, InternalObject_PrototypeWalker, Hookable_HookCollection);
-  Hookable_Descriptor = function (base, NamespacedKVS, PrototypeWalker) {
-    /**
-     * @namespace BeautifulProperties.Hookable~Descriptor
-     * @extends BeautifulProperties~Descriptor
-     * @private
-     */
-    var Descriptor = Object.create(base);
-    NamespacedKVS.mixinNamespace('Hookable::Descriptor');
-    /**
-     * @function retrieve
-     * @memberOf BeautifulProperties.Hookable~Descriptor
-     * @param {object} object
-     * @param {string} key
-     * @returns {(BeautifulProperties~DataDescriptor|BeautifulProperties~AccessorDescriptor|BeautifulProperties~GenericDescriptor)=}
-     */
-    Descriptor.retrieve = NamespacedKVS.retrieveFnFactory('Hookable::Descriptor', false);
-    /**
-     * @function walkAndRetrieve
-     * @memberOf BeautifulProperties.Hookable~Descriptor
-     * @param {object} object
-     * @param {string} key
-     * @returns {(BeautifulProperties~DataDescriptor|BeautifulProperties~AccessorDescriptor|BeautifulProperties~GenericDescriptor)=}
-     */
-    Descriptor.walkAndRetrieve = PrototypeWalker.retrieve.bind(null, 'Hookable::Descriptor');
-    /**
-     * @function store
-     * @memberOf BeautifulProperties.Hookable~Descriptor
-     * @param {object} object
-     * @param {string} key
-     * @param {(BeautifulProperties~DataDescriptor|BeautifulProperties~AccessorDescriptor|BeautifulProperties~GenericDescriptor)}
-     */
-    Descriptor.store = NamespacedKVS.storeFnFactory('Hookable::Descriptor');
-    return Descriptor;
-  }(internal_Descriptor, InternalObject_NamespacedKVS, InternalObject_PrototypeWalker);
+  Hookable_Undefined = Object.create(null);
+  Hookable_internal = function (Raw, Status, Hooks, Descriptor, Undefined) {
+    var internal = Object.create(null);
+    internal.init_AccessorDescriptor = function init_AccessorDescriptor(target, key, object) {
+      var descriptor = object !== undefined ? Descriptor.retrieve(object, key) : Descriptor.walkAndRetrieve(target, key);
+      var status = Status.retrieve(target, key);
+      var initialValue = descriptor.get.call(target);
+      initialValue = internal.beforeInit(target, key, initialValue, object);
+      Raw.store(target, key, initialValue);
+      status.isInitialized = true;
+      internal.afterInit(target, key, initialValue, object);
+    };
+    internal.init_DataDescriptor = function init_DataDescriptor(target, key, value, object) {
+      var descriptor = object !== undefined ? Descriptor.retrieve(object, key) : Descriptor.walkAndRetrieve(target, key);
+      var initialValue;
+      var isInitialiseByAssignedValue = false;
+      if (descriptor.init) {
+        initialValue = descriptor.init.call(target);
+      } else if (descriptor.value !== undefined) {
+        if (descriptor.value !== Undefined) {
+          initialValue = descriptor.value;
+        } else {
+          initialValue = undefined;
+        }
+      } else if (value !== Undefined) {
+        initialValue = value;
+        isInitialiseByAssignedValue = true;
+      } else {
+        return;
+      }
+      initialValue = internal.beforeInit(target, key, initialValue, object);
+      Raw.store(target, key, initialValue);
+      Status.retrieve(target, key).isInitialized = true;
+      internal.afterInit(target, key, initialValue, object);
+      if (value !== Undefined && !isInitialiseByAssignedValue) {
+        target[key] = value;
+      }
+    };
+    internal.beforeInit = function beforeInit(target, key, val, object) {
+      var storedHooks = object !== undefined ? Hooks.retrieve(object, key) : Hooks.walkAndRetrieve(target, key);
+      storedHooks.beforeInit.forEach(function (beforeInit) {
+        var replacement = beforeInit.call(target, val);
+        if (replacement === undefined && replacement !== Undefined) {
+        } else if (replacement === Undefined) {
+          val = undefined;
+        } else {
+          val = replacement;
+        }
+      });
+      return val;
+    };
+    internal.afterInit = function afterInit(target, key, val, object) {
+      var storedHooks = object !== undefined ? Hooks.retrieve(object, key) : Hooks.walkAndRetrieve(target, key);
+      storedHooks.afterInit.forEach(function (afterInit) {
+        afterInit.call(target, val);
+      });
+    };
+    internal.get_refreshProperty = function get_refreshProperty(target, key, object) {
+      var previousVal = Raw.retrieve(target, key);
+      var descriptor = object !== undefined ? Descriptor.retrieve(object, key) : Descriptor.walkAndRetrieve(target, key);
+      var retriever = descriptor.get;
+      var val = retriever.call(target);
+      Raw.store(target, key, val);
+      var storedHooks = object !== undefined ? Hooks.retrieve(object, key) : Hooks.walkAndRetrieve(target, key);
+      storedHooks.refresh.forEach(function (refresh) {
+        refresh.call(target, val, previousVal);
+      });
+    };
+    internal.get_beforeGet = function get_beforeGet(target, key, object) {
+      var storedHooks = Hooks.retrieve(object, key);
+      storedHooks.beforeGet.forEach(function (beforeGet) {
+        beforeGet.call(target);
+      });
+    };
+    internal.get_afterGet = function get_afterGet(target, key, val, object) {
+      var storedHooks = Hooks.retrieve(object, key);
+      storedHooks.afterGet.forEach(function (afterGet) {
+        var replacedVal = afterGet.call(target, val);
+        if (replacedVal === undefined && replacedVal !== Undefined) {
+        } else if (replacedVal === Undefined) {
+          val = undefined;
+        } else {
+          val = replacedVal;
+        }
+      });
+      return val;
+    };
+    internal.set_beforeSet = function set_beforeSet(target, key, val, previousVal, object) {
+      var storedHooks = Hooks.retrieve(object, key);
+      storedHooks.beforeSet.forEach(function (beforeSet) {
+        var replacedVal = beforeSet.call(target, val, previousVal);
+        if (replacedVal === undefined && replacedVal !== Undefined) {
+        } else if (replacedVal === Undefined) {
+          val = undefined;
+        } else {
+          val = replacedVal;
+        }
+      });
+      return val;
+    };
+    internal.set_afterSet = function set_afterSet(target, key, val, previousVal, object) {
+      var storedHooks = Hooks.retrieve(object, key);
+      storedHooks.afterSet.forEach(function (afterSet) {
+        afterSet.call(target, val, previousVal);
+      });
+    };
+    return internal;
+  }(Hookable_Raw, Hookable_Status, Hookable_Hooks, Hookable_Descriptor, Hookable_Undefined);
   utils_Array_from = function () {
     var slice = Array.prototype.slice;
     function Array_from(arrayLike) {
@@ -693,7 +823,7 @@ module.exports = function () {
     }
     return provideMethodsFactory;
   }(utils_Array_from);
-  Hookable_Get = function (Hookable, Raw, Hooks, Descriptor, provideMethodsFactory, createChildNamespace) {
+  Hookable_Get = function (Hookable, Descriptor, Status, internal, provideMethodsFactory, createChildNamespace) {
     /**
      * @namespace Get
      * @memberOf BeautifulProperties.Hookable
@@ -703,21 +833,17 @@ module.exports = function () {
      * @function refreshProperty
      * @memberOf BeautifulProperties.Hookable.Get
      *
-     * @param {object} object
+     * @param {object} target
      * @param {string} key
      *
      * @see BeautifulProperties.Hookable~refresh
      */
-    Get.refreshProperty = function refreshProperty(object, key) {
-      var previousVal = Raw.retrieve(object, key);
-      var descriptor = Descriptor.walkAndRetrieve(object, key);
-      var retriever = descriptor.get;
-      var val = retriever.call(object);
-      Raw.store(object, key, val);
-      var storedHooks = Hooks.walkAndRetrieve(object, key);
-      storedHooks.refresh.forEach(function (refresh) {
-        refresh.call(object, val, previousVal);
-      });
+    Get.refreshProperty = function refreshProperty(target, key) {
+      var status = Status.retrieve(target, key);
+      if (!status.isInitialized) {
+        internal.init_AccessorDescriptor(target, key);
+      }
+      internal.get_refreshProperty(target, key);
     };
     /**
      * @function getSilently
@@ -746,27 +872,7 @@ module.exports = function () {
       'getSilently'
     ]);
     return Get;
-  }(Hookable_namespace, Hookable_Raw, Hookable_Hooks, Hookable_Descriptor, utils_provideMethodsFactory, utils_createChildNamespace);
-  Hookable_Status = function (NamespacedKVS) {
-    /**
-     * @constructor BeautifulProperties.Hookable~Status
-     * @property {boolean} isInitialized
-     * @private
-     */
-    function Status() {
-      this.isInitialized = false;
-    }
-    NamespacedKVS.mixinNamespace('Hookable::Status', Status);
-    /**
-     * @function retrieve
-     * @memberOf BeautifulProperties.Hookable~Status
-     * @param {object} object
-     * @param {string} key
-     * @returns BeautifulProperties.Hookable~Status
-     */
-    Status.retrieve = NamespacedKVS.retrieveFnFactory('Hookable::Status', true);
-    return Status;
-  }(InternalObject_NamespacedKVS);
+  }(Hookable_namespace, Hookable_Descriptor, Hookable_Status, Hookable_internal, utils_provideMethodsFactory, utils_createChildNamespace);
   Hookable_alias = function (Hookable, Raw, Hooks) {
     /**
      * @function getRaw
@@ -802,12 +908,12 @@ module.exports = function () {
      */
     Hookable.hasHooks = Hooks.has;
   }(Hookable_namespace, Hookable_Raw, Hookable_Hooks);
-  Hookable_impl = function (Hookable, Get, Raw, Status, Hooks, Descriptor) {
+  Hookable_impl = function (Hookable, Get, Raw, Status, Hooks, Descriptor, Undefined, internal) {
     /**
      * @name Undefined
      * @memberOf BeautifulProperties.Hookable
      */
-    Hookable.Undefined = Object.create(null);
+    Hookable.Undefined = Undefined;
     /**
      * @callback BeautifulProperties.Hookable~beforeGet
      */
@@ -865,7 +971,6 @@ module.exports = function () {
      *  descriptor.writable's default value is false in ES5,but it's true in BeautifulProperties.Hookable.
      */
     Hookable.define = function defineHookableProperty(object, key, descriptor) {
-      var Undefined = Hookable.Undefined;
       descriptor = descriptor || Object.create(null);
       var type = Descriptor.getTypeOf(descriptor);
       if (type === Descriptor.Types.InvalidDescriptor) {
@@ -973,66 +1078,6 @@ module.exports = function () {
         Hooks.retrieve(object, key);
         storeDescriptor(descriptor);
       }
-      // internal functions
-      function init_DataDescriptor() {
-        var descriptor = Descriptor.retrieve(object, key);
-        var status = Status.retrieve(this, key);
-        var isValueExist = descriptor.value !== undefined;
-        status.isInitialized = true;
-        var initialValue;
-        if (descriptor.init) {
-          initialValue = descriptor.init.call(this);
-        } else if (isValueExist) {
-          initialValue = descriptor.value;
-        }
-        if (descriptor.writable) {
-          this[key] = initialValue;
-        } else {
-          Raw.store(this, key, initialValue);
-        }
-      }
-      function get_beforeGet() {
-        var self = this;
-        var storedHooks = Hooks.retrieve(object, key);
-        storedHooks.beforeGet.forEach(function (beforeGet) {
-          beforeGet.call(self);
-        });
-      }
-      function get_afterGet(val) {
-        var self = this;
-        var storedHooks = Hooks.retrieve(object, key);
-        storedHooks.afterGet.forEach(function (afterGet) {
-          var replacedVal = afterGet.call(self, val);
-          if (replacedVal === undefined && replacedVal !== Undefined) {
-          } else if (replacedVal === Undefined) {
-            val = undefined;
-          } else {
-            val = replacedVal;
-          }
-        });
-        return val;
-      }
-      function set_beforeSet(val, previousVal) {
-        var self = this;
-        var storedHooks = Hooks.retrieve(object, key);
-        storedHooks.beforeSet.forEach(function (beforeSet) {
-          var replacedVal = beforeSet.call(self, val, previousVal);
-          if (replacedVal === undefined && replacedVal !== Undefined) {
-          } else if (replacedVal === Undefined) {
-            val = undefined;
-          } else {
-            val = replacedVal;
-          }
-        });
-        return val;
-      }
-      function set_afterSet(val, previousVal) {
-        var self = this;
-        var storedHooks = Hooks.retrieve(object, key);
-        storedHooks.afterSet.forEach(function (afterSet) {
-          afterSet.call(self, val, previousVal);
-        });
-      }
       Object.defineProperty(object, key, {
         get: function __BeautifulProperties_Hookable_get() {
           var descriptor = Descriptor.retrieve(object, key);
@@ -1040,22 +1085,28 @@ module.exports = function () {
           var status = Status.retrieve(this, key);
           switch (type) {
           case Descriptor.Types.DataDescriptor:
-            var isValueExist = descriptor.value !== undefined;
-            if (!status.isInitialized && (descriptor.init || isValueExist)) {
-              init_DataDescriptor.call(this);
-              return this[key];
-            } else {
-              get_beforeGet.call(this);
-              return get_afterGet.call(this, Raw.retrieve(this, key));
+            if (!status.isInitialized) {
+              internal.init_DataDescriptor(this, key, Undefined, object);
+              if (!status.isInitialized) {
+                return;
+              }
             }
+            internal.get_beforeGet(this, key, object);
+            return internal.get_afterGet(this, key, Raw.retrieve(this, key), object);
           case Descriptor.Types.AccessorDescriptor:
             // write only
             if (!descriptor.get) {
               return undefined;
             }
-            get_beforeGet.call(this);
-            Get.refreshProperty(this, key);
-            return get_afterGet.call(this, Raw.retrieve(this, key));
+            var isInitialized = status.isInitialized;
+            if (!isInitialized) {
+              internal.init_AccessorDescriptor(this, key, object);
+            }
+            internal.get_beforeGet(this, key, object);
+            if (isInitialized) {
+              internal.get_refreshProperty(this, key, object);
+            }
+            return internal.get_afterGet(this, key, Raw.retrieve(this, key), object);
           default:
             throw new Error('InvalidState');
           }
@@ -1063,33 +1114,48 @@ module.exports = function () {
         set: function __BeautifulProperties_Hookable_set(val) {
           var descriptor = Descriptor.retrieve(object, key);
           var type = Descriptor.getTypeOf(descriptor);
+          var status = Status.retrieve(this, key);
           switch (type) {
           case Descriptor.Types.DataDescriptor:
             // read only
             if (!descriptor.writable) {
               return;
             }
-            var status = Status.retrieve(this, key);
             if (!status.isInitialized) {
-              status.isInitialized = true;
+              internal.init_DataDescriptor(this, key, val, object);
+              return;
             }
             var previousVal = Raw.retrieve(this, key);
-            val = set_beforeSet.call(this, val, previousVal);
+            val = internal.set_beforeSet(this, key, val, previousVal, object);
             Raw.store(this, key, val);
-            set_afterSet.call(this, val, previousVal);
+            internal.set_afterSet(this, key, val, previousVal, object);
             break;
           case Descriptor.Types.AccessorDescriptor:
             // read only
             if (!descriptor.set) {
               return;
             }
-            var previousVal = Raw.retrieve(this, key);
-            val = set_beforeSet.call(this, val, previousVal);
-            descriptor.set.call(this, val);
-            if (descriptor.get) {
-              Get.refreshProperty(this, key);
+            var previousVal;
+            // write only
+            if (!descriptor.get) {
+              previousVal = undefined;
+              val = internal.set_beforeSet(this, key, val, previousVal, object);
+              descriptor.set.call(this, val);
+              // can't refresh
+              internal.set_afterSet(this, key, val, previousVal, object);
+              return;
             }
-            set_afterSet.call(this, val, previousVal);
+            // read/write
+            if (status.isInitialized) {
+              previousVal = Raw.retrieve(this, key);
+              val = internal.set_beforeSet(this, key, val, previousVal, object);
+              descriptor.set.call(this, val);
+              internal.get_refreshProperty(this, key, object);
+              internal.set_afterSet(this, key, val, previousVal, object);
+            } else {
+              internal.init_AccessorDescriptor(this, key, object);
+              this[key] = val;
+            }
             break;
           default:
             throw new Error('InvalidState');
@@ -1099,7 +1165,7 @@ module.exports = function () {
         configurable: descriptor.configurable
       });
     };
-  }(Hookable_namespace, Hookable_Get, Hookable_Raw, Hookable_Status, Hookable_Hooks, Hookable_Descriptor);
+  }(Hookable_namespace, Hookable_Get, Hookable_Raw, Hookable_Status, Hookable_Hooks, Hookable_Descriptor, Hookable_Undefined, Hookable_internal);
   Hookable = function (Hookable) {
     return Hookable;
   }(Hookable_namespace);
@@ -1335,7 +1401,6 @@ module.exports = function () {
     /**
      * @typedef BeautifulProperties.Events~BindingOptions
      * @property {*=} thisObject is the ThisBinding of the handler execution context.
-     * @property {*=} context is the alias of the thisObject. (deprecated)
      */
     /**
      * @function on
@@ -1351,10 +1416,6 @@ module.exports = function () {
         throw new Error('handler is necessary in BeautifulProperties.Events.on');
       }
       options = options ? cloneDict(options) : Object.create(null);
-      // deprecated
-      if (options.context !== undefined) {
-        options.thisObject = options.context;
-      }
       if (options.thisObject === undefined) {
         options.thisObject = null;
       }
@@ -1578,15 +1639,21 @@ module.exports = function () {
         Hookable.define(object, key);
       }
       var descriptor = Descriptor.retrieve(object, key);
-      function checkChangeAndTrigger(val, previousVal) {
+      function triggerChangeEventIfChangeExists(val, previousVal) {
         if (!Equals.equals(this, key, val, previousVal)) {
           var eventOptions = cloneDict(options);
           eventOptions.type = 'change:' + key;
           trigger(this, eventOptions, val, previousVal);
         }
       }
+      function triggerInitEvent(val) {
+        var eventOptions = cloneDict(options);
+        eventOptions.type = 'init:' + key;
+        trigger(this, eventOptions, val);
+      }
       var hookType = descriptor.get ? 'refresh' : 'afterSet';
-      Hookable.addHook(object, key, hookType, checkChangeAndTrigger, 1);
+      Hookable.addHook(object, key, hookType, triggerChangeEventIfChangeExists, 1);
+      Hookable.addHook(object, key, 'afterInit', triggerInitEvent, 1);
     };
   }(Observable_namespace, Events, Equals, Hookable, Hookable_Descriptor, utils_cloneDict);
   Observable = function (Observable) {
@@ -1844,59 +1911,33 @@ module.exports = function () {
         Hookable.define(object, key);
       }
       var descriptor = Descriptor.retrieve(object, key);
-      function checkChangeAndEnqueue(val, previousVal) {
-        if (!Equals.equals(this, key, val, previousVal)) {
-          var history = History.retrieve(this, key);
-          var version = new Version();
-          version.value = val;
-          version.timestamp = Date.now();
-          history.unshift(version);
-          // truncate
-          if (history.length > options.length) {
-            history.length = options.length;
-          }
+      function enqueue(key, val) {
+        var history = History.retrieve(this, key);
+        var version = new Version();
+        version.value = val;
+        version.timestamp = Date.now();
+        history.unshift(version);
+        // truncate
+        if (history.length > options.length) {
+          history.length = options.length;
         }
       }
+      function enqueueWhenChangeExists(val, previousVal) {
+        if (!Equals.equals(this, key, val, previousVal)) {
+          enqueue.call(this, key, val);
+        }
+      }
+      function enqueueWhenInit(val) {
+        enqueue.call(this, key, val);
+      }
       var hookType = descriptor.get ? 'refresh' : 'afterSet';
-      Hookable.addHook(object, key, hookType, checkChangeAndEnqueue, 10000);
+      Hookable.addHook(object, key, hookType, enqueueWhenChangeExists, 10000);
+      Hookable.addHook(object, key, 'afterInit', enqueueWhenInit, 10000);
     };
   }(Versionizable_namespace, Versionizable_Version, Versionizable_Transaction, Versionizable_History, Hookable, Hookable_Descriptor, Equals, Events);
   Versionizable = function (Versionizable) {
     return Versionizable;
   }(Versionizable_namespace);
-  deprecated_Internal = function (BeautifulProperties, createChildNamespace, InternalObject) {
-    /**
-     * @namespace Internal
-     * @memberOf BeautifulProperties
-     * @deprecated since version 0.1.9
-     */
-    var Internal = createChildNamespace(BeautifulProperties, 'Internal');
-    BeautifulProperties.Internal.Key = InternalObject.Key;
-    BeautifulProperties.Internal.retrieve = InternalObject.retrieve;
-    return Internal;
-  }(namespace, utils_createChildNamespace, InternalObject);
-  deprecated_since019 = function (Hookable) {
-    /**
-     * @function addHooks
-     * @memberOf BeautifulProperties.Hookable
-     *
-     * @param {object} object
-     * @param {string} key
-     * @param {{beforeGet:function=,afterGet:function=,beforeSet:function=,afterSet:function=,refresh:function=}} hooks
-     * @see BeautifulProperties.Hookable.addHook
-     * @deprecated since version 0.1.9
-     */
-    Hookable.addHooks = function addHooks(object, key, hooks) {
-      if (!Hookable.hasHooks(object, key)) {
-        throw new TypeError('The property (key:' + key + ') is not a Hookable property. Hookable.addHooks is the method for a Hookable property.');
-      }
-      'beforeGet afterGet beforeSet afterSet refresh'.split(' ').forEach(function (hookType) {
-        if (hooks[hookType]) {
-          Hookable.addHook(object, key, hookType, hooks[hookType]);
-        }
-      });
-    };
-  }(Hookable);
   deprecated = undefined;
   BeautifulProperties = function (BeautifulProperties) {
     /**
@@ -1905,7 +1946,7 @@ module.exports = function () {
      * @memberOf BeautifulProperties
      */
     Object.defineProperty(BeautifulProperties, 'VERSION', {
-      value: '0.1.12',
+      value: '0.2.0',
       writable: false
     });
     return BeautifulProperties;

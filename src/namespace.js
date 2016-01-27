@@ -2,7 +2,7 @@ define('namespace',[],function(){
   /**
    * @name BeautifulProperties
    * @namespace
-   * @version 0.1.12
+   * @version 0.2.0
    * @author monjudoh
    * @copyright <pre>(c) 2012 monjudoh
    * Dual licensed under the MIT (MIT-LICENSE.txt)

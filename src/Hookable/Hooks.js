@@ -12,12 +12,14 @@ define('Hookable/Hooks',[
    * @property {BeautifulProperties.Hookable~HookCollection} beforeSet
    * @property {BeautifulProperties.Hookable~HookCollection} afterSet
    * @property {BeautifulProperties.Hookable~HookCollection} refresh
+   * @property {BeautifulProperties.Hookable~HookCollection} beforeInit
+   * @property {BeautifulProperties.Hookable~HookCollection} afterInit
    * @private
    */
   function Hooks(){}
   var proto = Hooks.prototype;
 
-  'beforeGet afterGet beforeSet afterSet refresh'.split(' ').forEach(function(key){
+  'beforeGet afterGet beforeSet afterSet refresh beforeInit afterInit'.split(' ').forEach(function(key){
     LazyInitializable.define(proto,key,{
       init:function(){
         return new HookCollection;
