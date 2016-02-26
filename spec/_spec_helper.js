@@ -14,6 +14,16 @@
     });
   }
 
+  function haveOwnPropertiesWithValues(o,expects) {
+    if (o === undefined) {
+      return false;
+    }
+    return Object.getOwnPropertyNames(expects).every(function (name) {
+      return Object.prototype.hasOwnProperty.call(o, name) && o[name] === expects[name];
+    });
+  }
+
   global.haveProperties = haveProperties;
   global.havePropertiesWithValues = havePropertiesWithValues;
+  global.haveOwnPropertiesWithValues = haveOwnPropertiesWithValues;
 })(global||window);
