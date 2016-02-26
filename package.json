@@ -10,6 +10,7 @@
     "amdbuilder": "=0.0.7",
     "intelli-espower-loader": "1.0.1",
     "power-assert": "1.2.0",
+    "sinon": "1.17.3",
     "jsdoc": "~3.3.0",
     "underscore": "~1.6"
   },
