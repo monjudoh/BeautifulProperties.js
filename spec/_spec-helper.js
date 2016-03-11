@@ -26,4 +26,4 @@
   global.haveProperties = haveProperties;
   global.havePropertiesWithValues = havePropertiesWithValues;
   global.haveOwnPropertiesWithValues = haveOwnPropertiesWithValues;
-})(global||window);
+})((typeof global !== 'undefined' ? function () { return global; } : function () { return window; })());
