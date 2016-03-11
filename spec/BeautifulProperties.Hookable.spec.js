@@ -84,10 +84,10 @@
           beforeEach(function(){
             object['notInitializedKey'];
           });
-          it("beforeGet was not called",function(){
+          it("beforeGet was called",function(){
             assert(beforeGet.called);
           });
-          it("afterGet was not called",function(){
+          it("afterGet was called",function(){
             assert(afterGet.called);
           });
           it("beforeSet was not called",function(){
@@ -136,10 +136,10 @@
           it("afterGet was not called",function(){
             assert(!afterGet.called);
           });
-          it("beforeSet was not called",function(){
+          it("beforeSet was called",function(){
             assert(beforeSet.called);
           });
-          it("afterSet was not called",function(){
+          it("afterSet was called",function(){
             assert(afterSet.called);
           });
           it("beforeInit was called",function(){
@@ -153,10 +153,10 @@
           beforeEach(function(){
             BeautifulProperties.Hookable.getRaw(object,'initializedKey');
           });
-          it("beforeGet was called",function(){
+          it("beforeGet was not called",function(){
             assert(!beforeGet.called);
           });
-          it("afterGet was called",function(){
+          it("afterGet was not called",function(){
             assert(!afterGet.called);
           });
           it("beforeSet was not called",function(){
@@ -176,10 +176,10 @@
           beforeEach(function(){
             BeautifulProperties.Hookable.setRaw(object,'initializedKey',1);
           });
-          it("beforeGet was called",function(){
+          it("beforeGet was not called",function(){
             assert(!beforeGet.called);
           });
-          it("afterGet was called",function(){
+          it("afterGet was not called",function(){
             assert(!afterGet.called);
           });
           it("beforeSet was not called",function(){
