@@ -17,8 +17,8 @@
       beforeEach(function(){
         proto = Object.create(null);
         object = Object.create(proto);
-        protoSpy = jasmine.createSpy('protoSpy');
-        objectSpy = jasmine.createSpy('objectSpy');
+        protoSpy = sinon.spy();
+        objectSpy = sinon.spy();
         BeautifulProperties.Events.provideMethods(proto);
       });
       describe("proto.on is called before call object.on",function(){
@@ -32,11 +32,11 @@
           BeautifulProperties.Events.trigger(object,{type:'test',bubbles:false});
         });
         it("expect(protoSpy).not.toHaveBeenCalled()",function(){
-          expect(protoSpy).not.toHaveBeenCalled();
+          assert(!protoSpy.called);
         });
         // this is red before fixes issue.
         it("expect(object).toHaveBeenCalled()",function(){
-          expect(objectSpy).toHaveBeenCalled();
+          assert(objectSpy.called);
         });
       });
       describe("proto.on is called after call object.on",function(){
@@ -50,10 +50,10 @@
           BeautifulProperties.Events.trigger(object,{type:'test',bubbles:false});
         });
         it("expect(protoSpy).not.toHaveBeenCalled()",function(){
-          expect(protoSpy).not.toHaveBeenCalled();
+          assert(!protoSpy.called);
         });
         it("expect(object).toHaveBeenCalled()",function(){
-          expect(objectSpy).toHaveBeenCalled();
+          assert(objectSpy.called);
         });
       });
     });

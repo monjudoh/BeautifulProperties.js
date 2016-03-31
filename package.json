@@ -8,24 +8,40 @@
   "private": true,
   "devDependencies": {
     "amdbuilder": "=0.0.7",
-    "jasmine-matchers": "^0.2.3",
-    "jasmine-node": "^1.14.5",
+    "babel-plugin-espower": "^2.1.2",
+    "babelify": "^7.2.0",
+    "intelli-espower-loader": "1.0.1",
     "jsdoc": "~3.3.0",
-    "underscore": "~1.6"
+    "karma": "^0.13.22",
+    "karma-browserify": "^5.0.2",
+    "karma-chrome-launcher": "^0.2.2",
+    "karma-firefox-launcher": "^0.1.7",
+    "karma-mocha": "^0.2.2",
+    "karma-mocha-reporter": "^2.0.0",
+    "karma-phantomjs-launcher": "^1.0.0",
+    "mocha": "^2.4.5",
+    "power-assert": "1.2.0",
+    "sinon": "1.17.3",
+    "underscore": "~1.6",
+    "watchify": "^3.7.0"
   },
   "engine": {
     "node": ">= 0.10",
     "npm": ">= 2.1"
   },
-  "main":"./dist/cjs/BeautifulProperties.js",
+  "main": "./dist/cjs/BeautifulProperties.js",
   "scripts": {
     "build": "node build.js",
     "docs": "jsdoc -r src/ -d docs/",
     "docs:clean": "rm -rf docs",
     "docs-inner": "jsdoc -r -p src/ -d docs-inner/",
     "docs-inner:clean": "rm -rf docs-inner/",
-    "spec": "jasmine-node spec/",
+    "spec": "mocha --require intelli-espower-loader spec/",
+    "spec-browser": "karma start karma.conf.js --single-run",
     "prespec": "npm run build",
-    "rst2md" : "pandoc README.rst -s -o README.md"
+    "rst2md": "pandoc README.rst -s -o README.md"
+  },
+  "directories": {
+    "test": "spec/"
   }
 }

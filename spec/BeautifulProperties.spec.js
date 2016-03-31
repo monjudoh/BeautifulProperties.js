@@ -16,17 +16,17 @@
       var object,spy;
       beforeEach(function(){
         object = Object.create(null);
-        spy = jasmine.createSpy();
+        spy = sinon.spy();
       });
       it("define property",function(){
         var expectedValue = 1;
-        expect(object['key']).toBeUndefined();
+        assert(object['key'] === undefined);
         BeautifulProperties.LazyInitializable.define(object,'key',{
           init : function(){
             return expectedValue;
           }
         });
-        expect(object['key']).toEqual(expectedValue);
+        assert(object['key'] === expectedValue);
       });
       it("init to have been called only after first property access",function(){
         BeautifulProperties.LazyInitializable.define(object,'key',{
@@ -36,20 +36,20 @@
           }
         });
 
-        expect(spy).not.toHaveBeenCalled();
+        assert(!spy.called);
         object['key'];
-        expect(spy).toHaveBeenCalled();
+        assert(spy.called);
       });
       it("init's this is saved",function(){
         BeautifulProperties.LazyInitializable.define(object,'key',{
           init : function (){
-            expect(this).toBe(object);
+            assert(this === object);
             spy();
             return 1;
           }
         });
         object['key'];
-        expect(spy).toHaveBeenCalled();
+        assert(spy.called);
       });
       [{
         value:1,
@@ -74,7 +74,7 @@
           });
           object['key'];
           var actualDescriptor = Object.getOwnPropertyDescriptor(object,'key');
-          expect(actualDescriptor).toEqual(expectedDescriptor);
+          assert.deepEqual(actualDescriptor,expectedDescriptor);
         });
       });
       it("default property descriptor",function(){
@@ -90,7 +90,7 @@
         });
         object['key'];
         var actualDescriptor = Object.getOwnPropertyDescriptor(object,'key');
-        expect(actualDescriptor).toEqual(expectedDescriptor);
+        assert.deepEqual(actualDescriptor,expectedDescriptor);
       });
 
     });
