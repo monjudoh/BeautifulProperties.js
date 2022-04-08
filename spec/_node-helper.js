@@ -1,4 +1,5 @@
 if (typeof require === 'function') {
   // in node
-  require('jasmine-matchers');
+  global.assert = require('power-assert');
+  global.sinon = require('sinon');
 }
