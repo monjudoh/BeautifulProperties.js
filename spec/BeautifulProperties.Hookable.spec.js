@@ -25,12 +25,12 @@
     describe(" hooks ",function() {
       var beforeGet,afterGet,beforeSet,afterSet,beforeInit,afterInit;
       beforeEach(function(){
-        beforeGet = jasmine.createSpy('beforeGet');
-        afterGet = jasmine.createSpy('afterGet');
-        beforeSet = jasmine.createSpy('beforeSet');
-        afterSet = jasmine.createSpy('afterSet');
-        beforeInit = jasmine.createSpy('beforeInit');
-        afterInit = jasmine.createSpy('afterInit');
+        beforeGet = sinon.spy();
+        afterGet = sinon.spy();
+        beforeSet = sinon.spy();
+        afterSet = sinon.spy();
+        beforeInit = sinon.spy();
+        afterInit = sinon.spy();
       });
       describe("have been or don't to have been called",function(){
         var object;
@@ -62,45 +62,45 @@
             object['initializedKey'];
           });
           it("beforeGet was called",function(){
-            expect(beforeGet).toHaveBeenCalled();
+            assert(beforeGet.called);
           });
           it("afterGet was called",function(){
-            expect(afterGet).toHaveBeenCalled();
+            assert(afterGet.called);
           });
           it("beforeSet was not called",function(){
-            expect(beforeSet).not.toHaveBeenCalled();
+            assert(!beforeSet.called);
           });
           it("afterSet was not called",function(){
-            expect(afterSet).not.toHaveBeenCalled();
+            assert(!afterSet.called);
           });
           it("beforeInit was not called",function(){
-            expect(beforeInit).not.toHaveBeenCalled();
+            assert(!beforeInit.called);
           });
           it("afterInit was not called",function(){
-            expect(afterInit).not.toHaveBeenCalled();
+            assert(!afterInit.called);
           });
         });
         describe("get notInitializedKey",function(){
           beforeEach(function(){
             object['notInitializedKey'];
           });
-          it("beforeGet was not called",function(){
-            expect(beforeGet).toHaveBeenCalled();
+          it("beforeGet was called",function(){
+            assert(beforeGet.called);
           });
-          it("afterGet was not called",function(){
-            expect(afterGet).toHaveBeenCalled();
+          it("afterGet was called",function(){
+            assert(afterGet.called);
           });
           it("beforeSet was not called",function(){
-            expect(beforeSet).not.toHaveBeenCalled();
+            assert(!beforeSet.called);
           });
           it("afterSet was not called",function(){
-            expect(afterSet).not.toHaveBeenCalled();
+            assert(!afterSet.called);
           });
           it("beforeInit was called",function(){
-            expect(beforeInit).toHaveBeenCalled();
+            assert(beforeInit.called);
           });
           it("afterInit was called",function(){
-            expect(afterInit).toHaveBeenCalled();
+            assert(afterInit.called);
           });
         });
         describe("set initializedKey",function(){
@@ -108,22 +108,22 @@
             object['initializedKey'] = 1;
           });
           it("beforeGet was not called",function(){
-            expect(beforeGet).not.toHaveBeenCalled();
+            assert(!beforeGet.called);
           });
           it("afterGet was not called",function(){
-            expect(afterGet).not.toHaveBeenCalled();
+            assert(!afterGet.called);
           });
           it("beforeSet was called",function(){
-            expect(beforeSet).toHaveBeenCalled();
+            assert(beforeSet.called);
           });
           it("afterSet was called",function(){
-            expect(afterSet).toHaveBeenCalled();
+            assert(afterSet.called);
           });
           it("beforeInit was not called",function(){
-            expect(beforeInit).not.toHaveBeenCalled();
+            assert(!beforeInit.called);
           });
           it("afterInit was not called",function(){
-            expect(afterInit).not.toHaveBeenCalled();
+            assert(!afterInit.called);
           });
         });
         describe("set notInitializedKey",function(){
@@ -131,71 +131,71 @@
             object['notInitializedKey'] = 1;
           });
           it("beforeGet was not called",function(){
-            expect(beforeGet).not.toHaveBeenCalled();
+            assert(!beforeGet.called);
           });
           it("afterGet was not called",function(){
-            expect(afterGet).not.toHaveBeenCalled();
+            assert(!afterGet.called);
           });
-          it("beforeSet was not called",function(){
-            expect(beforeSet).toHaveBeenCalled();
+          it("beforeSet was called",function(){
+            assert(beforeSet.called);
           });
-          it("afterSet was not called",function(){
-            expect(afterSet).toHaveBeenCalled();
+          it("afterSet was called",function(){
+            assert(afterSet.called);
           });
           it("beforeInit was called",function(){
-            expect(beforeInit).toHaveBeenCalled();
+            assert(beforeInit.called);
           });
           it("afterInit was called",function(){
-            expect(afterInit).toHaveBeenCalled();
+            assert(afterInit.called);
           });
         });
         describe("getRaw",function(){
           beforeEach(function(){
             BeautifulProperties.Hookable.getRaw(object,'initializedKey');
           });
-          it("beforeGet was called",function(){
-            expect(beforeGet).not.toHaveBeenCalled();
+          it("beforeGet was not called",function(){
+            assert(!beforeGet.called);
           });
-          it("afterGet was called",function(){
-            expect(afterGet).not.toHaveBeenCalled();
+          it("afterGet was not called",function(){
+            assert(!afterGet.called);
           });
           it("beforeSet was not called",function(){
-            expect(beforeSet).not.toHaveBeenCalled();
+            assert(!beforeSet.called);
           });
           it("afterSet was not called",function(){
-            expect(afterSet).not.toHaveBeenCalled();
+            assert(!afterSet.called);
           });
           it("beforeInit was not called",function(){
-            expect(beforeInit).not.toHaveBeenCalled();
+            assert(!beforeInit.called);
           });
           it("afterInit was not called",function(){
-            expect(afterInit).not.toHaveBeenCalled();
+            assert(!afterInit.called);
           });
         });
         describe("setRaw",function(){
           beforeEach(function(){
             BeautifulProperties.Hookable.setRaw(object,'initializedKey',1);
           });
-          it("beforeGet was called",function(){
-            expect(beforeGet).not.toHaveBeenCalled();
+          it("beforeGet was not called",function(){
+            assert(!beforeGet.called);
           });
-          it("afterGet was called",function(){
-            expect(afterGet).not.toHaveBeenCalled();
+          it("afterGet was not called",function(){
+            assert(!afterGet.called);
           });
           it("beforeSet was not called",function(){
-            expect(beforeSet).not.toHaveBeenCalled();
+            assert(!beforeSet.called);
           });
           it("afterSet was not called",function(){
-            expect(afterSet).not.toHaveBeenCalled();
+            assert(!afterSet.called);
           });
           it("value could getRaw",function(){
-            expect(BeautifulProperties.Hookable.getRaw(object,'initializedKey')).toBe(1);
+            assert(BeautifulProperties.Hookable.getRaw(object,'initializedKey') === 1);
           });
           it("beforeInit was not called",function(){
-            expect(beforeInit).not.toHaveBeenCalled();
+            assert(!beforeInit.called);
           });
           it("afterInit was not called",function(){
-            expect(afterInit).not.toHaveBeenCalled();
+            assert(!afterInit.called);
           });
         });
       });
@@ -220,10 +220,10 @@
             object['key'];
           });
           it("beforeGet to have been called with no arguments",function(){
-            expect(beforeGet).toHaveBeenCalledWith();
+            assert(beforeGet.called);
           });
           it("afterGet to have been called with originalValue",function(){
-            expect(afterGet).toHaveBeenCalledWith(originalValue);
+            assert(afterGet.calledWith(originalValue));
           });
         });
         describe("afterGet's return value isn't undefined",function(){
@@ -234,7 +234,7 @@
             addHooks(object,'key',hooks);
           });
           it("value should be replaced",function(){
-            expect(object['key']).toBe(replacement);
+            assert(object['key'] === replacement);
           });
         });
         describe("afterGet's return value is undefined",function(){
@@ -245,7 +245,7 @@
             object['key'] = originalValue;
           });
           it("value should not be replaced",function(){
-            expect(object['key']).toBe(originalValue);
+            assert(object['key'] === originalValue);
           });
         });
         describe("afterGet's return value is Hookable.Undefined",function(){
@@ -260,7 +260,7 @@
             BeautifulProperties.Hookable.setRaw(object,'key',originalValue);
           });
           it("value should not be replaced to undefined",function(){
-            expect(object['key']).not.toBeDefined();
+            assert(object['key'] === undefined);
           });
         });
       });
@@ -287,10 +287,10 @@
             object['key'] = originalValue;
           });
           it("beforeSet to have been called with no originalValue,previousValue",function(){
-            expect(beforeSet).toHaveBeenCalledWith(originalValue,previousValue);
+            assert(beforeSet.calledWith(originalValue,previousValue));
           });
           it("afterSet to have been called with replacement,previousValue",function(){
-            expect(afterSet).toHaveBeenCalledWith(replacement,previousValue);
+            assert(afterSet.calledWith(replacement,previousValue));
           });
         });
         describe("return value isn't undefined",function(){
@@ -303,7 +303,7 @@
             object['key'] = originalValue;
           });
           it("value should be replaced",function(){
-            expect(BeautifulProperties.Hookable.getRaw(object,'key')).toBe(replacement);
+            assert(BeautifulProperties.Hookable.getRaw(object,'key') === replacement);
           });
         });
         describe("return value is undefined",function(){
@@ -315,7 +315,7 @@
             object['key'] = originalValue;
           });
           it("value should not be replaced",function(){
-            expect(BeautifulProperties.Hookable.getRaw(object,'key')).toBe(originalValue);
+            assert(BeautifulProperties.Hookable.getRaw(object,'key') === originalValue);
           });
         });
         describe("return value is Hookable.Undefined",function(){
@@ -327,7 +327,7 @@
             object['key'] = originalValue;
           });
           it("value should not be replaced to undefined",function(){
-            expect(BeautifulProperties.Hookable.getRaw(object,'key')).not.toBeDefined();
+            assert(BeautifulProperties.Hookable.getRaw(object,'key') === undefined);
           });
         });
       });
@@ -338,9 +338,9 @@
         object = Object.create(null);
       });
       it("define property",function(){
-        expect(object).not.toHaveProperties('key');
+        assert(!haveProperties(object, 'key'));
         BeautifulProperties.Hookable.define(object,'key');
-        expect(object).toHaveProperties('key');
+        assert(haveProperties(object, 'key'));
       });
       // generic
       describe("enumerable",function(){
@@ -349,18 +349,18 @@
             value:1,
             enumerable:false
           });
-          expect(Object.getOwnPropertyDescriptor(object,'key')).toHaveOwnPropertiesWithValues({
+          assert(haveOwnPropertiesWithValues(Object.getOwnPropertyDescriptor(object,'key'),{
             enumerable:false
-          });
+          }));
         });
         it("true",function(){
           BeautifulProperties.Hookable.define(object,'key',{
             value:1,
             enumerable:true
           });
-          expect(Object.getOwnPropertyDescriptor(object,'key')).toHaveOwnPropertiesWithValues({
+          assert(haveOwnPropertiesWithValues(Object.getOwnPropertyDescriptor(object,'key'),{
             enumerable:true
-          });
+          }));
         });
       });
       describe("configurable",function(){
@@ -369,18 +369,18 @@
             value:1,
             configurable:false
           });
-          expect(Object.getOwnPropertyDescriptor(object,'key')).toHaveOwnPropertiesWithValues({
+          assert(haveOwnPropertiesWithValues(Object.getOwnPropertyDescriptor(object,'key'),{
             configurable:false
-          });
+          }));
         });
         it("true",function(){
           BeautifulProperties.Hookable.define(object,'key',{
             value:1,
             configurable:true
           });
-          expect(Object.getOwnPropertyDescriptor(object,'key')).toHaveOwnPropertiesWithValues({
+          assert(haveOwnPropertiesWithValues(Object.getOwnPropertyDescriptor(object,'key'),{
             configurable:true
-          });
+          }));
         });
       });
       // data
@@ -389,13 +389,13 @@
           BeautifulProperties.Hookable.define(object,'key',{
             value:1
           });
-          expect(object['key']).toBe(1);
+          assert(object['key'] === 1);
         });
         it("could set initial value.",function(){
           BeautifulProperties.Hookable.define(object,'key',{
             value:0
           });
-          expect(object['key']).toBe(0);
+          assert(object['key'] === 0);
         });
       });
       describe("writable=false (readonly)",function(){
@@ -407,11 +407,11 @@
             });
           });
           it("could set initial value.",function(){
-            expect(object['key']).toBe(1);
+            assert(object['key'] === 1);
           });
           it("could not overwrite value.",function(){
             object['key'] = 2;
-            expect(object['key']).toBe(1);
+            assert(object['key'] === 1);
           });
         });
         describe("init",function(){
@@ -425,11 +425,11 @@
             });
           });
           it("could set initial value.",function(){
-            expect(object['key']).toBe(1);
+            assert(object['key'] === 1);
           });
           it("could not overwrite value.",function(){
             object['key'] = 2;
-            expect(object['key']).toBe(1);
+            assert(object['key'] === 1);
           });
         });
       });
@@ -438,7 +438,7 @@
         var hooks,refresh;
         beforeEach(function(){
           hooks = Object.create(null);
-          refresh = jasmine.createSpy('refresh');
+          refresh = sinon.spy();
         });
         describe("",function(){
           beforeEach(function(){
@@ -450,11 +450,11 @@
             addHooks(object,'key',hooks);
           });
           it("object could get value.",function(){
-            expect(object['key']).toBe(1);
+            assert(object['key'] === 1);
           });
           it("sub object could get value.",function(){
             var subObject = Object.create(object);
-            expect(subObject['key']).toBe(1);
+            assert(subObject['key'] === 1);
           });
         });
         describe("refresh hook should be called",function(){
@@ -470,11 +470,11 @@
           });
           it(" when refreshProperty is called.",function(){
             BeautifulProperties.Hookable.Get.refreshProperty(object,'key');
-            expect(refresh).toHaveBeenCalledWith(1,1);
+            assert(refresh.calledWith(1,1));
           });
           it(" when property is accessed.",function(){
             object['key'];
-            expect(refresh).toHaveBeenCalledWith(1,1);
+            assert(refresh.calledWith(1,1));
           });
         });
         it("Get.getSilently skip refresh hook.",function(){
@@ -485,16 +485,16 @@
             }
           });
           addHooks(object,'key',hooks);
-          expect(BeautifulProperties.Hookable.Get.getSilently(object,'key')).toBe(1);
-          expect(refresh).not.toHaveBeenCalledWith(1,undefined);
+          assert(BeautifulProperties.Hookable.Get.getSilently(object,'key') === 1);
+          assert(!refresh.calledWith(1,undefined));
         });
       });
       describe("set",function(){
         var hooks,set,refresh;
         beforeEach(function(){
           hooks = Object.create(null);
-          set = jasmine.createSpy('set');
-          refresh = jasmine.createSpy('refresh');
+          set = sinon.spy();
+          refresh = sinon.spy();
         });
         describe("write only",function(){
           beforeEach(function(){
@@ -507,11 +507,11 @@
           });
           it(" when property is accessed.",function(){
             object['key'] = 1;
-            expect(set).toHaveBeenCalledWith(1);
+            assert(set.calledWith(1));
           });
           it("refresh hook shouldn't be called when property is accessed.",function(){
             object['key'] = 1;
-            expect(refresh).not.toHaveBeenCalledWith(1);
+            assert(!refresh.calledWith(1));
           });
         });
         describe("rw",function(){
@@ -530,7 +530,7 @@
           });
           it("refresh hook should be called when property is accessed.",function(){
             object['key'] = 1;
-            expect(refresh).toHaveBeenCalledWith(1,0);
+            assert(refresh.calledWith(1,0));
           });
         });
       });
@@ -569,35 +569,35 @@
               });
             });
             it("enumerable",function(){
-              expect(Object.getOwnPropertyDescriptor(objectData,'key')).toHaveOwnPropertiesWithValues({
+              assert(haveOwnPropertiesWithValues(Object.getOwnPropertyDescriptor(objectData,'key'),{
                 enumerable:true
-              });
-              expect(Object.getOwnPropertyDescriptor(objectAccessor,'key')).toHaveOwnPropertiesWithValues({
+              }));
+              assert(haveOwnPropertiesWithValues(Object.getOwnPropertyDescriptor(objectAccessor,'key'),{
                 enumerable:true
-              });
+              }));
             });
             it("configurable",function(){
-              expect(Object.getOwnPropertyDescriptor(objectData,'key')).toHaveOwnPropertiesWithValues({
+              assert(haveOwnPropertiesWithValues(Object.getOwnPropertyDescriptor(objectData,'key'),{
                 configurable:false
-              });
-              expect(Object.getOwnPropertyDescriptor(objectAccessor,'key')).toHaveOwnPropertiesWithValues({
+              }));
+              assert(haveOwnPropertiesWithValues(Object.getOwnPropertyDescriptor(objectAccessor,'key'),{
                 configurable:false
-              });
+              }));
               // configurable:false
-              expect(function(){
+              assert.throws(function(){
                 // redefine
                 BeautifulProperties.Hookable.define(objectData,'key',{
                   enumerable:false
                 });
-              }).toThrow();
-              expect(function(){
+              });
+              assert.throws(function(){
                 // redefine
                 BeautifulProperties.Hookable.define(objectAccessor,'key',{
                   set:function(){
                     1 + 2;
                   }
                 });
-              }).toThrow();
+              });
             });
           })
         });
@@ -617,7 +617,7 @@
                 return 1;
               }
             });
-            set = jasmine.createSpy('set');
+            set = sinon.spy();
           });
           describe("can modify",function(){
             beforeEach(function(){
@@ -638,57 +638,57 @@
             });
             // generic
             it("enumerable",function(){
-              expect(Object.getOwnPropertyDescriptor(objectData,'key')).toHaveOwnPropertiesWithValues({
+              assert(haveOwnPropertiesWithValues(Object.getOwnPropertyDescriptor(objectData,'key'),{
                 enumerable:true
-              });
-              expect(Object.getOwnPropertyDescriptor(objectAccessor,'key')).toHaveOwnPropertiesWithValues({
+              }));
+              assert(haveOwnPropertiesWithValues(Object.getOwnPropertyDescriptor(objectAccessor,'key'),{
                 enumerable:true
-              });
+              }));
             });
             it("configurable",function(){
-              expect(Object.getOwnPropertyDescriptor(objectData,'key')).toHaveOwnPropertiesWithValues({
+              assert(haveOwnPropertiesWithValues(Object.getOwnPropertyDescriptor(objectData,'key'),{
                 configurable:false
-              });
-              expect(Object.getOwnPropertyDescriptor(objectAccessor,'key')).toHaveOwnPropertiesWithValues({
+              }));
+              assert(haveOwnPropertiesWithValues(Object.getOwnPropertyDescriptor(objectAccessor,'key'),{
                 configurable:false
-              });
+              }));
               // configurable:false
-              expect(function(){
+              assert.throws(function(){
                 // redefine
                 BeautifulProperties.Hookable.define(objectData,'key',{
                   enumerable:false
                 });
-              }).toThrow();
-              expect(function(){
+              });
+              assert.throws(function(){
                 // redefine
                 BeautifulProperties.Hookable.define(objectAccessor,'key',{
                   set:function(){
                     1 + 2;
                   }
                 });
-              }).toThrow();
+              });
             });
             // data
             it("value",function(){
-              expect(objectData).toHaveOwnPropertiesWithValues({
+              assert(haveOwnPropertiesWithValues(objectData,{
                 key:2
-              });
+              }));
             });
             it("writable",function(){
               objectData.key = 3;
-              expect(objectData).toHaveOwnPropertiesWithValues({
+              assert(haveOwnPropertiesWithValues(objectData,{
                 key:3
-              });
+              }));
             });
             // accessor
             it("get",function(){
-              expect(objectAccessor).toHaveOwnPropertiesWithValues({
+              assert(haveOwnPropertiesWithValues(objectAccessor,{
                 key:4
-              });
+              }));
             });
             it("set",function(){
               objectAccessor.key = 3;
-              expect(set).toHaveBeenCalledWith(3);
+              assert(set.calledWith(3));
             });
           })
         });
@@ -708,7 +708,7 @@
                 return 1;
               }
             });
-            set = jasmine.createSpy('set');
+            set = sinon.spy();
           });
           describe("can modify",function(){
             beforeEach(function(){
@@ -729,57 +729,57 @@
             });
             // generic
             it("enumerable",function(){
-              expect(Object.getOwnPropertyDescriptor(objectData,'key')).toHaveOwnPropertiesWithValues({
+              assert(haveOwnPropertiesWithValues(Object.getOwnPropertyDescriptor(objectData,'key'),{
                 enumerable:true
-              });
-              expect(Object.getOwnPropertyDescriptor(objectAccessor,'key')).toHaveOwnPropertiesWithValues({
+              }));
+              assert(haveOwnPropertiesWithValues(Object.getOwnPropertyDescriptor(objectAccessor,'key'),{
                 enumerable:true
-              });
+              }));
             });
             it("configurable",function(){
-              expect(Object.getOwnPropertyDescriptor(objectAccessor,'key')).toHaveOwnPropertiesWithValues({
+              assert(haveOwnPropertiesWithValues(Object.getOwnPropertyDescriptor(objectData,'key'),{
                 configurable:false
-              });
-              expect(Object.getOwnPropertyDescriptor(objectData,'key')).toHaveOwnPropertiesWithValues({
+              }));
+              assert(haveOwnPropertiesWithValues(Object.getOwnPropertyDescriptor(objectAccessor,'key'),{
                 configurable:false
-              });
+              }));
               // configurable:false
-              expect(function(){
+              assert.throws(function(){
                 // redefine
                 BeautifulProperties.Hookable.define(objectAccessor,'key',{
                   enumerable:false
                 });
-              }).toThrow();
-              expect(function(){
+              });
+              assert.throws(function(){
                 // redefine
                 BeautifulProperties.Hookable.define(objectData,'key',{
                   set:function(){
                     1 + 2;
                   }
                 });
-              }).toThrow();
+              });
             });
             // data
             it("value",function(){
-              expect(objectAccessor).toHaveOwnPropertiesWithValues({
+              assert(haveOwnPropertiesWithValues(objectAccessor,{
                 key:2
-              });
+              }));
             });
             it("writable",function(){
               objectAccessor.key = 3;
-              expect(objectAccessor).toHaveOwnPropertiesWithValues({
+              assert(haveOwnPropertiesWithValues(objectAccessor,{
                 key:3
-              });
+              }));
             });
             // accessor
             it("get",function(){
-              expect(objectData).toHaveOwnPropertiesWithValues({
+              assert(haveOwnPropertiesWithValues(objectData,{
                 key:4
-              });
+              }));
             });
             it("set",function(){
               objectData.key = 3;
-              expect(set).toHaveBeenCalledWith(3);
+              assert(set.calledWith(3));
             });
           })
         });
@@ -795,26 +795,26 @@
           });
           it("can modify writable true to false",function(){
             objectData.key = 2;
-            expect(objectData).toHavePropertiesWithValues({
+            assert(havePropertiesWithValues(objectData,{
               key:2
-            });
+            }));
             // redefine
             BeautifulProperties.Hookable.define(objectData,'key',{
               writable:false
             });
             objectData.key = 3;
-            expect(objectData).toHavePropertiesWithValues({
+            assert(havePropertiesWithValues(objectData,{
               key:2
-            });
+            }));
           });
           it("can modify value",function(){
             // redefine
             BeautifulProperties.Hookable.define(objectData,'key',{
               value:2
             });
-            expect(objectData).toHavePropertiesWithValues({
+            assert(havePropertiesWithValues(objectData,{
               key:2
-            });
+            }));
           });
 
         });
@@ -837,74 +837,74 @@
             });
           });
           it("configurable",function(){
-            expect(function(){
+            assert.throws(function(){
               // redefine
               BeautifulProperties.Hookable.define(objectData,'key',{
                 configurable:true
               });
-            }).toThrow();
-            expect(function(){
+            });
+            assert.throws(function(){
               // redefine
               BeautifulProperties.Hookable.define(objectAccessor,'key',{
                 configurable:true
               });
-            }).toThrow();
+            });
           });
           it("writable",function(){
-            expect(function(){
+            assert.throws(function(){
               // redefine
               BeautifulProperties.Hookable.define(objectData,'key',{
                 writable:true
               });
-            }).toThrow();
-            expect(function(){
+            });
+            assert.throws(function(){
               // redefine
               BeautifulProperties.Hookable.define(objectAccessor,'key',{
                 writable:true
               });
-            }).toThrow();
+            });
           });
           it("enumerable",function(){
-            expect(function(){
+            assert.throws(function(){
               // redefine
               BeautifulProperties.Hookable.define(objectData,'key',{
                 enumerable:true
               });
-            }).toThrow();
-            expect(function(){
+            });
+            assert.throws(function(){
               // redefine
               BeautifulProperties.Hookable.define(objectAccessor,'key',{
                 enumerable:true
               });
-            }).toThrow();
+            });
           });
           it("value",function(){
-            expect(function(){
+            assert.throws(function(){
               // redefine
               BeautifulProperties.Hookable.define(objectData,'key',{
                 value:2
               });
-            }).toThrow();
+            });
           });
           it("get",function(){
-            expect(function(){
+            assert.throws(function(){
               // redefine
               BeautifulProperties.Hookable.define(objectAccessor,'key',{
                 get:function(){
                   return 2;
                 }
               });
-            }).toThrow();
+            });
           });
           it("set",function(){
-            expect(function(){
+            assert.throws(function(){
               // redefine
               BeautifulProperties.Hookable.define(objectAccessor,'key',{
                 set:function(){
                   1 + 2;
                 }
               });
-            }).toThrow();
+            });
           });
         });
       });
