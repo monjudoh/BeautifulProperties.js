@@ -63,7 +63,7 @@ define('Events/Event',[
      * @name currentTarget
      * @memberOf BeautifulProperties.Events.Event#
      */
-    this.currentTarget = null;
+    proto.currentTarget = null;
     /**
      * @type {object?}
      * @name previousTarget
