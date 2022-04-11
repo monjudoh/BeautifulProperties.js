@@ -176,6 +176,12 @@ In an AMD loader like RequireJS:
 Changelog
 =========
 
+0.2.1
+-----
+
+- "use strict" でエラーになるのを修正
+- テストをjasmineからmocha,mocha + power-assertに変更
+
 0.2.0
 -----
 
